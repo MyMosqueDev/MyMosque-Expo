@@ -2,6 +2,8 @@ import { AntDesign } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MapView from 'react-native-maps';
+import * as Haptics from 'expo-haptics';
+
 type MosqueData = {
     name: string;
     address: string;
@@ -24,11 +26,13 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
     const [isFavorited, setIsFavorited] = useState(false);
 
     const toggleFavorite = (e: any) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         e.stopPropagation();
         setIsFavorited(!isFavorited);
     };
 
     const onCardPress = () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         mapRef.current?.animateToRegion({
             latitude: data.coordinates.latitude,
             longitude: data.coordinates.longitude,

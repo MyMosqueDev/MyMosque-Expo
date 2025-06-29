@@ -14,10 +14,10 @@ export const mosqueData = [
     },
     {
         name: "ISGH River Oaks Islamic Center (ROIC)",
-        address: "11111 Southwest Freeway, Houston, TX 77074",
+        address: "3110 Eastside St, Houston, TX 77098",
         coordinates: {
-            latitude: 29.677797,
-            longitude: -95.540445,
+            latitude: 29.736879,
+            longitude: -95.425072,
         }
     }
     
