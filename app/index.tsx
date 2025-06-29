@@ -1,6 +1,9 @@
 import Feather from '@expo/vector-icons/Feather';
 import { Image } from "expo-image";
+import * as Location from 'expo-location';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TextInput, View } from "react-native";
+import MapView, { Marker, Region } from 'react-native-maps';
 import Container from "../components/Container";
 import { mosqueData } from '../lib/data';
 import MosqueCard from "./components/MosqueCard";
@@ -9,9 +12,43 @@ type MosqueData = {
   name: string;
   address: string;
   images?: string[];
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  }
 }
 
 export default function Index() {
+  const [initialRegion, setInitialRegion] = useState<Region | null>(null);
+  const mapRef = useRef<MapView | null>(null);
+
+  useEffect(() => {
+
+    const getLocation = async () => {
+      Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setInitialRegion({
+          latitude: 30.283252,
+          longitude: -97.744386,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+        return;
+      }
+      const position = await Location.getCurrentPositionAsync();
+
+      setInitialRegion({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+    getLocation();
+
+  }, []);
+
   return (
     <View className="flex-1 items-center justify-center">
       <Image
@@ -27,7 +64,29 @@ export default function Index() {
       <Container>
         <View className=" flex-1 flex-col items-center gap-3">
           <Text className="text-text text-4xl w-5/6 text-center font-lato-bold mb-4">Add Your Go-To Mosques!</Text>
-          <View className="w-full h-80 bg-text rounded-lg"/>
+          <View className="w-full h-80 rounded-lg overflow-hidden border-2 border-text">
+            <MapView
+              ref={mapRef}
+              style={{ width: '100%', height: '100%' }}
+              initialRegion={initialRegion || undefined}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              userInterfaceStyle="dark"
+            >
+              {mosqueData.map((mosque: MosqueData, index: number) => (
+                <Marker
+                  key={`${mosque.name}-${index}`}
+                  coordinate={{
+                    latitude: mosque.coordinates.latitude,
+                    longitude: mosque.coordinates.longitude,
+                  }}
+                  title={mosque.name}
+                  description={mosque.address}
+                  pinColor="#FBBF24"
+                />
+              ))}
+            </MapView>
+          </View>
           <View className="w-full flex-1">
             <View className="w-full min-h-12 flex-row items-center justify-center gap-3 backdrop-blur-lg border border-white/30 bg-white/30 rounded-3xl px-4 py-2 mb-3"> 
               <Feather name="search" size={20} color="#4A4A4A" className="mt-1"/>
@@ -45,7 +104,7 @@ export default function Index() {
             >
               {
                 mosqueData.map((mosque : MosqueData) => (
-                  <MosqueCard data={mosque} key={mosque.name}/>
+                  <MosqueCard data={mosque} key={mosque.name} mapRef={mapRef}/>
                 ))
               }
             </ScrollView>
