@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ImageBackground, Text, View } from "react-native";
 import { UserData } from "../lib/types";
 import MosqueMap from './MosqueMap';
-
+import Home from './home';
 export default function Index() {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -51,22 +51,13 @@ export default function Index() {
         );
     }
 
-    // If no last visited mosque, show the map
+    // if no last visited mosque, show the map
     if (!userData?.lastVisitedMosque) {
         return <MosqueMap />;
     }
 
-    // If there is a last visited mosque, show the welcome page
+    // if there is a last visited mosque, show the welcome page
     return (
-        <ImageBackground 
-            source={require('../assets/background.png')}
-            style={{ flex: 1 }}
-            resizeMode="cover"
-        >
-            <View className="flex-1 items-center justify-center">
-                <Text className="text-text text-4xl font-lato-bold">Welcome Back!</Text>
-                <Text className="text-text text-lg font-lato mt-4">This is the Home page</Text>
-            </View>
-        </ImageBackground>
+        <Home data={userData.lastVisitedMosque} />
     );
 }
