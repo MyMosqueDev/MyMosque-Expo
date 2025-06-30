@@ -1,37 +1,55 @@
+import { MosqueData } from '@/lib/types';
 import { AntDesign } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MapView from 'react-native-maps';
-import * as Haptics from 'expo-haptics';
 
-type MosqueData = {
-    name: string;
-    address: string;
-    images?: string[];
-    coordinates: {
-        latitude: number;
-        longitude: number;
-    }
-}
 
 interface MosqueCardProps {
     data: MosqueData;
     mapRef: React.RefObject<MapView | null>;
 }
 
+// TODO: create navigation to mosque page
 const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
+    // truncates name and address to 35 and 45 characters respectively
     const name = data.name.length > 35 ? data.name.slice(0, 35) + "..." : data.name;
     const address = data.address.length > 45 ? data.address.slice(0, 45) + "..." : data.address;
+
     const images = data.images || [];
     const [isFavorited, setIsFavorited] = useState(false);
 
-    const toggleFavorite = (e: any) => {
+    // handles toggling favorite + saving to AsyncStorage
+    const toggleFavorite = async (e: any) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         e.stopPropagation();
         setIsFavorited(!isFavorited);
+
+        try {
+            const userData = await AsyncStorage.getItem('userData');
+            if (userData) {
+                const userDataParsed = JSON.parse(userData);
+                userDataParsed.favoriteMosques.push(data);
+                await AsyncStorage.setItem('userData', JSON.stringify(userDataParsed));
+                console.log(userDataParsed);
+            } else {
+                const newUserData = {
+                    favoriteMosques: [data],
+                    lastVisitedMosque: data,
+                }
+                await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
+                console.log(newUserData);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
-    const onCardPress = () => {
+    // handles pressing the card to center the map on the mosque
+    const onCardPress = async () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         mapRef.current?.animateToRegion({
             latitude: data.coordinates.latitude,
@@ -39,6 +57,13 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         });
+        const newUserData = {
+            favoriteMosques: [data],
+            lastVisitedMosque: data,
+        }
+        await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
+
+        router.replace("/");
     }
 
     return (

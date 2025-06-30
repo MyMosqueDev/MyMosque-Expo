@@ -1,15 +1,15 @@
 import { Stack } from "expo-router";
-import { ImageBackground } from "react-native";
-import { loadFonts } from "../lib/utils";
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from "react";
-import "../global.css";
+import { ImageBackground } from "react-native";
+import '../global.css';
+import { loadFonts } from "../lib/utils";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-
+  
   useEffect(() => {
     async function prepare() {
       await loadFonts();
