@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dimensions, FlatList, Text, View } from "react-native";
+import { Dimensions, FlatList, View } from "react-native";
 import { MosqueData } from "../../lib/types";
 import AnnouncementToken from "./AnnouncementToken";
 
