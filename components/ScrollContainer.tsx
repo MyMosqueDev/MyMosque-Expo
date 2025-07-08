@@ -16,7 +16,6 @@ export default function ScrollContainer ({ children, name }: { children: React.R
             >
                 {children}
             </ScrollView>
-            <NavBar />
         </ImageBackground>
     );
 };

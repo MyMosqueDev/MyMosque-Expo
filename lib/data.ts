@@ -22,6 +22,13 @@ export const mosqueData: MosqueData[] = [
             saturday: "5:00 AM - 10:00 PM",
             sunday: "5:00 AM - 10:00 PM",
         },
+        prayerTimes: {
+            fajr: "5:00 AM",
+            dhuhr: "12:00 PM",
+            asr: "3:00 PM",
+            maghrib: "6:00 PM",
+            isha: "7:00 PM",
+        },
         announcements: [
             {
                 title: "New Jummah Timings",
@@ -63,6 +70,13 @@ export const mosqueData: MosqueData[] = [
             friday: "5:00 AM - 10:00 PM",
             saturday: "5:00 AM - 10:00 PM",
             sunday: "5:00 AM - 10:00 PM",
+        },
+        prayerTimes: {
+            fajr: "5:00 AM",
+            dhuhr: "12:00 PM",
+            asr: "3:00 PM",
+            maghrib: "6:00 PM",
+            isha: "7:00 PM",
         },
         announcements: [
             {

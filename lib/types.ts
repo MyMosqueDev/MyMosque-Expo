@@ -15,6 +15,13 @@ export type MosqueData = {
         saturday: string;
         sunday: string;
     },
+    prayerTimes: {
+        fajr: string;
+        dhuhr: string;
+        asr: string;
+        maghrib: string;
+        isha: string;
+    },
     announcements: {
         title: string;
         description: string;

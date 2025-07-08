@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { MotiView } from 'moti';
 import { TouchableOpacity, View } from "react-native";
 
-type page = 'home' | 'calendar' | 'prayerTimes';
+type page = 'home' | 'events' | 'prayers';
 //{setPage}: {setPage: (page: page) => void}
 export default function Navbar() {
     const router = useRouter();
@@ -25,7 +25,7 @@ export default function Navbar() {
                 >
                     <TouchableOpacity
                         className='px-6'
-                        // onPress={() => setPage('home')}
+                        onPress={() => router.push('/home')}
                     >
                         <MotiView
                             from={{ scale: 0.8 }}
@@ -37,7 +37,7 @@ export default function Navbar() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         className='px-6'
-                        // onPress={() => setPage('chat') }
+                        onPress={() => router.push('/events')}
                     >
                         <MotiView
                             from={{ scale: 0.8 }}
@@ -49,7 +49,7 @@ export default function Navbar() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         className='px-6'
-                        // onPress={() => setPage('location')}
+                        onPress={() => router.push('/prayers')}
                     >
                         <MotiView
                             from={{ scale: 0.8 }}

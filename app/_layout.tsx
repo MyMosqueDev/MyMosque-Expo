@@ -1,14 +1,24 @@
 import { Stack } from "expo-router";
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from "react";
-import { ImageBackground } from "react-native";
+import { createContext, useContext, useEffect, useState } from "react";
+import { ImageBackground, View } from "react-native";
+import NavBar from "../components/NavBar";
 import '../global.css';
 import { loadFonts } from "../lib/utils";
 
 SplashScreen.preventAutoHideAsync();
 
+// Create context to track if map is being shown
+export const MapContext = createContext({
+  isMapVisible: false,
+  setIsMapVisible: (visible: boolean) => {},
+});
+
+export const useMapContext = () => useContext(MapContext);
+
 export default function RootLayout() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [isMapVisible, setIsMapVisible] = useState(false);
   
   useEffect(() => {
     async function prepare() {
@@ -25,16 +35,21 @@ export default function RootLayout() {
   }
 
   return (
-    <ImageBackground 
-      source={require('../assets/background.png')}
-      style={{ flex: 1 }}
-      resizeMode="cover"
-    >
-      <Stack 
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
-    </ImageBackground>
+    <MapContext.Provider value={{ isMapVisible, setIsMapVisible }}>
+      <ImageBackground 
+        source={require('../assets/background.png')}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <View style={{ flex: 1 }}>
+          <Stack 
+            screenOptions={{
+              headerShown: false,
+            }}
+          />
+          {!isMapVisible && <NavBar />}
+        </View>
+      </ImageBackground>
+    </MapContext.Provider>
   );
 }

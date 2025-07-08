@@ -2,11 +2,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { ImageBackground, Text, View } from "react-native";
 import { UserData } from "../lib/types";
-import MosqueMap from './MosqueMap';
+import { useMapContext } from './_layout';
 import Home from './home';
+import Map from './map';
+
 export default function Index() {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { setIsMapVisible } = useMapContext();
 
     useEffect(() => {
         const loadUserData = async () => {
@@ -37,6 +40,12 @@ export default function Index() {
         loadUserData();
     }, []);
 
+    // Update map visibility based on user data
+    useEffect(() => {
+        const isMapShowing = !userData?.lastVisitedMosque;
+        setIsMapVisible(isMapShowing);
+    }, [userData, setIsMapVisible]);
+
     if (isLoading) {
         return (
             <ImageBackground 
@@ -53,7 +62,7 @@ export default function Index() {
 
     // if no last visited mosque, show the map
     if (!userData?.lastVisitedMosque) {
-        return <MosqueMap />;
+        return <Map />;
     }
 
     // if there is a last visited mosque, show the welcome page

@@ -13,7 +13,7 @@ import MosqueCard from "./components/MosqueCard";
 
 // }
 
-export default function MosqueMap() {
+export default function Map() {
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
   const mapRef = useRef<MapView | null>(null);
 
