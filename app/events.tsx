@@ -36,8 +36,6 @@ export default function Events() {
     // Filter events for this week
     const weekEvents = events
         .filter(event => {
-            // console.log(event);
-            // console.log(event.isoDateTime);
             const eventDate = parseISO(event.isoDateTime);
             return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
         })

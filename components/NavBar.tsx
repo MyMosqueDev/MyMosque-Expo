@@ -28,7 +28,7 @@ export default function Navbar() {
                             animate={{ scale: 1 }}
                             transition={{ type: 'spring', delay: 400 }}
                         >
-                            <Ionicons name="home-outline" size={28} color="#4A4A4A" />
+                            <Feather name="home" size={28} color="#4A4A4A" />
                         </MotiView>
                     </Link>
                     <Link href="/events" className='px-6'>

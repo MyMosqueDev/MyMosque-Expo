@@ -52,17 +52,17 @@ export const mosqueData: MosqueData[] = [
                 description: "Join us every Monday Night as Mufti Anwer gives us a deep dive into Surah Al Mulk followed by some delicious cookies and milk!",
                 host: "Mufti Anwer",
                 location: "Nueces Main Prayer Hall",
-                image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/cookies-n-mulk-1.jpg"
+                image: "https://scontent-hou1-1.cdninstagram.com/v/t51.2885-15/489415712_18498821830054823_3290200103975185669_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQuaW1hZ2VfdXJsZ2VuLjE0NDB4MTQ0MC5zZHIuZjc1NzYxLmRlZmF1bHRfaW1hZ2UifQ&_nc_ht=scontent-hou1-1.cdninstagram.com&_nc_cat=111&_nc_oc=Q6cZ2QGTDVFRt-7ZN9M7wD8f2yKHtYbzwGdtrZgR_UpD_bHByMaiQo4rSEKNgDEOHlhNJbOttyQVxmxsrLBPtwkq89Jm&_nc_ohc=VOuM5c4OHaQQ7kNvwF5ZHxW&_nc_gid=tcdcyxSVbqxQx9Bsv7rJuw&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MzYwNDkyMTMyNjE0NzkwNDY3NA%3D%3D.3-ccb7-5&oh=00_AfQwgkPLhdi0k18nUuEbUpfmjWpbBnMd-eZDiapj4AxbmQ&oe=6879B8C5&_nc_sid=22de04"
             },
             {
-                title: "Youth Quran Competition",
+                title: "Quran Competition",
                 date: "2025-07-13", 
                 time: "2:00 PM",
                 isoDateTime: "2025-07-13T14:00:00.000Z",
-                description: "Annual youth Quran competition for ages 7-15. Prizes will be awarded for memorization and tajweed categories. Registration required.",
+                description: "Annual Quran competition. Prizes will be awarded for memorization and tajweed categories.",
                 host: "Mufti Anwer",
                 location: "Nueces Community Center",
-                image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/quran-competition.jpg"
+                image: "https://scontent-hou1-1.cdninstagram.com/v/t51.2885-15/489778309_18499311598054823_843495426331207181_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQuaW1hZ2VfdXJsZ2VuLjE0NDB4MTQ0MC5zZHIuZjc1NzYxLmRlZmF1bHRfaW1hZ2UifQ&_nc_ht=scontent-hou1-1.cdninstagram.com&_nc_cat=111&_nc_oc=Q6cZ2QGTDVFRt-7ZN9M7wD8f2yKHtYbzwGdtrZgR_UpD_bHByMaiQo4rSEKNgDEOHlhNJbOttyQVxmxsrLBPtwkq89Jm&_nc_ohc=my8-zYA1wAQQ7kNvwEbD3uF&_nc_gid=tcdcyxSVbqxQx9Bsv7rJuw&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MzYwNjY1MTk1ODMxMzk2NzAwNw%3D%3D.3-ccb7-5&oh=00_AfTw-rhXJ3X6Zyp4lJyuX5DZs6Vw_yvI64s1kqV18CFAog&oe=6879DC8B&_nc_sid=22de04"
             },
             {
                 title: "Sisters' Book Club",
@@ -72,7 +72,7 @@ export const mosqueData: MosqueData[] = [
                 description: "Monthly sisters' book club meeting discussing 'Reclaim Your Heart' by Yasmin Mogahed. Light refreshments will be served.",
                 host: "Sr. Fatima",
                 location: "Sisters' Prayer Hall",
-                image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/sisters-bookclub.jpg"
+                image: "https://scontent-hou1-1.cdninstagram.com/v/t51.2885-15/504398570_18510397549054823_2653423764479756366_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQuaW1hZ2VfdXJsZ2VuLjE0NDB4MTQ0MC5zZHIuZjc1NzYxLmRlZmF1bHRfaW1hZ2UifQ&_nc_ht=scontent-hou1-1.cdninstagram.com&_nc_cat=111&_nc_oc=Q6cZ2QGxJGtmqu-ldO8jpn3ESezTCOOiDSYOeGc9gjnnkbXS8WY6WC0oo1JstfGaXD_NU_tqT7wKXMlzaSdQvZQp6BsK&_nc_ohc=lhSvK8wa2sYQ7kNvwFqgJ0L&_nc_gid=kCQ_tMUJKyCV0qbpYPh-ng&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MzY0OTAxMjE4MTQ4MDU2Nzk2NA%3D%3D.3-ccb7-5&oh=00_AfTa_Mmv78YwDImuOLcTig3DQu8nm1WPo_9oCyqGHUKBhw&oe=6879D55B&_nc_sid=22de04"
             }
         ]
     },
@@ -122,7 +122,7 @@ export const mosqueData: MosqueData[] = [
                 description: "Join us every Monday Night as Mufti Anwer gives us a deep dive into Surah Al Mulk followed by some delicious cookies and milk!",
                 host: "Mufti Anwer",
                 location: "Nueces Main Prayer Hall",
-                image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/cookies-n-mulk-1.jpg"
+                image: "https://scontent-hou1-1.cdninstagram.com/v/t51.2885-15/504398570_18510397549054823_2653423764479756366_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQuaW1hZ2VfdXJsZ2VuLjE0NDB4MTQ0MC5zZHIuZjc1NzYxLmRlZmF1bHRfaW1hZ2UifQ&_nc_ht=scontent-hou1-1.cdninstagram.com&_nc_cat=111&_nc_oc=Q6cZ2QGxJGtmqu-ldO8jpn3ESezTCOOiDSYOeGc9gjnnkbXS8WY6WC0oo1JstfGaXD_NU_tqT7wKXMlzaSdQvZQp6BsK&_nc_ohc=lhSvK8wa2sYQ7kNvwFqgJ0L&_nc_gid=kCQ_tMUJKyCV0qbpYPh-ng&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MzY0OTAxMjE4MTQ4MDU2Nzk2NA%3D%3D.3-ccb7-5&oh=00_AfTa_Mmv78YwDImuOLcTig3DQu8nm1WPo_9oCyqGHUKBhw&oe=6879D55B&_nc_sid=22de04"
             }
         ]
     }
