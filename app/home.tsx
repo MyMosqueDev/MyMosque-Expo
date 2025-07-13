@@ -48,7 +48,7 @@ export default function Home({ data }: { data: MosqueData }) {
                     animate={{ opacity: 1, translateY: 0, scale: 1 }}
                     transition={{ type: 'spring', damping: 15, stiffness: 100 }}
                     delay={100}
-                    className="w-full"
+                    className="w-full items-center"
                 >
                     <MosqueInfoToken info={generalMosqueInfo} />
                 </MotiView>
@@ -59,7 +59,7 @@ export default function Home({ data }: { data: MosqueData }) {
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ type: 'timing', duration: 600 }}
                     delay={300}
-                    className="w-full"
+                    className="w-full items-center"
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Prayer Times</Text>
@@ -108,7 +108,7 @@ export default function Home({ data }: { data: MosqueData }) {
                             <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    {mosqueData.events.map((event, index) => (
+                    {mosqueData.events.slice(0, 2).map((event, index) => (
                         <MotiView
                             key={event.title}
                             from={{ opacity: 0, translateX: -50 }}
@@ -119,6 +119,7 @@ export default function Home({ data }: { data: MosqueData }) {
                                 stiffness: 100,
                                 delay: 800 + (index * 150)
                             }}
+                            className="w-full items-center"
                         >
                             <EventToken event={event} />
                         </MotiView>

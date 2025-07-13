@@ -13,7 +13,7 @@ export default function ScrollContainer ({ children, name }: { children: React.R
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ 
                     paddingBottom: 90,
-                    flexGrow: 1
+                    flexGrow: 1,
                 }}
             >
                 {children}
