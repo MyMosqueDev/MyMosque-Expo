@@ -5,7 +5,7 @@ import { addDays, endOfWeek, format, isSameDay, isWithinInterval, parseISO, star
 import { MotiView } from 'moti';
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { MosqueData } from "../lib/types";
+import { EventData, MosqueData } from "../lib/types";
 import EventToken from "./components/EventToken";
 
 const DAY_LABELS = ["S", "M", "T", "W", "Th", "F", "S"];
@@ -13,7 +13,7 @@ const DAY_LABELS = ["S", "M", "T", "W", "Th", "F", "S"];
 export default function Events() {
     const [mosqueData, setMosqueData] = useState<MosqueData | null>(null);
     const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 0 }));
-    const [events, setEvents] = useState<MosqueData["events"]>([]);
+    const [events, setEvents] = useState<EventData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -120,7 +120,7 @@ export default function Events() {
                             transition={{ type: 'spring', damping: 15, stiffness: 150, delay: 100 + idx * 100 }}
                             style={{ overflow: 'visible' }}
                         >
-                            <EventToken event={event} />
+                            <EventToken event={{ ...event, mosqueName: mosqueData?.name || '' }} />
                         </MotiView>
                     ))}
                 </ScrollView>

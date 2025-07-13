@@ -1,14 +1,14 @@
 import ScrollContainer from "@/components/ScrollContainer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link } from "expo-router";
 import { MotiView } from "moti";
+import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { MosqueData } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
-import { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link } from "expo-router";
 
 export default function Home({ data }: { data: MosqueData }) {
     const [mosqueData, setMosqueData] = useState<MosqueData | null>(data);
@@ -121,7 +121,7 @@ export default function Home({ data }: { data: MosqueData }) {
                             }}
                             className="w-full items-center"
                         >
-                            <EventToken event={event} />
+                            <EventToken event={{ ...event, mosqueName: mosqueData.name }} />
                         </MotiView>
                     ))}
                 </MotiView>

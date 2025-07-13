@@ -1,13 +1,17 @@
-import { ImageBackground, ScrollView } from 'react-native';
-import Header from './Header';
-export default function ScrollContainer ({ children, name }: { children: React.ReactNode, name: string }) {
+import { EventData } from "@/lib/types";
+import { useLocalSearchParams } from "expo-router";
+import { View, Text, ImageBackground, ScrollView } from "react-native";
+
+export default function Event() {
+    const params = useLocalSearchParams();
+    const eventData: EventData = JSON.parse(params.eventData as string)
+
     return (
         <ImageBackground 
-            source={require('../assets/background.png')}
+            source={require('../../assets/background.png')}
             style={{ flex: 1 }}
             resizeMode="cover"
         >
-            <Header name={name} type="default" title={null} />
             <ScrollView 
                 className={'flex flex-1 px-4 pt-1'}
                 showsVerticalScrollIndicator={false}
@@ -16,8 +20,10 @@ export default function ScrollContainer ({ children, name }: { children: React.R
                     flexGrow: 1,
                 }}
             >
-                {children}
+                
             </ScrollView>
         </ImageBackground>
-    );
-};
+    )
+    
+    
+}

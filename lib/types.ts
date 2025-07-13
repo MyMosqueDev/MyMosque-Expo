@@ -40,6 +40,19 @@ export type MosqueData = {
     }[];
 }
 
+export type EventData = {
+    mosqueName: string;
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    isoDateTime: string;
+    host: string;
+    location: string;
+    image: string;
+}
+
+
 export type UserData = { // TODO: This will be MosqueIDs when DB setup
     favoriteMosques: MosqueData[];
     lastVisitedMosque: MosqueData | null;
