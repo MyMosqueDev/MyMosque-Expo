@@ -8,6 +8,7 @@ import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link } from "expo-router";
 
 export default function Home({ data }: { data: MosqueData }) {
     const [mosqueData, setMosqueData] = useState<MosqueData | null>(data);
@@ -62,7 +63,9 @@ export default function Home({ data }: { data: MosqueData }) {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Prayer Times</Text>
-                        <Text className="text-md text-[#5B4B94] font-lato-bold">View More</Text>
+                        <Link href="/prayers">
+                            <Text className="text-md text-[#5B4B94] font-lato-bold">View More</Text>
+                        </Link>
                     </View>
                     <PrayerToken prayerTimes={mosqueData.prayerTimes} />
                 </MotiView>
@@ -77,7 +80,16 @@ export default function Home({ data }: { data: MosqueData }) {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 mt-3">
                         <Text className="text-text text-[24px] font-lato-bold">Announcements</Text>
-                        <Text className="text-md text-[#4B944B] font-lato-bold">View More</Text>
+                        <Link 
+                            href={{
+                                pathname: "/announcements",
+                                params: {
+                                    announcements: JSON.stringify(mosqueData.announcements)
+                                }
+                            }}
+                        >
+                            <Text className="text-md text-[#4B944B] font-lato-bold">View More</Text>
+                        </Link>
                     </View>
                     <AnnouncementsCarousel announcements={mosqueData.announcements} />
                 </MotiView>
@@ -92,7 +104,9 @@ export default function Home({ data }: { data: MosqueData }) {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Upcoming Events</Text>
-                        <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
+                        <Link href="/events">
+                            <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
+                        </Link>
                     </View>
                     {mosqueData.events.map((event, index) => (
                         <MotiView

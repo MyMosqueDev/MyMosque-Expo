@@ -40,18 +40,6 @@ export default function Navbar() {
                             <Feather name="calendar" size={28} color="#4A4A4A" />
                         </MotiView>
                     </Link>
-                    {/* <TouchableOpacity
-                        className='px-6'
-                        onPress={() => router.push('/events')}
-                    >
-                        <MotiView
-                            from={{ scale: 0.8 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: 'spring', delay: 500 }}
-                        >
-                            <Feather name="calendar" size={28} color="#4A4A4A" />
-                        </MotiView>
-                    </TouchableOpacity> */}
                     <Link href="/prayers" className='px-6'>
                         <MotiView
                             from={{ scale: 0.8 }}

@@ -46,12 +46,33 @@ export const mosqueData: MosqueData[] = [
         events: [
             {
                 title: "cookies 'n mulk",
-                date: "2025-06-30",
+                date: "2025-07-12",
+                time: "8:30 PM",
+                isoDateTime: "2025-07-12T20:30:00.000Z",
                 description: "Join us every Monday Night as Mufti Anwer gives us a deep dive into Surah Al Mulk followed by some delicious cookies and milk!",
                 host: "Mufti Anwer",
                 location: "Nueces Main Prayer Hall",
-                time: "8:30 PM",
                 image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/cookies-n-mulk-1.jpg"
+            },
+            {
+                title: "Youth Quran Competition",
+                date: "2025-07-13", 
+                time: "2:00 PM",
+                isoDateTime: "2025-07-13T14:00:00.000Z",
+                description: "Annual youth Quran competition for ages 7-15. Prizes will be awarded for memorization and tajweed categories. Registration required.",
+                host: "Mufti Anwer",
+                location: "Nueces Community Center",
+                image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/quran-competition.jpg"
+            },
+            {
+                title: "Sisters' Book Club",
+                date: "2025-07-07",
+                time: "6:00 PM", 
+                isoDateTime: "2025-07-07T18:00:00.000Z",
+                description: "Monthly sisters' book club meeting discussing 'Reclaim Your Heart' by Yasmin Mogahed. Light refreshments will be served.",
+                host: "Sr. Fatima",
+                location: "Sisters' Prayer Hall",
+                image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/sisters-bookclub.jpg"
             }
         ]
     },
@@ -96,10 +117,11 @@ export const mosqueData: MosqueData[] = [
             {
                 title: "cookies 'n mulk",
                 date: "2025-06-30",
+                time: "8:30 PM",
+                isoDateTime: "2025-06-30T20:30:00.000Z",
                 description: "Join us every Monday Night as Mufti Anwer gives us a deep dive into Surah Al Mulk followed by some delicious cookies and milk!",
                 host: "Mufti Anwer",
                 location: "Nueces Main Prayer Hall",
-                time: "8:30 PM",
                 image: "https://www.islamiccenter.com/wp-content/uploads/2021/03/cookies-n-mulk-1.jpg"
             }
         ]

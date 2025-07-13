@@ -32,9 +32,10 @@ export type MosqueData = {
         title: string;
         description: string;
         date: string;
+        time: string;
+        isoDateTime: string;
         host: string;
         location: string;
-        time: string;
         image: string;
     }[];
 }
