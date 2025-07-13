@@ -5,8 +5,8 @@ import { addDays, endOfWeek, format, isSameDay, isWithinInterval, parseISO, star
 import { MotiView } from 'moti';
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { EventData, MosqueData } from "../lib/types";
-import EventToken from "./components/EventToken";
+import { EventData, MosqueData } from "@/lib/types";
+import EventToken from "@/app/components/EventToken";
 
 const DAY_LABELS = ["S", "M", "T", "W", "Th", "F", "S"];
 

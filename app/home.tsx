@@ -63,7 +63,7 @@ export default function Home({ data }: { data: MosqueData }) {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Prayer Times</Text>
-                        <Link href="/prayers">
+                        <Link href="/prayer">
                             <Text className="text-md text-[#5B4B94] font-lato-bold">View More</Text>
                         </Link>
                     </View>

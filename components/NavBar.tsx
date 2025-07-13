@@ -1,5 +1,4 @@
 import Feather from '@expo/vector-icons/Feather';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { BlurView } from 'expo-blur';
 import { Link } from 'expo-router';
 import { MotiView } from 'moti';
@@ -40,7 +39,7 @@ export default function Navbar() {
                             <Feather name="calendar" size={28} color="#4A4A4A" />
                         </MotiView>
                     </Link>
-                    <Link href="/prayers" className='px-6'>
+                    <Link href="/prayer" className='px-6'>
                         <MotiView
                             from={{ scale: 0.8 }}
                             animate={{ scale: 1 }}

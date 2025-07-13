@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import { MosqueData } from "../lib/types";
+import { MosqueData } from "@/lib/types";
 
 const DAILY_QUOTE = {
     text: "The best of you are those who learn the Qur'an and teach it.",

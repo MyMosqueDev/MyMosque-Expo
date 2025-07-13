@@ -1,10 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { ImageBackground, Text, View } from "react-native";
-import { UserData } from "../lib/types";
-import { useMapContext } from './_layout';
-import Home from './home';
-import Map from './map';
+import { UserData } from "@/lib/types";
+import { useMapContext } from "@/app/_layout";
+import Home from "@/app/home";
+import Map from "@/app/map";
 
 export default function Index() {
     const [userData, setUserData] = useState<UserData | null>(null);
@@ -49,7 +49,7 @@ export default function Index() {
     if (isLoading) {
         return (
             <ImageBackground 
-                source={require('../assets/background.png')}
+                source={require('../../assets/background.png')}
                 style={{ flex: 1 }}
                 resizeMode="cover"
             >

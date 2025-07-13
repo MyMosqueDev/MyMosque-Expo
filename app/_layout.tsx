@@ -42,11 +42,21 @@ export default function RootLayout() {
         resizeMode="cover"
       >
         <View style={{ flex: 1 }}>
-          <Stack 
-            screenOptions={{
-              headerShown: false,
-            }}
-          />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen 
+              name="announcements" 
+              options={{ 
+                animation: 'slide_from_right'
+              }}
+            />
+            <Stack.Screen 
+              name="eventDetails" 
+              options={{ 
+                animation: 'slide_from_right'
+              }}
+            />
+          </Stack>
           {!isMapVisible && <NavBar />}
         </View>
       </ImageBackground>
