@@ -1,6 +1,5 @@
 import { ImageBackground, ScrollView } from 'react-native';
 import Header from './Header';
-import NavBar from './NavBar';
 export default function ScrollContainer ({ children, name }: { children: React.ReactNode, name: string }) {
     return (
         <ImageBackground 
@@ -10,9 +9,12 @@ export default function ScrollContainer ({ children, name }: { children: React.R
         >
             <Header name={name} />
             <ScrollView 
-                className={'flex flex-1 px-4 pt-1 '}
+                className={'flex flex-1 px-4 pt-1'}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 90 }}
+                contentContainerStyle={{ 
+                    paddingBottom: 90,
+                    flexGrow: 1
+                }}
             >
                 {children}
             </ScrollView>

@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 
 export default function Events() {
     return (
-        <ScrollContainer name="Events">
+        <ScrollContainer name="Upcoming Events">
             <View className="flex-1 items-center justify-center">
                 <Text className="text-text text-[24px] font-lato-bold">event page</Text>
             </View>

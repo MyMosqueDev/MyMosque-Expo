@@ -23,11 +23,11 @@ export const mosqueData: MosqueData[] = [
             sunday: "5:00 AM - 10:00 PM",
         },
         prayerTimes: {
-            fajr: "5:00 AM",
-            dhuhr: "12:00 PM",
-            asr: "3:00 PM",
-            maghrib: "6:00 PM",
-            isha: "7:00 PM",
+            fajr: { adhan: "5:22", iqama: "5:47" },
+            dhuhr: { adhan: "1:37", iqama: "2:00" },
+            asr: { adhan: "6:29", iqama: "6:45" },
+            maghrib: { adhan: "8:35", iqama: "8:40" },
+            isha: { adhan: "9:52", iqama: "10:05" },
         },
         announcements: [
             {
@@ -72,11 +72,11 @@ export const mosqueData: MosqueData[] = [
             sunday: "5:00 AM - 10:00 PM",
         },
         prayerTimes: {
-            fajr: "5:00 AM",
-            dhuhr: "12:00 PM",
-            asr: "3:00 PM",
-            maghrib: "6:00 PM",
-            isha: "7:00 PM",
+            fajr: { adhan: "5:22", iqama: "5:47" },
+            dhuhr: { adhan: "1:37", iqama: "2:00" },
+            asr: { adhan: "6:29", iqama: "6:45" },
+            maghrib: { adhan: "8:35", iqama: "8:40" },
+            isha: { adhan: "9:52", iqama: "10:05" },
         },
         announcements: [
             {

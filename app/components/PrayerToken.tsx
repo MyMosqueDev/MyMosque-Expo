@@ -29,7 +29,7 @@ export default function PrayerToken({ prayerTimes }: { prayerTimes: MosqueData["
                         }`}>{prayer.label}</Text>
                         <Text className={`text-md font-lato-bold ${
                             isCurrentPrayer ? 'text-white' : 'text-text'
-                        }`}>{prayerTimes[prayer.key as keyof typeof prayerTimes]}</Text>
+                        }`}>{prayerTimes[prayer.key as keyof typeof prayerTimes].iqama}</Text>
                     </View>
                 );
             })}

@@ -6,16 +6,40 @@ import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home({ data }: { data: MosqueData }) {
+    const [mosqueData, setMosqueData] = useState<MosqueData | null>(data);
+    useEffect(() => {
+        const fetchData = async () => {
+        if (!data) {
+            const userDataString = await AsyncStorage.getItem('userData');
+            if (userDataString) {
+                const parsedUserData = JSON.parse(userDataString);
+                setMosqueData(parsedUserData.lastVisitedMosque);
+                } 
+            }
+        }
+        fetchData();
+    }, [data]);
+
+    if(!mosqueData) {
+        return (
+            <View className="flex-1 items-center justify-center">
+                <Text>Loading...</Text>
+            </View>
+        )
+    }
+
     const generalMosqueInfo = {
-        address: data.address,
-        hours: data.hours,
-        events: data.events
+        address: mosqueData.address,
+        hours: mosqueData.hours,
+        events: mosqueData.events
     }
 
     return (
-        <ScrollContainer name={data.name}>
+        <ScrollContainer name={mosqueData.name}>
             <View className="flex-1 items-center justify-start">
                 {/* Mosque Info Token with entrance animation */}
                 <MotiView
@@ -40,7 +64,7 @@ export default function Home({ data }: { data: MosqueData }) {
                         <Text className="text-text text-[24px] font-lato-bold">Prayer Times</Text>
                         <Text className="text-md text-[#5B4B94] font-lato-bold">View More</Text>
                     </View>
-                    <PrayerToken prayerTimes={data.prayerTimes} />
+                    <PrayerToken prayerTimes={mosqueData.prayerTimes} />
                 </MotiView>
 
                 {/* Announcements Section */}
@@ -55,7 +79,7 @@ export default function Home({ data }: { data: MosqueData }) {
                         <Text className="text-text text-[24px] font-lato-bold">Announcements</Text>
                         <Text className="text-md text-[#4B944B] font-lato-bold">View More</Text>
                     </View>
-                    <AnnouncementsCarousel announcements={data.announcements} />
+                    <AnnouncementsCarousel announcements={mosqueData.announcements} />
                 </MotiView>
 
                 {/* Events Section */}
@@ -70,7 +94,7 @@ export default function Home({ data }: { data: MosqueData }) {
                         <Text className="text-text text-[24px] font-lato-bold">Upcoming Events</Text>
                         <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
                     </View>
-                    {data.events.map((event, index) => (
+                    {mosqueData.events.map((event, index) => (
                         <MotiView
                             key={event.title}
                             from={{ opacity: 0, translateX: -50 }}
