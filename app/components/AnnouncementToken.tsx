@@ -1,20 +1,68 @@
-import { Text, View } from "react-native";
+import { useState } from "react";
+import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { MosqueData } from "../../lib/types";
 
 export default function AnnouncementToken({ announcement }: { announcement: MosqueData["announcements"][0] }) {
+    const [modalVisible, setModalVisible] = useState(false);
     const severityStyles = getSeverityStyles(announcement.severity);
     
     return (
-        <View className="w-[90vw] backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md">
-            <View className="flex-row justify-between items-start mb-2">
-                <Text className="text-2xl font-lato-bold text-text">{announcement.title}</Text>
-                <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
-                    <Text className={`${severityStyles.text} font-lato-semibold text-sm`}>{announcement.severity}</Text>
+        <>
+            <TouchableOpacity 
+                onPress={() => setModalVisible(true)}
+                activeOpacity={0.7}
+            >
+                <View className="w-[90vw] backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md">
+                    <View className="flex-row justify-between items-start mb-2">
+                        <Text className="text-2xl font-lato-bold text-text">{announcement.title}</Text>
+                        <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
+                            <Text className={`${severityStyles.text} font-lato-semibold text-sm`}>{announcement.severity}</Text>
+                        </View>
+                    </View>
+                    <Text className="text-base text-[#5A6B7A] mb-2">{announcement.date}</Text>
+                    <Text className="text-base text-[#444]">{announcement.description.length > 100 ? `${announcement.description.substring(0, 100) + "..."} ` : announcement.description}{announcement.description.length > 100 && <Text className="font-bold">See More</Text>}</Text>
                 </View>
-            </View>
-            <Text className="text-base text-[#5A6B7A] mb-2">{announcement.date}</Text>
-            <Text className="text-base text-[#444]">{announcement.description.length > 100 ? `${announcement.description.substring(0, 100) + "..."} ` : announcement.description}{announcement.description.length > 100 && <Text className="font-bold">See More</Text>}</Text>
-        </View>
+            </TouchableOpacity>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <TouchableOpacity 
+                    className="flex-1 justify-center items-center bg-black/30"
+                    activeOpacity={1}
+                    onPress={() => setModalVisible(false)}
+                >
+                    <TouchableOpacity 
+                        className="w-[90vw] backdrop-blur-lg border border-white/30 rounded-2xl p-6 bg-white shadow-lg"
+                        activeOpacity={1}
+                        onPress={(e) => e.stopPropagation()}
+                    >
+                        <View className="flex-row justify-between items-start mb-4">
+                            <Text className="text-2xl font-lato-bold text-text flex-1 mr-3">{announcement.title}</Text>
+                            <TouchableOpacity 
+                                onPress={() => setModalVisible(false)}
+                                className="w-8 h-8 rounded-full justify-center items-center bg-gray-200/70 backdrop-blur-sm border border-white/30"
+                                activeOpacity={0.7}
+                            >
+                                <Text className="text-gray-600 font-bold text-lg">×</Text>
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <View className="flex-row justify-between items-center mb-4">
+                            <Text className="text-base text-[#5A6B7A]">{announcement.date}</Text>
+                            <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
+                                <Text className={`${severityStyles.text} font-lato-semibold text-sm`}>{announcement.severity}</Text>
+                            </View>
+                        </View>
+                        
+                        <Text className="text-base text-[#444] leading-6">{announcement.description}</Text>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
+        </>
     )
 }
 
