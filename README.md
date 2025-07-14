@@ -42,7 +42,8 @@ My Mosque is a platform that helps connect masjid to their communities by provid
 
 - [Node.js](https://nodejs.org/) (LTS version recommended)
 - [Expo CLI](https://docs.expo.dev/get-started/installation/)
-- An iOS or Android emulator. Follow the guide [here](https://docs.expo.dev/workflow/android-studio-emulator/) to set up an Android emulator or [here](https://docs.expo.dev/workflow/ios-simulator/) for an iOS simulator.
+- ExpoGo on your mobile device. [iOS Download](https://apps.apple.com/us/app/expo-go/id982107779) and [Android Download](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=en_US)
+- An iOS or Android emulator (OPTINAL). Follow the guide [here](https://docs.expo.dev/workflow/android-studio-emulator/) to set up an Android emulator or [here](https://docs.expo.dev/workflow/ios-simulator/) for an iOS simulator.
 
 ### VSCode Extensions
 
