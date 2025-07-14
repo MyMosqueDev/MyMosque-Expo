@@ -5,6 +5,7 @@ import { ImageBackground, View } from "react-native";
 import NavBar from "../components/NavBar";
 import '../global.css';
 import { loadFonts } from "../lib/utils";
+import { supabase } from '../lib/supabase';
 
 SplashScreen.preventAutoHideAsync();
 

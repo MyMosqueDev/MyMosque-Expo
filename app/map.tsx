@@ -9,10 +9,6 @@ import { mosqueData } from '../lib/data';
 import { MosqueData } from '../lib/types';
 import MosqueCard from "./components/MosqueCard";
 
-// type MosqueCardData = {
-
-// }
-
 export default function Map() {
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
   const mapRef = useRef<MapView | null>(null);
