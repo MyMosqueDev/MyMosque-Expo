@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "MyMosque",
-    "slug": "MyMosque",
-    "version": "1.0.0",
+    "slug": "my-mosque",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mymosque",
@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vayania.MyMosque"
+      "bundleIdentifier": "com.vayania.mymosque",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -48,6 +51,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a0041ca8-1fdb-428d-aa8f-ef15e194b329"
+      }
+    },
+    "owner": "vayania"
   }
 }

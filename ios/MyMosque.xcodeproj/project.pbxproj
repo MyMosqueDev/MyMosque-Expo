@@ -9,27 +9,27 @@
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		5502217A534BA501E355BA28 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA434B1C0A01E5DFE29C0865 /* ExpoModulesProvider.swift */; };
-		80449381C877C928FA9CDF74 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 53E93D2B4688C1FCA16C428F /* PrivacyInfo.xcprivacy */; };
+		5A9FE1C1213E243E93898616 /* libPods-MyMosque.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C422EED7E36C3B0A2A38A7 /* libPods-MyMosque.a */; };
+		AF3E7720F11AE7970F0E4A7E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 97375D8DEAC51DEE410EC2E5 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		E5B7A2AE30772A0110897D62 /* libPods-MyMosque.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1610F892D376B9F8423B7199 /* libPods-MyMosque.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		FB9498E9129E140B4AD17780 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B51405525EF9E4A36490B21 /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		09C422EED7E36C3B0A2A38A7 /* libPods-MyMosque.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MyMosque.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* MyMosque.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyMosque.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MyMosque/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MyMosque/Info.plist; sourceTree = "<group>"; };
-		1610F892D376B9F8423B7199 /* libPods-MyMosque.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MyMosque.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		53E93D2B4688C1FCA16C428F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MyMosque/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		8B51405525EF9E4A36490B21 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MyMosque/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		97375D8DEAC51DEE410EC2E5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MyMosque/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = MyMosque/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AA434B1C0A01E5DFE29C0865 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MyMosque/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C0904D2AEF104CC9E7561808 /* Pods-MyMosque.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyMosque.release.xcconfig"; path = "Target Support Files/Pods-MyMosque/Pods-MyMosque.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = MyMosque/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* MyMosque-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MyMosque-Bridging-Header.h"; path = "MyMosque/MyMosque-Bridging-Header.h"; sourceTree = "<group>"; };
-		FFE9D736E9C96A0C3D1B9FC0 /* Pods-MyMosque.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyMosque.debug.xcconfig"; path = "Target Support Files/Pods-MyMosque/Pods-MyMosque.debug.xcconfig"; sourceTree = "<group>"; };
+		FCB35D5B905CAF14D28B695C /* Pods-MyMosque.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyMosque.debug.xcconfig"; path = "Target Support Files/Pods-MyMosque/Pods-MyMosque.debug.xcconfig"; sourceTree = "<group>"; };
+		FE95F1BABB6F49BC91D1FDC4 /* Pods-MyMosque.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyMosque.release.xcconfig"; path = "Target Support Files/Pods-MyMosque/Pods-MyMosque.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,13 +37,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E5B7A2AE30772A0110897D62 /* libPods-MyMosque.a in Frameworks */,
+				5A9FE1C1213E243E93898616 /* libPods-MyMosque.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		024A6F79A17C750528B0A1CA /* MyMosque */ = {
+			isa = PBXGroup;
+			children = (
+				8B51405525EF9E4A36490B21 /* ExpoModulesProvider.swift */,
+			);
+			name = MyMosque;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* MyMosque */ = {
 			isa = PBXGroup;
 			children = (
@@ -53,7 +61,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				53E93D2B4688C1FCA16C428F /* PrivacyInfo.xcprivacy */,
+				97375D8DEAC51DEE410EC2E5 /* PrivacyInfo.xcprivacy */,
 			);
 			name = MyMosque;
 			sourceTree = "<group>";
@@ -62,19 +70,27 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				1610F892D376B9F8423B7199 /* libPods-MyMosque.a */,
+				09C422EED7E36C3B0A2A38A7 /* libPods-MyMosque.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4F2B970DF24E66A0D64D8147 /* Pods */ = {
+		6200159D8D6914D38FDED4B3 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				FFE9D736E9C96A0C3D1B9FC0 /* Pods-MyMosque.debug.xcconfig */,
-				C0904D2AEF104CC9E7561808 /* Pods-MyMosque.release.xcconfig */,
+				FCB35D5B905CAF14D28B695C /* Pods-MyMosque.debug.xcconfig */,
+				FE95F1BABB6F49BC91D1FDC4 /* Pods-MyMosque.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		6E167B7E572E19D5445373C6 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				024A6F79A17C750528B0A1CA /* MyMosque */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -91,8 +107,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				4F2B970DF24E66A0D64D8147 /* Pods */,
-				C6F902747DED6ED06F854EE4 /* ExpoModulesProviders */,
+				6200159D8D6914D38FDED4B3 /* Pods */,
+				6E167B7E572E19D5445373C6 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -107,14 +123,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B42458E3D25A0E258BED3DEA /* MyMosque */ = {
-			isa = PBXGroup;
-			children = (
-				AA434B1C0A01E5DFE29C0865 /* ExpoModulesProvider.swift */,
-			);
-			name = MyMosque;
-			sourceTree = "<group>";
-		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,14 +130,6 @@
 			);
 			name = Supporting;
 			path = MyMosque/Supporting;
-			sourceTree = "<group>";
-		};
-		C6F902747DED6ED06F854EE4 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				B42458E3D25A0E258BED3DEA /* MyMosque */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "MyMosque" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				F9872262BC78A58BE63E4086 /* [Expo] Configure project */,
+				E0D43E1084CEFF1C3F4D94A2 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				4A349B36775956A271247180 /* [CP] Embed Pods Frameworks */,
+				AA2284F6EFDDABAE69ABCC8F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -166,9 +166,7 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = L9U4TT58WC;
 						LastSwiftMigration = 1250;
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -198,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				80449381C877C928FA9CDF74 /* PrivacyInfo.xcprivacy in Resources */,
+				AF3E7720F11AE7970F0E4A7E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,24 +240,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4A349B36775956A271247180 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MyMosque/Pods-MyMosque-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyMosque/Pods-MyMosque-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -277,6 +257,8 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/SDWebImage/SDWebImage.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/boost/boost_privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/expo-dev-launcher/EXDevLauncher.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/expo-dev-menu/EXDevMenu.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/glog/glog_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/react-native-maps/ReactNativeMapsPrivacy.bundle",
 			);
@@ -292,6 +274,8 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SDWebImage.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/boost_privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXDevLauncher.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXDevMenu.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/glog_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ReactNativeMapsPrivacy.bundle",
 			);
@@ -300,7 +284,25 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyMosque/Pods-MyMosque-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F9872262BC78A58BE63E4086 /* [Expo] Configure project */ = {
+		AA2284F6EFDDABAE69ABCC8F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyMosque/Pods-MyMosque-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyMosque/Pods-MyMosque-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E0D43E1084CEFF1C3F4D94A2 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -327,7 +329,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				5502217A534BA501E355BA28 /* ExpoModulesProvider.swift in Sources */,
+				FB9498E9129E140B4AD17780 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,15 +338,12 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FFE9D736E9C96A0C3D1B9FC0 /* Pods-MyMosque.debug.xcconfig */;
+			baseConfigurationReference = FCB35D5B905CAF14D28B695C /* Pods-MyMosque.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MyMosque/MyMosque.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L9U4TT58WC;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -363,7 +362,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.vayania.MyMosque;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vayania.mymosque;
 				PRODUCT_NAME = MyMosque;
 				SWIFT_OBJC_BRIDGING_HEADER = "MyMosque/MyMosque-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -375,15 +374,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C0904D2AEF104CC9E7561808 /* Pods-MyMosque.release.xcconfig */;
+			baseConfigurationReference = FE95F1BABB6F49BC91D1FDC4 /* Pods-MyMosque.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MyMosque/MyMosque.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L9U4TT58WC;
 				INFOPLIST_FILE = MyMosque/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -397,7 +393,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.vayania.MyMosque;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vayania.mymosque;
 				PRODUCT_NAME = MyMosque;
 				SWIFT_OBJC_BRIDGING_HEADER = "MyMosque/MyMosque-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

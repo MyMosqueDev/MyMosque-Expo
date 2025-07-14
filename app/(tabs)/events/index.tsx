@@ -93,7 +93,7 @@ export default function Events() {
                                 <View
                                     className="rounded-full w-9 h-9 items-center justify-center"
                                 >
-                                    <Text className={`text-lg font-lato-bold ${dayHasEvent(date) ? 'text-[#88AE79]' : 'text-[#4A4A4A]'}`}>{date.getDate()}</Text>
+                                    <Text className={`text-lg font-lato-bold ${dayHasEvent(date) ? 'text-[#3B5A7A]' : 'text-[#4A4A4A]/50'}`}>{date.getDate()}</Text>
                                 </View>
                             </View>
                         ))}

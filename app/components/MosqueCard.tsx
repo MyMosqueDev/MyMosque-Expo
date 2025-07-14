@@ -63,7 +63,7 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
         }
         await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
 
-        router.replace("/");
+        router.replace("/home");
     }
 
     return (
