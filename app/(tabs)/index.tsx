@@ -67,6 +67,6 @@ export default function Index() {
 
     // if there is a last visited mosque, show the welcome page
     return (
-        <Home data={userData.lastVisitedMosque} />
+        <Home />
     );
 }

@@ -3,6 +3,7 @@ import { MosqueData } from './types';
 export const mosqueData: MosqueData[] = [
     {
         name: "Nueces Mosque",
+        supabaseId: "1",
         address: "1906 Nueces St, Austin, TX 78705",
         images: [
             'https://thedailytexan.com/wp-content/uploads/2019/04/mosque_2019-04-19_Nueces_Mosque_Conor.Duffy4459_0.jpg',
@@ -78,6 +79,7 @@ export const mosqueData: MosqueData[] = [
     },
     {
         name: "ISGH River Oaks Islamic Center (ROIC)",
+        supabaseId: "1",
         address: "3110 Eastside St, Houston, TX 77098",
         coordinates: {
             latitude: 29.736879,

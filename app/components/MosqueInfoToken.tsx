@@ -1,15 +1,49 @@
 import Feather from '@expo/vector-icons/Feather';
 import { MotiView } from "moti";
 import { Text, View } from "react-native";
-import { MosqueData } from "../../lib/types";
+import { Event, MosqueInfo } from "../../lib/types";
+import { format, isThisWeek, isToday, isTomorrow, parseISO } from 'date-fns';
 
 interface GeneralMosqueInfo {
-    address: MosqueData["address"];
-    hours: MosqueData["hours"];
-    events: MosqueData["events"];
+    address: MosqueInfo["address"];
+    hours: MosqueInfo["hours"];
+    events: Event[] | null;
 }
 
 export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
+
+    const formatUpcomingEventDate = (isoDateTime: string): string => { // TODO: Move to lib/utils.ts
+        const date = parseISO(isoDateTime);
+        if (isToday(date)) {
+            return `Today @ ${format(date, "h:mm a")}`;
+        }
+        if (isTomorrow(date)) {
+            return `Tomorrow @ ${format(date, "h:mm a")}`;
+        }
+        if (isThisWeek(date, { weekStartsOn: 1 })) {
+            return `${format(date, "EEEE")} @ ${format(date, "h:mm a")}`;
+        }
+        return `${format(date, "MMM d")} @ ${format(date, "h:mm a")}`;
+    }
+
+    const getUpcomingEvent = (events: Event[]): Event | null => {
+        const now = new Date();
+
+        const upcoming = events
+            .filter(event => {
+                const eventDate = new Date(event.date);
+                return eventDate > now;
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        if (upcoming.length > 0) {
+            upcoming[0].date = formatUpcomingEventDate(upcoming[0].date);
+            return upcoming[0];
+        }
+        return null;
+    }
+
+    const upcomingEvent : Event | null = getUpcomingEvent(info.events || []);
+    
     return (
         <MotiView
             from={{ opacity: 0, scale: 0.95 }}
@@ -74,9 +108,9 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
                         >
                             <Feather name="moon" size={24} color="#5B4B94" />
                         </MotiView>
-                        <Text className="text-xl font-bold text-[#5B4B94]">Upcoming</Text>
+                        <Text className="text-xl font-bold text-[#5B4B94]">{upcomingEvent ? upcomingEvent.title : "No upcoming events"}</Text>
                     </View>
-                    <Text className="text-base text-[#5B4B94] mt-0.5 ml-10">{info.events[0].title + ", " + info.events[0].time}</Text>
+                    <Text className="text-base text-[#5B4B94] mt-0.5 ml-10">{upcomingEvent ? upcomingEvent.date : "Enable notifications to stay updated!"}</Text>
                 </View>
             </MotiView>
         </MotiView>

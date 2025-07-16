@@ -5,7 +5,6 @@ import { ImageBackground, View } from "react-native";
 import NavBar from "../components/NavBar";
 import '../global.css';
 import { loadFonts } from "../lib/utils";
-import { supabase } from '../lib/supabase';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -20,7 +19,7 @@ export const useMapContext = () => useContext(MapContext);
 export default function RootLayout() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [isMapVisible, setIsMapVisible] = useState(false);
-  
+
   useEffect(() => {
     async function prepare() {
       await loadFonts();

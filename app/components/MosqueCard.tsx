@@ -13,7 +13,6 @@ interface MosqueCardProps {
     mapRef: React.RefObject<MapView | null>;
 }
 
-// TODO: create navigation to mosque page
 const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
     // truncates name and address to 35 and 45 characters respectively
     const name = data.name.length > 35 ? data.name.slice(0, 35) + "..." : data.name;
@@ -59,7 +58,7 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
         });
         const newUserData = {
             favoriteMosques: [data],
-            lastVisitedMosque: data,
+            lastVisitedMosque: data.supabaseId,
         }
         await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
 
