@@ -1,4 +1,4 @@
-import { EventData } from "@/lib/types";
+import { Event } from "@/lib/types";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { format, parseISO } from "date-fns";
@@ -6,10 +6,11 @@ import { useLocalSearchParams } from "expo-router";
 import { MotiView } from "moti";
 import { Image, ImageBackground, ScrollView, Text, View } from "react-native";
 
-export default function Event() {
+export default function EventDetails() {
     const params = useLocalSearchParams();
-    const eventData: EventData = JSON.parse(params.eventData as string)
-    const date = format(parseISO(eventData.isoDateTime), 'EEEE, MMMM do')
+    const eventData: Event = JSON.parse(params.eventData as string)
+    const date = format(parseISO(eventData.date), 'EEEE, MMMM do')
+    const time = format(parseISO(eventData.date), 'h:mm a')
 
     return (
         <ImageBackground 
@@ -72,7 +73,7 @@ export default function Event() {
                             transition={{ type: 'spring', damping: 15, stiffness: 150 }}
                             delay={300}
                         >
-                            <Text className="text-[#666666] text-lg font-lato-bold">{eventData.time}</Text>
+                            <Text className="text-[#666666] text-lg font-lato-bold">{time}</Text>
                         </MotiView>
                     </MotiView>
 

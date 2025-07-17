@@ -21,6 +21,8 @@ export type Event = {
     host: string;
     location: string;
     image: string;
+    mosqueName?: string;
+    displayDate?: string;
 }
 
 export type PrayerTime = {
@@ -29,6 +31,14 @@ export type PrayerTime = {
     asr: { adhan: string; iqama: string };
     maghrib: { adhan: string; iqama: string };
     isha: { adhan: string; iqama: string };
+}
+
+export type Announcement = {
+    created_at: string;
+    title: string;
+    description: string;
+    date: string;
+    severity: "low" | "medium" | "high";
 }
 
 export type MosqueData = {
@@ -73,19 +83,6 @@ export type MosqueData = {
         image: string;
     }[];
 }
-
-export type EventData = {
-    mosqueName: string;
-    title: string;
-    description: string;
-    date: string;
-    time: string;
-    isoDateTime: string;
-    host: string;
-    location: string;
-    image: string;
-}
-
 
 export type UserData = { // TODO: This will be MosqueIDs when DB setup
     favoriteMosques: MosqueData[];

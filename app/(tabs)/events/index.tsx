@@ -1,28 +1,26 @@
+import EventToken from "@/app/components/EventToken";
 import ScrollContainer from "@/components/ScrollContainer";
+import { Event } from "@/lib/types";
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addDays, endOfWeek, format, isSameDay, isWithinInterval, parseISO, startOfWeek } from 'date-fns';
 import { MotiView } from 'moti';
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { EventData, MosqueData } from "@/lib/types";
-import EventToken from "@/app/components/EventToken";
 
 const DAY_LABELS = ["S", "M", "T", "W", "Th", "F", "S"];
 
 export default function Events() {
-    const [mosqueData, setMosqueData] = useState<MosqueData | null>(null);
     const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 0 }));
-    const [events, setEvents] = useState<EventData[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchMosqueData = async () => {
-            const userDataString = await AsyncStorage.getItem('userData');
-            if (userDataString) {
-                const parsedUserData = JSON.parse(userDataString);
-                setMosqueData(parsedUserData.lastVisitedMosque);
-                setEvents(parsedUserData.lastVisitedMosque?.events || []);
+            const mosqueEventsString = await AsyncStorage.getItem('mosqueEvents');
+            if (mosqueEventsString) {
+                const parsedMosqueEvents = JSON.parse(mosqueEventsString);
+                setEvents(parsedMosqueEvents);
             }
             setIsLoading(false);
         };
@@ -36,14 +34,14 @@ export default function Events() {
     // Filter events for this week
     const weekEvents = events
         .filter(event => {
-            const eventDate = parseISO(event.isoDateTime);
+            const eventDate = parseISO(event.date);
             return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
         })
-        .sort((a, b) => parseISO(a.isoDateTime).getTime() - parseISO(b.isoDateTime).getTime());
+        .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
 
     // Helper: does a day have an event?
     const dayHasEvent = (date: Date) => {
-        return events.some(event => isSameDay(parseISO(event.isoDateTime), date));
+        return events.some(event => isSameDay(parseISO(event.date), date));
     };
 
     // Week range label
@@ -112,13 +110,13 @@ export default function Events() {
                     )}
                     {weekEvents.map((event, idx) => (
                         <MotiView
-                            key={event.title + event.isoDateTime + idx}
+                            key={event.title + event.date + idx}
                             from={{ opacity: 0, translateX: -20, scale: 0.95 }}
                             animate={{ opacity: 1, translateX: 0, scale: 1 }}
                             transition={{ type: 'spring', damping: 15, stiffness: 150, delay: 100 + idx * 100 }}
                             style={{ overflow: 'visible' }}
                         >
-                            <EventToken event={{ ...event, mosqueName: mosqueData?.name || '' }} />
+                            <EventToken event={event} />
                         </MotiView>
                     ))}
                 </ScrollView>

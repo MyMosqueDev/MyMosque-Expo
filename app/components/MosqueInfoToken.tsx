@@ -28,7 +28,6 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
 
     const getUpcomingEvent = (events: Event[]): Event | null => {
         const now = new Date();
-
         const upcoming = events
             .filter(event => {
                 const eventDate = new Date(event.date);
@@ -36,7 +35,7 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
         })
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         if (upcoming.length > 0) {
-            upcoming[0].date = formatUpcomingEventDate(upcoming[0].date);
+            upcoming[0].displayDate = formatUpcomingEventDate(upcoming[0].date);
             return upcoming[0];
         }
         return null;
@@ -110,7 +109,7 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
                         </MotiView>
                         <Text className="text-xl font-bold text-[#5B4B94]">{upcomingEvent ? upcomingEvent.title : "No upcoming events"}</Text>
                     </View>
-                    <Text className="text-base text-[#5B4B94] mt-0.5 ml-10">{upcomingEvent ? upcomingEvent.date : "Enable notifications to stay updated!"}</Text>
+                    <Text className="text-base text-[#5B4B94] mt-0.5 ml-10">{upcomingEvent ? upcomingEvent.displayDate : "Enable notifications to stay updated!"}</Text>
                 </View>
             </MotiView>
         </MotiView>

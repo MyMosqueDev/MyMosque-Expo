@@ -9,6 +9,10 @@ type page = 'home' | 'events' | 'prayers';
 export default function Navbar() {
     const [page, setPage] = useState<page>('home');
     const pathname = usePathname();
+
+    if (pathname.startsWith('/announcements')) {
+        return null;
+    }
     
     // Determine current page based on pathname
     const getCurrentPage = (): page => {

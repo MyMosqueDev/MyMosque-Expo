@@ -4,9 +4,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { supabase } from "../lib/supabase";
-import { Event, MosqueInfo, PrayerTime } from "../lib/types";
+import { Announcement, Event, MosqueInfo, PrayerTime } from "../lib/types";
+import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
+import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
 
@@ -14,15 +16,15 @@ export default function Home() {
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(null);
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(null);
-
-    function to12HourFormat(time24: string) {
+    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(null);
+    const to12HourFormat = (time24: string) => {
         const [hourStr, minute] = time24.split(':');
         let hour = parseInt(hourStr, 10);
         hour = hour % 12 || 12;
         return `${hour}:${minute}`;
     }
 
-    function addMinutesToTime(time24: string, minutesToAdd: number) {
+    const addMinutesToTime = (time24: string, minutesToAdd: number) => {
         const [hourStr, minuteStr] = time24.split(':');
         let hour = parseInt(hourStr, 10);
         let minute = parseInt(minuteStr, 10);
@@ -37,7 +39,7 @@ export default function Home() {
         return `${hourFormatted}:${minuteFormatted}`;
     }
 
-    
+
     const fetchMosqueInfo = async () => {
         const userDataString = await AsyncStorage.getItem('userData');
 
@@ -67,8 +69,13 @@ export default function Home() {
                 .eq('masjid_id', lastVisitedMosqueId)
                 .eq('date', todayDbString)
                 .single();
+            
+            const {data: mosqueAnnouncements, error: announcementsError} = await supabase
+                .from('announcements')
+                .select()
+                .eq('masjid_id', lastVisitedMosqueId);
 
-            if (error ) {
+            if (error) {
                 console.error('Error fetching mosqueInfo:', error.message);
                 return;
             }
@@ -80,6 +87,11 @@ export default function Home() {
 
             if (prayerTimesError) {
                 console.error('Error fetching mosquePrayerTimes:', prayerTimesError.message);
+                return;
+            }
+
+            if (announcementsError) {
+                console.error('Error fetching mosqueAnnouncements:', announcementsError.message);
                 return;
             }
 
@@ -102,7 +114,6 @@ export default function Home() {
                         }
                     }
                 }
-                console.log(mosquePrayerTimes.times.prayerTimes)
                 
             } catch (e) {
                 console.error(e);
@@ -110,8 +121,11 @@ export default function Home() {
 
             setMosqueInfo(mosqueInfo);
             setMosqueEvents(mosqueEvents);
+            await AsyncStorage.setItem('mosqueEvents', JSON.stringify(mosqueEvents));
+            setMosqueAnnouncements(mosqueAnnouncements);
             // TODO - UPDATE DB JSON 
             setMosquePrayerTimes(mosquePrayerTimes.times.prayerTimes);
+            await AsyncStorage.setItem('prayerTimes', JSON.stringify(mosquePrayerTimes.times.prayerTimes));
         }
     }
 
@@ -122,11 +136,14 @@ export default function Home() {
         fetchMosqueInfo();
     }, []);
 
-    if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents) {
+    if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents || !mosqueAnnouncements) {
         return (
-            <View className="flex-1 items-center justify-center">
-                <Text>Loading...</Text>
-            </View>
+            <ScrollContainer name={mosqueInfo?.name || ''}>
+                <View className="flex-1 items-center justify-center">
+                    <ActivityIndicator size="large" color="#5B4B94" />
+                    <Text className="text-text mt-4 font-lato-regular">Loading mosque information...</Text>
+                </View>
+            </ScrollContainer>
         )
     }
 
@@ -168,7 +185,7 @@ export default function Home() {
                 </MotiView>
 
                 {/* Announcements Section */}
-                {/* <MotiView
+                <MotiView
                     from={{ opacity: 0, translateY: 30 }}
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ type: 'timing', duration: 600 }}
@@ -181,18 +198,18 @@ export default function Home() {
                             href={{
                                 pathname: "/announcements",
                                 params: {
-                                    announcements: JSON.stringify(mosqueData.announcements)
+                                    announcements: JSON.stringify(mosqueAnnouncements)
                                 }
                             }}
                         >
                             <Text className="text-md text-[#4B944B] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    <AnnouncementsCarousel announcements={mosqueData.announcements} />
-                </MotiView> */}
+                    <AnnouncementsCarousel announcements={mosqueAnnouncements} />
+                </MotiView>
 
                 {/* Events Section */}
-                {/* <MotiView
+                <MotiView
                     from={{ opacity: 0, translateY: 30 }}
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ type: 'timing', duration: 600 }}
@@ -205,7 +222,7 @@ export default function Home() {
                             <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    {mosqueData.events.slice(0, 2).map((event, index) => (
+                    {mosqueEvents.slice(0, 2).map((event, index) => (
                         <MotiView
                             key={event.title}
                             from={{ opacity: 0, translateX: -50 }}
@@ -218,10 +235,10 @@ export default function Home() {
                             }}
                             className="w-full items-center"
                         >
-                            <EventToken event={{ ...event, mosqueName: mosqueData.name }} />
+                            <EventToken event={{ ...event, mosqueName: mosqueInfo.name }} />
                         </MotiView>
                     ))}
-                </MotiView> */}
+                </MotiView>
             </View>
         </ScrollContainer>
     )

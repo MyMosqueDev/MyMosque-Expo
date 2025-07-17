@@ -89,13 +89,13 @@ We recommend using the following VSCode extensions to improve your development e
    - **For iOS:**
 
    ```sh
-   npm expo run:ios --device
+   npx expo run:ios --device
    ```
 
    - **For Android:**
 
    ```sh
-   npm expo run:android --device
+   npx expo run:android --device
    ```
 
    > **Note**: Make sure to enable USB debugging on your Android device. You can find the instructions [here](https://developer.android.com/studio/debug/dev-options).

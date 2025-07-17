@@ -1,9 +1,9 @@
 import ScrollContainer from "@/components/ScrollContainer";
+import { PrayerTime } from "@/lib/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import { MosqueData } from "@/lib/types";
 
 const DAILY_QUOTE = {
     text: "The best of you are those who learn the Qur'an and teach it.",
@@ -19,22 +19,22 @@ const PRAYER_ORDER = [
 ];
 
 export default function Prayers() {
-    const [mosqueData, setMosqueData] = useState<MosqueData | null>(null);
+    const [prayerTimes, setPrayerTimes] = useState<PrayerTime | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchMosqueData = async () => {
-            const userDataString = await AsyncStorage.getItem('userData');
-            if (userDataString) {
-                const parsedUserData = JSON.parse(userDataString);
-                setMosqueData(parsedUserData.lastVisitedMosque);
+            const prayerTimesString = await AsyncStorage.getItem('prayerTimes');
+            if (prayerTimesString) {
+                const parsedPrayerTimes = JSON.parse(prayerTimesString);
+                setPrayerTimes(parsedPrayerTimes);
             }
             setIsLoading(false);
         };
         fetchMosqueData();
     }, []);
 
-    if (isLoading || !mosqueData) {
+    if (isLoading || !prayerTimes) {
         return (
             <ScrollContainer name="Prayer Times">
                 <MotiView
@@ -82,12 +82,12 @@ export default function Prayers() {
                         </View>
                         <View className="w-full h-7 rounded-full overflow-hidden flex-row items-center bg-[#4A4A4A]/50">
                             <MotiView
-                                from={{ width: 0 }}
-                                animate={{ width: `${progressPercent}%` }}
-                                transition={{ type: 'timing', duration: 500, delay: 100 }}
-                                className="h-7 rounded-full bg-[#4A4A4A]"
+                                from={{ opacity: 0, translateY: 30, scale: 0.95 }}
+                                animate={{ opacity: 1, translateY: 0, scale: 1 }}
+                                transition={{ type: 'spring', damping: 15, stiffness: 150 }}
+                                className={`h-7 rounded-full bg-[#4A4A4A]`}
+                                style={{ width: `${progressPercent}%` }}
                             />
-                            <View style={{ width: `${100 - progressPercent}%` }} />
                         </View>
                     </MotiView>
 
@@ -107,7 +107,7 @@ export default function Prayers() {
                         </View>
                         {PRAYER_ORDER.map((prayer, idx) => {
                             const isCurrent = prayer.key === currentPrayerKey;
-                            const pt = mosqueData.prayerTimes[prayer.key as keyof typeof mosqueData.prayerTimes];
+                            const pt = prayerTimes[prayer.key as keyof typeof prayerTimes];
                             const adhan = pt.adhan;
                             const iqama = pt.iqama;
                             return (
