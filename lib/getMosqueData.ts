@@ -126,7 +126,7 @@ const getNextPrayer = (prayerTimes: PrayerTime) => {
     const currentTime = now.getHours() * 60 + now.getMinutes();
 
     const prayers = Object.entries(prayerTimes)
-        .filter(([_, value]) => (value as any).iqama) // Only entries with 'iqama'
+        .filter(([_, value]) => (value as any).iqama)
         .map(([name, value]) => {
             const iqama = (value as any).iqama;
             const [hours, minutes] = iqama.split(":").map(Number);
