@@ -14,3 +14,10 @@ export const loadFonts = async () => {
         'Lato-ThinItalic': require('../assets/fonts/Lato-ThinItalic.ttf'),
     });
 }; 
+
+export const to12HourFormat = (time24: string) => {
+    const [hourStr, minute] = time24.split(':');
+    let hour = parseInt(hourStr, 10);
+    hour = hour % 12 || 12;
+    return `${hour}:${minute}`;
+}

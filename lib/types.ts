@@ -31,6 +31,11 @@ export type PrayerTime = {
     asr: { adhan: string; iqama: string };
     maghrib: { adhan: string; iqama: string };
     isha: { adhan: string; iqama: string };
+    nextPrayer: {
+        name: string;
+        minutesToNextPrayer: number;
+        percentElapsed: number;
+    };
 }
 
 export type Announcement = {

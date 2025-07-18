@@ -11,6 +11,7 @@ import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
+import { getPrayerTimes } from "@/lib/getMosqueData";
 
 export default function Home() {
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
@@ -63,13 +64,13 @@ export default function Home() {
             const day = String(today.getUTCDate()).padStart(2, '0');
             const todayDbString = `${year}-${month}-${day} 00:00:00+00`;
 
-            const {data: mosquePrayerTimes, error: prayerTimesError} = await supabase
-                .from('prayer_times')
-                .select()
-                .eq('masjid_id', lastVisitedMosqueId)
-                .eq('date', todayDbString)
-                .single();
-            
+            // const {data: mosquePrayerTimes, error: prayerTimesError} = await supabase
+            //     .from('prayer_times')
+            //     .select()
+            //     .eq('masjid_id', lastVisitedMosqueId)
+            //     .eq('date', todayDbString)
+            //     .single();
+            const mosquePrayerTimes = await getPrayerTimes(mosqueInfo.address.split(',')[1].trim(), lastVisitedMosqueId);
             const {data: mosqueAnnouncements, error: announcementsError} = await supabase
                 .from('announcements')
                 .select()
@@ -85,47 +86,49 @@ export default function Home() {
                 return;
             }
 
-            if (prayerTimesError) {
-                console.error('Error fetching mosquePrayerTimes:', prayerTimesError.message);
-                return;
-            }
+            // if (prayerTimesError) {
+            //     console.error('Error fetching mosquePrayerTimes:', prayerTimesError.message);
+            //     return;
+            // }
 
             if (announcementsError) {
                 console.error('Error fetching mosqueAnnouncements:', announcementsError.message);
                 return;
             }
 
-            const city = mosqueInfo.address.split(',')[1].trim();
-            try {
-                const prayerTimes = await getLocationPrayerTimes(city);
-                for (let key in prayerTimes) {
-                    const formattedAdhan = to12HourFormat(prayerTimes[key as keyof PrayerTime]);
-                    const adhan24 = prayerTimes[key as keyof PrayerTime];
-                    const prayerKey = key.toLowerCase() as keyof PrayerTime;
+            // const city = mosqueInfo.address.split(',')[1].trim();
+            // try {
+            //     const prayerTimes = await getLocationPrayerTimes(city);
+            //     for (let key in prayerTimes) {
+            //         const formattedAdhan = to12HourFormat(prayerTimes[key as keyof PrayerTime]);
+            //         const adhan24 = prayerTimes[key as keyof PrayerTime];
+            //         const prayerKey = key.toLowerCase() as keyof PrayerTime;
 
-                    if (mosquePrayerTimes.times.prayerTimes[prayerKey]) {
-                        mosquePrayerTimes.times.prayerTimes[prayerKey].adhan = formattedAdhan;
+            //         if (mosquePrayerTimes.times.prayerTimes[prayerKey]) {
+            //             mosquePrayerTimes.times.prayerTimes[prayerKey].adhan = formattedAdhan;
 
-                        const iqamaVal = mosquePrayerTimes.times.prayerTimes[prayerKey].iqama;
-                        if (typeof iqamaVal === "string" && iqamaVal.startsWith("+")) {
-                            const minutesToAdd = parseInt(iqamaVal.slice(1), 10);
-                            const iqama24 = addMinutesToTime(adhan24, minutesToAdd);
-                            mosquePrayerTimes.times.prayerTimes[prayerKey].iqama = to12HourFormat(iqama24);
-                        }
-                    }
-                }
+            //             const iqamaVal = mosquePrayerTimes.times.prayerTimes[prayerKey].iqama;
+            //             if (typeof iqamaVal === "string" && iqamaVal.startsWith("+")) {
+            //                 const minutesToAdd = parseInt(iqamaVal.slice(1), 10);
+            //                 const iqama24 = addMinutesToTime(adhan24, minutesToAdd);
+            //                 mosquePrayerTimes.times.prayerTimes[prayerKey].iqama = to12HourFormat(iqama24);
+            //             }
+            //         }
+            //     }
                 
-            } catch (e) {
-                console.error(e);
-            }
+            // } catch (e) {
+            //     console.error(e);
+            // }
 
             setMosqueInfo(mosqueInfo);
             setMosqueEvents(mosqueEvents);
             await AsyncStorage.setItem('mosqueEvents', JSON.stringify(mosqueEvents));
             setMosqueAnnouncements(mosqueAnnouncements);
             // TODO - UPDATE DB JSON 
-            setMosquePrayerTimes(mosquePrayerTimes.times.prayerTimes);
-            await AsyncStorage.setItem('prayerTimes', JSON.stringify(mosquePrayerTimes.times.prayerTimes));
+            setMosquePrayerTimes(mosquePrayerTimes.prayerTimes);
+            await AsyncStorage.setItem('prayerTimes', JSON.stringify(mosquePrayerTimes.prayerTimes));
+            // const test = await getPrayerTimes(city, lastVisitedMosqueId);
+
         }
     }
 

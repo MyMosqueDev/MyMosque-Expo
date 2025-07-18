@@ -1,5 +1,6 @@
 import ScrollContainer from "@/components/ScrollContainer";
 import { PrayerTime } from "@/lib/types";
+import { to12HourFormat } from "@/lib/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
@@ -17,6 +18,16 @@ const PRAYER_ORDER = [
     { key: 'maghrib', label: 'Maghrib' },
     { key: 'isha', label: 'Isha' }
 ];
+
+const convertMinutesToTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (hours > 0) {
+        return `${hours} hr${hours > 1 ? 's' : ''} & ${remainingMinutes} min${remainingMinutes !== 1 ? 's' : ''}`;
+    } else {
+        return `${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
+    }
+}
 
 export default function Prayers() {
     const [prayerTimes, setPrayerTimes] = useState<PrayerTime | null>(null);
@@ -50,7 +61,7 @@ export default function Prayers() {
     }
 
     // Assume current prayer is Maghrib
-    const currentPrayerKey = 'maghrib';
+    const currentPrayerKey = prayerTimes.nextPrayer.name;
     const currentIndex = PRAYER_ORDER.findIndex(p => p.key === currentPrayerKey);
     const progressPercent = ((currentIndex + 1) / PRAYER_ORDER.length) * 100;
 
@@ -67,7 +78,7 @@ export default function Prayers() {
                         className="w-full max-w-md mb-6"
                     >
                         <View className="w-full flex-row justify-between px-2">
-                            <Text className="text-[#4A4A4A] text-2xl font-lato-bold">Maghrib</Text>
+                            <Text className="text-[#4A4A4A] text-2xl font-lato-bold">{PRAYER_ORDER[currentIndex].label}</Text>
                             <MotiView
                                 from={{ opacity: 0.5, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -77,7 +88,7 @@ export default function Prayers() {
                                     loop: true
                                 }}
                             >
-                                <Text className="text-[#4A4A4A] text-xl font-lato-bold pt-1">14 min 20 sec</Text>
+                                <Text className="text-[#4A4A4A] text-xl font-lato-bold pt-1">{convertMinutesToTime(prayerTimes.nextPrayer.minutesToNextPrayer)}</Text>
                             </MotiView>
                         </View>
                         <View className="w-full h-7 rounded-full overflow-hidden flex-row items-center bg-[#4A4A4A]/50">
@@ -107,7 +118,7 @@ export default function Prayers() {
                         </View>
                         {PRAYER_ORDER.map((prayer, idx) => {
                             const isCurrent = prayer.key === currentPrayerKey;
-                            const pt = prayerTimes[prayer.key as keyof typeof prayerTimes];
+                            const pt = prayerTimes[prayer.key as keyof Omit<PrayerTime, "nextPrayer">];
                             const adhan = pt.adhan;
                             const iqama = pt.iqama;
                             return (
@@ -125,7 +136,7 @@ export default function Prayers() {
                                     <View className="flex-row justify-between items-center py-2 px-2">
                                         <Text className={`text-2xl font-lato-bold w-1/3 ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{prayer.label}</Text>
                                         <Text className={`text-2xl font-lato-bold w-1/3 text-center ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{adhan}</Text>
-                                        <Text className={`text-2xl font-lato-bold w-1/3 text-right ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{iqama}</Text>
+                                        <Text className={`text-2xl font-lato-bold w-1/3 text-right ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{to12HourFormat(iqama)}</Text>
                                     </View>
                                 </MotiView>
                             );
