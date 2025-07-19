@@ -1,10 +1,11 @@
 import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
+import { getNextPrayer } from "@/lib/getPrayerTimes";
 import { fetchMosqueInfo } from "@/lib/utils";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, AppState, Text, View } from "react-native";
 import { Announcement, Event, MosqueInfo, PrayerTime } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EventToken from "./components/EventToken";
@@ -17,7 +18,17 @@ export default function Home() {
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(null);
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(null);
     const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(null);    
-
+    console.log(mosqueData?.events)
+    const getUpdatedPrayerTimes = () => {
+        if(mosquePrayerTimes) {
+            const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
+            return {
+                ...mosquePrayerTimes,
+                nextPrayer: updatedPrayerTimes
+            }
+        }
+        return mosquePrayerTimes;
+    }
     
     useEffect(() => {
         if (mosqueData) {
@@ -38,6 +49,23 @@ export default function Home() {
             fetchData();
         }
     }, [mosqueData]);
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                if(mosqueData) {
+                    setMosqueInfo(mosqueData.info);
+                    setMosqueEvents(mosqueData.events);
+                    setMosqueAnnouncements(mosqueData.announcements);
+                    setMosquePrayerTimes(mosqueData.prayerTimes);
+                }
+            }
+        });
+        
+        return () => {
+            subscription.remove();
+        };
+    }, [])
 
     if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents || !mosqueAnnouncements) {
         return (
@@ -84,14 +112,14 @@ export default function Home() {
                             href={{
                                 pathname: "/prayer",
                                 params: {
-                                    prayerTimes: mosquePrayerTimes ? JSON.stringify(mosquePrayerTimes) : '{}'
+                                    prayerTimes: mosquePrayerTimes ? JSON.stringify(getUpdatedPrayerTimes()) : '{}'
                                 }
                             }}
                         >
                             <Text className="text-md text-[#5B4B94] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    <PrayerToken prayerTimes={mosquePrayerTimes} />
+                    <PrayerToken prayerTimes={getUpdatedPrayerTimes() || mosquePrayerTimes} />
                 </MotiView>
 
                 {/* Announcements Section */}
@@ -139,7 +167,11 @@ export default function Home() {
                             <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    {mosqueEvents.slice(0, 2).map((event, index) => (
+                    {mosqueEvents
+                        .filter(event => new Date(event.date) > new Date())
+                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                        .slice(0, 2)
+                        .map((event, index) => (
                         <MotiView
                             key={event.title}
                             from={{ opacity: 0, translateX: -50 }}

@@ -1,8 +1,10 @@
 import Feather from '@expo/vector-icons/Feather';
+import { isThisWeek, isToday, isTomorrow } from 'date-fns';
+import { parseISOUTC, formatUTC } from '../../lib/dateUtils';
 import { MotiView } from "moti";
-import { Text, View } from "react-native";
+import { useEffect, useState } from 'react';
+import { AppState, Text, View } from "react-native";
 import { Event, MosqueInfo } from "../../lib/types";
-import { format, isThisWeek, isToday, isTomorrow, parseISO } from 'date-fns';
 
 interface GeneralMosqueInfo {
     address: MosqueInfo["address"];
@@ -11,19 +13,21 @@ interface GeneralMosqueInfo {
 }
 
 export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
-
+    const [upcomingEvent, setUpcomingEvent] = useState<Event | null>(null);
+    
     const formatUpcomingEventDate = (isoDateTime: string): string => { // TODO: Move to lib/utils.ts
-        const date = parseISO(isoDateTime);
+        const date = parseISOUTC(isoDateTime);
+        console.log(date)
         if (isToday(date)) {
-            return `Today @ ${format(date, "h:mm a")}`;
+            return `Today @ ${formatUTC(date, "h:mm a")}`;
         }
         if (isTomorrow(date)) {
-            return `Tomorrow @ ${format(date, "h:mm a")}`;
+            return `Tomorrow @ ${formatUTC(date, "h:mm a")}`;
         }
         if (isThisWeek(date, { weekStartsOn: 1 })) {
-            return `${format(date, "EEEE")} @ ${format(date, "h:mm a")}`;
+            return `${formatUTC(date, "EEEE")} @ ${formatUTC(date, "h:mm a")}`;
         }
-        return `${format(date, "MMM d")} @ ${format(date, "h:mm a")}`;
+        return `${formatUTC(date, "MMM d")} @ ${formatUTC(date, "h:mm a")}`;
     }
 
     const getUpcomingEvent = (events: Event[]): Event | null => {
@@ -41,8 +45,24 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
         return null;
     }
 
-    const upcomingEvent : Event | null = getUpcomingEvent(info.events || []);
-    
+    useEffect(() => {
+        const upcomingEvent = getUpcomingEvent(info.events || []);
+        setUpcomingEvent(upcomingEvent);
+    }, [info.events])
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                const upcomingEvent = getUpcomingEvent(info.events || []);
+                setUpcomingEvent(upcomingEvent);
+            }
+        });
+        
+        return () => {
+            subscription.remove();
+        };
+    }, [])
+
     return (
         <MotiView
             from={{ opacity: 0, scale: 0.95 }}

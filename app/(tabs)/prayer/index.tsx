@@ -1,10 +1,11 @@
 import ScrollContainer from "@/components/ScrollContainer";
+import { getNextPrayer } from "@/lib/getPrayerTimes";
 import { PrayerTime } from "@/lib/types";
 import { to12HourFormat } from "@/lib/utils";
 import { useLocalSearchParams } from 'expo-router';
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { AppState, Text, View } from "react-native";
 
 const DAILY_QUOTE = {
     text: "The best of you are those who learn the Qur'an and teach it.",
@@ -47,6 +48,24 @@ export default function Prayers() {
         setIsLoading(false);
     }, [prayerTimesParam]);
 
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                if (prayerTimes) {
+                    const updatedNextPrayer = getNextPrayer(prayerTimes);
+                    setPrayerTimes({
+                        ...prayerTimes,
+                        nextPrayer: updatedNextPrayer
+                    });
+                }
+            }
+        });
+        
+        return () => {
+            subscription.remove();
+        };
+    }, [])
+
     if (isLoading || !prayerTimes) {
         return (
             <ScrollContainer name="Prayer Times">
@@ -62,7 +81,6 @@ export default function Prayers() {
         );
     }
 
-    // Assume current prayer is Maghrib
     const currentPrayerKey = prayerTimes.nextPrayer.name;
     const currentIndex = PRAYER_ORDER.findIndex(p => p.key === currentPrayerKey);
     const progressPercent = ((currentIndex + 1) / PRAYER_ORDER.length) * 100;
@@ -80,7 +98,7 @@ export default function Prayers() {
                         className="w-full max-w-md mb-6"
                     >
                         <View className="w-full flex-row justify-between px-2">
-                            <Text className="text-[#4A4A4A] text-2xl font-lato-bold">{PRAYER_ORDER[currentIndex].label}</Text>
+                            <Text className="text-[#4A4A4A] text-2xl font-lato-bold">{prayerTimes.nextPrayer.name.charAt(0).toUpperCase() + prayerTimes.nextPrayer.name.slice(1)}</Text>
                             <MotiView
                                 from={{ opacity: 0.5, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -99,7 +117,7 @@ export default function Prayers() {
                                 animate={{ opacity: 1, translateY: 0, scale: 1 }}
                                 transition={{ type: 'spring', damping: 15, stiffness: 150 }}
                                 className={`h-7 rounded-full bg-[#4A4A4A]`}
-                                style={{ width: `${progressPercent}%` }}
+                                style={{ width: `${prayerTimes.nextPrayer.percentElapsed * 100}%` }}
                             />
                         </View>
                     </MotiView>

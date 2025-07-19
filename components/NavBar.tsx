@@ -1,4 +1,5 @@
 import { useMosqueData } from '@/app/_layout';
+import { getNextPrayer } from '@/lib/getPrayerTimes';
 import { Event, PrayerTime } from '@/lib/types';
 import { fetchMosqueInfo } from "@/lib/utils";
 import Feather from '@expo/vector-icons/Feather';
@@ -31,6 +32,17 @@ export default function Navbar() {
             setMosquePrayerTimes(mosqueData.prayerTimes);
         }
     }, [mosqueData]);
+
+    const getUpdatedPrayerTimes = () => {
+        if(mosquePrayerTimes) {
+            const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
+            return {
+                ...mosquePrayerTimes,
+                nextPrayer: updatedPrayerTimes
+            }
+        }
+        return mosquePrayerTimes;
+    }
 
     if (pathname.startsWith('/announcements') || pathname.startsWith('/eventDetails')) {
         return null;
@@ -128,7 +140,7 @@ export default function Navbar() {
                         href={{
                             pathname: "/prayer",
                             params: {
-                                prayerTimes: mosquePrayerTimes ? JSON.stringify(mosquePrayerTimes) : '{}'
+                                prayerTimes: mosquePrayerTimes ? JSON.stringify(getUpdatedPrayerTimes()) : '{}'
                             }
                         }}
                         onPress={() => handlePagePress('prayers')}

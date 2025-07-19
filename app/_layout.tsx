@@ -37,7 +37,6 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       await loadFonts();
-      console.log('prepare');
       const mosqueData = await fetchMosqueInfo();
       if(mosqueData) {
         setMosqueData(mosqueData);

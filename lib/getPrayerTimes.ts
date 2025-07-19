@@ -62,6 +62,7 @@ export const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, 
  * @returns the prayer times in correct format
  */
 export const formatPrayerTimes = async (city: string, mosquePrayerTimes: any) => {
+    console.log(mosquePrayerTimes);
     try {
         // fetches prayer times based off mosque location
         const prayerTimes = await getLocationPrayerTimes(city);
@@ -104,7 +105,7 @@ export const formatPrayerTimes = async (city: string, mosquePrayerTimes: any) =>
 }
 
 // function to get the next prayer time based on current time
-const getNextPrayer = (prayerTimes: any) => {
+export const getNextPrayer = (prayerTimes: PrayerTime) => {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
 

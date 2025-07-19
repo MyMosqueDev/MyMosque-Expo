@@ -14,6 +14,15 @@ export function parseISO(dateString: string): Date {
 }
 
 /**
+ * Parse ISO date string to Date object, treating it as UTC
+ */
+export function parseISOUTC(dateString: string): Date {
+  // Remove the timezone indicator and parse as UTC
+  const utcString = dateString.replace(/[+-]\d{2}:\d{2}$/, '');
+  return new Date(utcString + 'Z');
+}
+
+/**
  * Format date to "EEEE, MMMM d" format (e.g., "Monday, January 15")
  */
 export function formatDay(date: Date): string {
@@ -25,11 +34,40 @@ export function formatDay(date: Date): string {
 }
 
 /**
+ * Format date to "EEEE, MMMM d" format using UTC (e.g., "Monday, January 15")
+ */
+export function formatDayUTC(date: Date): string {
+  const dayOfWeek = DAYS_OF_WEEK[date.getUTCDay()];
+  const month = MONTHS[date.getUTCMonth()];
+  const day = date.getUTCDate();
+  
+  return `${dayOfWeek}, ${month} ${day}`;
+}
+
+/**
  * Format date to "h:mm a" format (e.g., "2:30 PM")
  */
 export function formatTime(date: Date): string {
   let hours = date.getHours();
   const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+  // Convert to 12-hour format
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0 should be 12
+  
+  // Pad minutes with leading zero if needed
+  const paddedMinutes = minutes.toString().padStart(2, '0');
+  
+  return `${hours}:${paddedMinutes} ${ampm}`;
+}
+
+/**
+ * Format date to "h:mm a" format using UTC (e.g., "2:30 PM")
+ */
+export function formatTimeUTC(date: Date): string {
+  let hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
   const ampm = hours >= 12 ? 'PM' : 'AM';
   
   // Convert to 12-hour format
@@ -216,5 +254,25 @@ export function format(date: Date, formatString: string): string {
       return formatShortMonthDay(date);
     default:
       throw new Error(`Unsupported format: ${formatString}`);
+  }
+}
+
+/**
+ * Main format function that supports all format strings with UTC option
+ */
+export function formatUTC(date: Date, formatString: string): string {
+  switch (formatString) {
+    case 'EEEE, MMMM d':
+      return formatDayUTC(date);
+    case 'h:mm a':
+      return formatTimeUTC(date);
+    case 'EEEE':
+      return DAYS_OF_WEEK[date.getUTCDay()];
+    case 'MMM d':
+      const month = MONTHS[date.getUTCMonth()].substring(0, 3);
+      const day = date.getUTCDate();
+      return `${month} ${day}`;
+    default:
+      throw new Error(`Unsupported UTC format: ${formatString}`);
   }
 } 
