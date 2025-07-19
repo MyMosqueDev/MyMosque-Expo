@@ -1,43 +1,35 @@
-import Feather from '@expo/vector-icons/Feather';
 import * as Location from 'expo-location';
 import { MotiView } from 'moti';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, TextInput, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import MapView, { Marker, Region } from 'react-native-maps';
 import Container from "../components/Container";
-import { mosqueData } from '../lib/data';
-import { MosqueData } from '../lib/types';
+import { MosqueData, MosqueInfo } from '../lib/types';
 import MosqueCard from "./components/MosqueCard";
+import { supabase } from '../lib/supabase';
 
 export default function Map() {
+  const [mosques, setMosques] = useState<MosqueInfo[]>([]);
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
   const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
-
-    const getLocation = async () => {
-      Location.requestForegroundPermissionsAsync();
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setInitialRegion({
-          latitude: 30.283252,
-          longitude: -97.744386,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        });
-        return;
+    const getMosques = async () => {
+      const { data, error } = await supabase
+        .from('mosques')
+        .select('*');
+      if (data) {
+        setMosques(data);
       }
-      const position = await Location.getCurrentPositionAsync();
-
-      setInitialRegion({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
     }
-    getLocation();
+    getMosques();
 
+    setInitialRegion({
+      latitude: 30.283252,
+      longitude: -97.744386,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    });
   }, []);
 
   return (
@@ -59,7 +51,7 @@ export default function Map() {
           }}
           className="w-full justify-center items-center"
         >
-          <Text className="text-text text-4xl w-5/6 text-center font-lato-bold mb-4">Add Your Go-To Mosques!</Text>
+          <Text className="text-text text-4xl w-5/6 text-center font-lato-bold mb-4">View Our Mosques!</Text>
         </MotiView>
         
         <MotiView
@@ -86,7 +78,7 @@ export default function Map() {
             showsMyLocationButton={true}
             userInterfaceStyle="dark"
           >
-            {mosqueData.map((mosque: MosqueData, index: number) => (
+            {mosques.map((mosque: MosqueInfo, index: number) => (
               <Marker
                 key={`${mosque.name}-${index}`}
                 coordinate={{
@@ -117,7 +109,7 @@ export default function Map() {
               delay: 300,
             }}
           >
-            <View className="w-full min-h-12 flex-row items-center justify-center gap-3 backdrop-blur-lg border border-white/30 bg-white/30 rounded-3xl px-4 py-2 mb-3"> 
+            {/* <View className="w-full min-h-12 flex-row items-center justify-center gap-3 backdrop-blur-lg border border-white/30 bg-white/30 rounded-3xl px-4 py-2 mb-3"> 
               <Feather name="search" size={20} color="#4A4A4A" className="mt-1"/>
               <TextInput
                 placeholder="Search For a Mosque"
@@ -125,7 +117,10 @@ export default function Map() {
                 className="text-text text-lg font-lato flex-1 h-full mb-1"
                 multiline={true}
               />
-            </View>
+            </View> */}
+            <Text className="text-text/70 text-sm font-lato text-center mb-3">
+              Listed mosques are within our current limited network
+            </Text>
           </MotiView>
           
           <ScrollView 
@@ -134,7 +129,7 @@ export default function Map() {
             contentContainerStyle={{ paddingBottom: 30 }}
           >
             {
-              mosqueData.map((mosque : MosqueData, index: number) => (
+              mosques.map((mosque : MosqueInfo, index: number) => (
                 <MotiView
                   key={mosque.name}
                   from={{

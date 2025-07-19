@@ -2,11 +2,10 @@ import { ProcessedMosqueData } from "@/lib/types";
 import { Stack } from "expo-router";
 import * as SplashScreen from 'expo-splash-screen';
 import { createContext, useContext, useEffect, useState } from "react";
-import { ImageBackground, View } from "react-native";
+import { AppState, ImageBackground, View } from "react-native";
 import NavBar from "../components/NavBar";
 import '../global.css';
 import { fetchMosqueInfo, loadFonts } from "../lib/utils";
-import { AppState } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -73,6 +72,13 @@ export default function RootLayout() {
           <View style={{ flex: 1 }}>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen 
+                name="map" 
+                options={{ 
+                  headerShown: false,
+                  gestureEnabled: false,
+                }}
+              />
               <Stack.Screen 
                 name="announcements" 
                 options={{ 

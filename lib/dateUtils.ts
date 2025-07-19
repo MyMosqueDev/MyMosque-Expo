@@ -264,14 +264,20 @@ export function formatUTC(date: Date, formatString: string): string {
   switch (formatString) {
     case 'EEEE, MMMM d':
       return formatDayUTC(date);
+    case 'EEEE, MMMM do':
+      const dayOfWeek = DAYS_OF_WEEK[date.getUTCDay()];
+      const month = MONTHS[date.getUTCMonth()];
+      const day = date.getUTCDate();
+      const ordinal = getOrdinalSuffix(day);
+      return `${dayOfWeek}, ${month} ${day}${ordinal}`;
     case 'h:mm a':
       return formatTimeUTC(date);
     case 'EEEE':
       return DAYS_OF_WEEK[date.getUTCDay()];
     case 'MMM d':
-      const month = MONTHS[date.getUTCMonth()].substring(0, 3);
-      const day = date.getUTCDate();
-      return `${month} ${day}`;
+      const monthShort = MONTHS[date.getUTCMonth()].substring(0, 3);
+      const dayShort = date.getUTCDate();
+      return `${monthShort} ${dayShort}`;
     default:
       throw new Error(`Unsupported UTC format: ${formatString}`);
   }

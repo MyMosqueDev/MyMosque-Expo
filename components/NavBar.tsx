@@ -44,7 +44,7 @@ export default function Navbar() {
         return mosquePrayerTimes;
     }
 
-    if (pathname.startsWith('/announcements') || pathname.startsWith('/eventDetails')) {
+    if (pathname.startsWith('/announcements') || pathname.startsWith('/eventDetails') || pathname.startsWith('/map')) {
         return null;
     }
 

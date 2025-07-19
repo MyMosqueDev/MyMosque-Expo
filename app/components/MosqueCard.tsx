@@ -1,5 +1,6 @@
-import { MosqueData } from '@/lib/types';
-import { AntDesign } from '@expo/vector-icons';
+import { useMosqueData } from '@/app/_layout';
+import { MosqueInfo } from '@/lib/types';
+import { fetchMosqueInfo } from '@/lib/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -9,7 +10,7 @@ import MapView from 'react-native-maps';
 
 
 interface MosqueCardProps {
-    data: MosqueData;
+    data: MosqueInfo;
     mapRef: React.RefObject<MapView | null>;
 }
 
@@ -20,6 +21,7 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
 
     const images = data.images || [];
     const [isFavorited, setIsFavorited] = useState(false);
+    const { setMosqueData } = useMosqueData();
 
     // handles toggling favorite + saving to AsyncStorage
     const toggleFavorite = async (e: any) => {
@@ -33,14 +35,12 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
                 const userDataParsed = JSON.parse(userData);
                 userDataParsed.favoriteMosques.push(data);
                 await AsyncStorage.setItem('userData', JSON.stringify(userDataParsed));
-                console.log(userDataParsed);
             } else {
                 const newUserData = {
                     favoriteMosques: [data],
                     lastVisitedMosque: data,
                 }
                 await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
-                console.log(newUserData);
             }
         } catch (error) {
             console.error(error);
@@ -58,11 +58,17 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
         });
         const newUserData = {
             favoriteMosques: [data],
-            lastVisitedMosque: data.supabaseId,
+            lastVisitedMosque: data.id,
         }
         await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
-
-        router.replace("/home");
+        
+        const mosqueData = await fetchMosqueInfo();
+        if (mosqueData) {
+            setMosqueData(mosqueData);
+        }
+        
+        // Replace the current route to prevent going back
+        router.replace("/(tabs)");
     }
 
     return (
@@ -76,7 +82,7 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
                     <Text className="text-xl font-lato-bold text-gray-800">{name}</Text>
                     <Text className="text-base font-lato text-gray-500">{address}</Text>
                 </View>
-                <TouchableOpacity 
+                {/* <TouchableOpacity 
                     onPress={toggleFavorite}
                 >
                     <AntDesign 
@@ -84,7 +90,7 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
                         size={24} 
                         color="#FBBF24" 
                     />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
 
             <ScrollView

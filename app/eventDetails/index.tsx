@@ -1,7 +1,7 @@
 import { Event } from "@/lib/types";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { format, parseISO } from "date-fns";
+import { formatUTC, parseISOUTC } from "../../lib/dateUtils";
 import { useLocalSearchParams } from "expo-router";
 import { MotiView } from "moti";
 import { Image, ImageBackground, ScrollView, Text, View } from "react-native";
@@ -9,8 +9,8 @@ import { Image, ImageBackground, ScrollView, Text, View } from "react-native";
 export default function EventDetails() {
     const params = useLocalSearchParams();
     const eventData: Event = JSON.parse(params.eventData as string)
-    const date = format(parseISO(eventData.date), 'EEEE, MMMM do')
-    const time = format(parseISO(eventData.date), 'h:mm a')
+    const date = formatUTC(parseISOUTC(eventData.date), 'EEEE, MMMM do')
+    const time = formatUTC(parseISOUTC(eventData.date), 'h:mm a')
 
     return (
         <ImageBackground 
@@ -93,7 +93,7 @@ export default function EventDetails() {
                         >
                             <View className="flex-row items-center gap-2">
                                 <MaterialIcons name="people-alt" size={18} color="#4A4A4A" />
-                                <Text className="text-text text-xl font-lato">Hosted by <Text className="font-lato-bold">{eventData.mosqueName}</Text></Text>
+                                <Text className="text-text text-xl font-lato">Hosted by <Text className="font-lato-bold">{eventData.host}</Text></Text>
                             </View>
                         </MotiView>
                         <MotiView
@@ -104,7 +104,7 @@ export default function EventDetails() {
                         >
                             <View className="flex-row items-center gap-2">
                                 <Feather name="map-pin" size={18} color="#4A4A4A" />
-                                <Text className="text-text text-xl font-lato">Located @ <Text className="font-lato-bold underline">{eventData.location}</Text></Text>
+                                <Text className="text-text text-xl font-lato">Located @ <Text className="font-lato-bold">{eventData.location}</Text></Text>
                             </View>
                         </MotiView>
                     </MotiView>

@@ -3,6 +3,10 @@ export type MosqueInfo = {
     id: string;
     address: string;
     images?: string[] | null;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
     hours: {
         monday: string;
         tuesday: string;

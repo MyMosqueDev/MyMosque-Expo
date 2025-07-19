@@ -11,6 +11,7 @@ import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
+import EmptyToken from "./components/EmptyToken";
 
 export default function Home() {
     const { mosqueData } = useMosqueData();
@@ -18,7 +19,6 @@ export default function Home() {
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(null);
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(null);
     const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(null);    
-    console.log(mosqueData?.events)
     const getUpdatedPrayerTimes = () => {
         if(mosquePrayerTimes) {
             const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
@@ -143,6 +143,7 @@ export default function Home() {
                             <Text className="text-md text-[#4B944B] font-lato-bold">View More</Text>
                         </Link>
                     </View>
+                    {mosqueAnnouncements.length === 0 && <EmptyToken type="announcements" />}
                     <AnnouncementsCarousel announcements={mosqueAnnouncements} />
                 </MotiView>
 
@@ -187,6 +188,7 @@ export default function Home() {
                             <EventToken event={{ ...event, mosqueName: mosqueInfo.name }} />
                         </MotiView>
                     ))}
+                    {mosqueEvents.length === 0 && <EmptyToken type="events" />}
                 </MotiView>
             </View>
         </ScrollContainer>

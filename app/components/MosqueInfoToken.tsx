@@ -17,7 +17,6 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
     
     const formatUpcomingEventDate = (isoDateTime: string): string => { // TODO: Move to lib/utils.ts
         const date = parseISOUTC(isoDateTime);
-        console.log(date)
         if (isToday(date)) {
             return `Today @ ${formatUTC(date, "h:mm a")}`;
         }
