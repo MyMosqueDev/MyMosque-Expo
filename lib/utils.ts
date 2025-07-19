@@ -1,4 +1,7 @@
 import * as Font from 'expo-font';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { syncStorage } from './syncStorage';
+import { format } from 'date-fns';
 
 export const loadFonts = async () => {
     await Font.loadAsync({
@@ -20,4 +23,22 @@ export const to12HourFormat = (time24: string) => {
     let hour = parseInt(hourStr, 10);
     hour = hour % 12 || 12;
     return `${hour}:${minute}`;
+}
+
+export const fetchMosqueInfo = async () => {
+    const userDataString = await AsyncStorage.getItem('userData');
+
+    if (userDataString) {
+        const lastVisitedMosqueId = JSON.parse(userDataString).lastVisitedMosque;
+        const mosqueData = await syncStorage(lastVisitedMosqueId);
+        const date = new Date().setHours(0, 0, 0,0 );
+        const formattedDate = format(date, "yyyy-MM-dd'T'HH:mm:ss") + '+00:00';
+
+        return {
+            ...mosqueData,
+            prayerTimes: mosqueData.prayerTimes[formattedDate],
+        }
+    }
+
+    return null;
 }

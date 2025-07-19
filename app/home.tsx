@@ -1,143 +1,43 @@
+import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
-import getLocationPrayerTimes from "@/lib/getLocationPrayerTimes";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchMosqueInfo } from "@/lib/utils";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { supabase } from "../lib/supabase";
 import { Announcement, Event, MosqueInfo, PrayerTime } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
-import { getPrayerTimes } from "@/lib/getMosqueData";
 
 export default function Home() {
+    const { mosqueData } = useMosqueData();
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(null);
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(null);
-    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(null);
-    const to12HourFormat = (time24: string) => {
-        const [hourStr, minute] = time24.split(':');
-        let hour = parseInt(hourStr, 10);
-        hour = hour % 12 || 12;
-        return `${hour}:${minute}`;
-    }
-
-    const addMinutesToTime = (time24: string, minutesToAdd: number) => {
-        const [hourStr, minuteStr] = time24.split(':');
-        let hour = parseInt(hourStr, 10);
-        let minute = parseInt(minuteStr, 10);
-
-        minute += minutesToAdd;
-        hour += Math.floor(minute / 60);
-        minute = minute % 60;
-        hour = hour % 24;
-
-        const hourFormatted = hour.toString().padStart(2, '0');
-        const minuteFormatted = minute.toString().padStart(2, '0');
-        return `${hourFormatted}:${minuteFormatted}`;
-    }
-
-
-    const fetchMosqueInfo = async () => {
-        const userDataString = await AsyncStorage.getItem('userData');
-
-        if (userDataString) {
-            const lastVisitedMosqueId = JSON.parse(userDataString).lastVisitedMosque;
-            
-            const {data: mosqueInfo, error} = await supabase
-                .from('mosques')
-                .select()
-                .eq('id', lastVisitedMosqueId)
-                .single();
-
-            const {data: mosqueEvents, error: eventsError} = await supabase
-                .from('events')
-                .select()
-                .eq('masjid_id', lastVisitedMosqueId);
-
-            const today = new Date();
-            const year = today.getUTCFullYear();
-            const month = String(today.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(today.getUTCDate()).padStart(2, '0');
-            const todayDbString = `${year}-${month}-${day} 00:00:00+00`;
-
-            // const {data: mosquePrayerTimes, error: prayerTimesError} = await supabase
-            //     .from('prayer_times')
-            //     .select()
-            //     .eq('masjid_id', lastVisitedMosqueId)
-            //     .eq('date', todayDbString)
-            //     .single();
-            const mosquePrayerTimes = await getPrayerTimes(mosqueInfo.address.split(',')[1].trim(), lastVisitedMosqueId);
-            const {data: mosqueAnnouncements, error: announcementsError} = await supabase
-                .from('announcements')
-                .select()
-                .eq('masjid_id', lastVisitedMosqueId);
-
-            if (error) {
-                console.error('Error fetching mosqueInfo:', error.message);
-                return;
-            }
-
-            if (eventsError) {
-                console.error('Error fetching mosqueEvents:', eventsError.message);
-                return;
-            }
-
-            // if (prayerTimesError) {
-            //     console.error('Error fetching mosquePrayerTimes:', prayerTimesError.message);
-            //     return;
-            // }
-
-            if (announcementsError) {
-                console.error('Error fetching mosqueAnnouncements:', announcementsError.message);
-                return;
-            }
-
-            // const city = mosqueInfo.address.split(',')[1].trim();
-            // try {
-            //     const prayerTimes = await getLocationPrayerTimes(city);
-            //     for (let key in prayerTimes) {
-            //         const formattedAdhan = to12HourFormat(prayerTimes[key as keyof PrayerTime]);
-            //         const adhan24 = prayerTimes[key as keyof PrayerTime];
-            //         const prayerKey = key.toLowerCase() as keyof PrayerTime;
-
-            //         if (mosquePrayerTimes.times.prayerTimes[prayerKey]) {
-            //             mosquePrayerTimes.times.prayerTimes[prayerKey].adhan = formattedAdhan;
-
-            //             const iqamaVal = mosquePrayerTimes.times.prayerTimes[prayerKey].iqama;
-            //             if (typeof iqamaVal === "string" && iqamaVal.startsWith("+")) {
-            //                 const minutesToAdd = parseInt(iqamaVal.slice(1), 10);
-            //                 const iqama24 = addMinutesToTime(adhan24, minutesToAdd);
-            //                 mosquePrayerTimes.times.prayerTimes[prayerKey].iqama = to12HourFormat(iqama24);
-            //             }
-            //         }
-            //     }
-                
-            // } catch (e) {
-            //     console.error(e);
-            // }
-
-            setMosqueInfo(mosqueInfo);
-            setMosqueEvents(mosqueEvents);
-            await AsyncStorage.setItem('mosqueEvents', JSON.stringify(mosqueEvents));
-            setMosqueAnnouncements(mosqueAnnouncements);
-            // TODO - UPDATE DB JSON 
-            setMosquePrayerTimes(mosquePrayerTimes.prayerTimes);
-            await AsyncStorage.setItem('prayerTimes', JSON.stringify(mosquePrayerTimes.prayerTimes));
-            // const test = await getPrayerTimes(city, lastVisitedMosqueId);
-
-        }
-    }
-
-    
+    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(null);    
 
     
     useEffect(() => {
-        fetchMosqueInfo();
-    }, []);
+        if (mosqueData) {
+            setMosqueInfo(mosqueData.info);
+            setMosqueEvents(mosqueData.events);
+            setMosqueAnnouncements(mosqueData.announcements);
+            setMosquePrayerTimes(mosqueData.prayerTimes);
+        } else {
+            const fetchData = async () => {
+                const mosqueData = await fetchMosqueInfo();
+                if(mosqueData) {
+                    setMosqueInfo(mosqueData.info);
+                    setMosqueEvents(mosqueData.events);
+                    setMosquePrayerTimes(mosqueData.prayerTimes);
+                    setMosqueAnnouncements(mosqueData.announcements);
+                }
+            }
+            fetchData();
+        }
+    }, [mosqueData]);
 
     if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents || !mosqueAnnouncements) {
         return (
@@ -180,7 +80,14 @@ export default function Home() {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Prayer Times</Text>
-                        <Link href="/prayer">
+                        <Link 
+                            href={{
+                                pathname: "/prayer",
+                                params: {
+                                    prayerTimes: mosquePrayerTimes ? JSON.stringify(mosquePrayerTimes) : '{}'
+                                }
+                            }}
+                        >
                             <Text className="text-md text-[#5B4B94] font-lato-bold">View More</Text>
                         </Link>
                     </View>
@@ -221,7 +128,14 @@ export default function Home() {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Upcoming Events</Text>
-                        <Link href="/events">
+                        <Link 
+                            href={{
+                                pathname: "/events",
+                                params: {
+                                    events: mosqueEvents ? JSON.stringify(mosqueEvents) : '[]'
+                                }
+                            }}
+                        >
                             <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
                         </Link>
                     </View>

@@ -2,8 +2,8 @@ import EventToken from "@/app/components/EventToken";
 import ScrollContainer from "@/components/ScrollContainer";
 import { Event } from "@/lib/types";
 import { Feather } from '@expo/vector-icons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addDays, endOfWeek, format, isSameDay, isWithinInterval, parseISO, startOfWeek } from 'date-fns';
+import { useLocalSearchParams } from 'expo-router';
 import { MotiView } from 'moti';
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -15,17 +15,20 @@ export default function Events() {
     const [events, setEvents] = useState<Event[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const { events: eventsParam } = useLocalSearchParams();
+
     useEffect(() => {
-        const fetchMosqueData = async () => {
-            const mosqueEventsString = await AsyncStorage.getItem('mosqueEvents');
-            if (mosqueEventsString) {
-                const parsedMosqueEvents = JSON.parse(mosqueEventsString);
-                setEvents(parsedMosqueEvents);
+        if (eventsParam) {
+            try {
+                const parsedEvents = JSON.parse(eventsParam as string);
+                setEvents(parsedEvents);
+            } catch (error) {
+                console.error('Error parsing events:', error);
+                setEvents([]);
             }
-            setIsLoading(false);
-        };
-        fetchMosqueData();
-    }, []);
+        }
+        setIsLoading(false);
+    }, [eventsParam]);
 
     // Calculate week range
     const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });

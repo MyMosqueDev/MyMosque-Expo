@@ -1,7 +1,7 @@
 import ScrollContainer from "@/components/ScrollContainer";
 import { PrayerTime } from "@/lib/types";
 import { to12HourFormat } from "@/lib/utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLocalSearchParams } from 'expo-router';
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
@@ -32,18 +32,20 @@ const convertMinutesToTime = (minutes: number) => {
 export default function Prayers() {
     const [prayerTimes, setPrayerTimes] = useState<PrayerTime | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { prayerTimes: prayerTimesParam } = useLocalSearchParams();
 
     useEffect(() => {
-        const fetchMosqueData = async () => {
-            const prayerTimesString = await AsyncStorage.getItem('prayerTimes');
-            if (prayerTimesString) {
-                const parsedPrayerTimes = JSON.parse(prayerTimesString);
+        if (prayerTimesParam) {
+            try {
+                const parsedPrayerTimes = JSON.parse(prayerTimesParam as string);
                 setPrayerTimes(parsedPrayerTimes);
+            } catch (error) {
+                console.error('Error parsing prayer times:', error);
+                setPrayerTimes(null);
             }
-            setIsLoading(false);
-        };
-        fetchMosqueData();
-    }, []);
+        }
+        setIsLoading(false);
+    }, [prayerTimesParam]);
 
     if (isLoading || !prayerTimes) {
         return (

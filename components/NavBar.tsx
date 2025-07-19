@@ -1,20 +1,41 @@
+import { useMosqueData } from '@/app/_layout';
+import { Event, PrayerTime } from '@/lib/types';
+import { fetchMosqueInfo } from "@/lib/utils";
 import Feather from '@expo/vector-icons/Feather';
 import { BlurView } from 'expo-blur';
 import { Link, usePathname } from 'expo-router';
 import { MotiView } from 'moti';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from "react-native";
 
 type page = 'home' | 'events' | 'prayers';
 export default function Navbar() {
+    const { mosqueData } = useMosqueData();
     const [page, setPage] = useState<page>('home');
+    const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null);
+    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerTimes || null);  
     const pathname = usePathname();
 
-    if (pathname.startsWith('/announcements')) {
+    useEffect(() => {
+        if(!mosqueData) {
+            const fetchData = async () => {
+                const mosqueData = await fetchMosqueInfo();
+                if(mosqueData) {
+                    setMosqueEvents(mosqueData.events);
+                    setMosquePrayerTimes(mosqueData.prayerTimes);
+                }
+            }
+            fetchData();
+        } else {
+            setMosqueEvents(mosqueData.events);
+            setMosquePrayerTimes(mosqueData.prayerTimes);
+        }
+    }, [mosqueData]);
+
+    if (pathname.startsWith('/announcements') || pathname.startsWith('/eventDetails')) {
         return null;
     }
-    
-    // Determine current page based on pathname
+
     const getCurrentPage = (): page => {
         if (pathname === '/') return 'home';
         if (pathname === '/events') return 'events';
@@ -79,7 +100,12 @@ export default function Navbar() {
                     </Link>
                     
                     <Link 
-                        href="/events" 
+                        href={{
+                            pathname: "/events",
+                            params: {
+                                events: mosqueEvents ? JSON.stringify(mosqueEvents) : '[]'
+                            }
+                        }}
                         onPress={() => handlePagePress('events')}
                         className={`px-6 py-2 rounded-full ${currentPage === 'events' ? 'bg-white/30' : ''}`}
                     >
@@ -99,7 +125,12 @@ export default function Navbar() {
                     </Link>
                     
                     <Link 
-                        href="/prayer" 
+                        href={{
+                            pathname: "/prayer",
+                            params: {
+                                prayerTimes: mosquePrayerTimes ? JSON.stringify(mosquePrayerTimes) : '{}'
+                            }
+                        }}
                         onPress={() => handlePagePress('prayers')}
                         className={`px-6 py-2 rounded-full ${currentPage === 'prayers' ? 'bg-white/30' : ''}`}
                     >

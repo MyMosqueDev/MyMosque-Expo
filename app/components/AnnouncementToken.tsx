@@ -14,7 +14,7 @@ export default function AnnouncementToken({ announcement }: { announcement: Anno
                 onPress={() => setModalVisible(true)}
                 activeOpacity={0.7}
             >
-                <View className="w-[90vw] backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md">
+                <View className="w-[90vw] min-h-[170px] backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md">
                     <View className="flex-row justify-between items-start mb-2">
                         <Text className="text-2xl font-lato-bold text-text">{announcement.title}</Text>
                         <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
