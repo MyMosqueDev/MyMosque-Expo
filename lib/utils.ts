@@ -1,21 +1,28 @@
-import * as Font from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { syncStorage } from './syncStorage';
 import { format } from 'date-fns';
+import * as Font from 'expo-font';
+import { syncStorage } from './syncStorage';
 
 export const loadFonts = async () => {
-    await Font.loadAsync({
-        'Lato-Regular': require('../assets/fonts/Lato-Regular.ttf'),
-        'Lato-Bold': require('../assets/fonts/Lato-Bold.ttf'),
-        'Lato-Light': require('../assets/fonts/Lato-Light.ttf'),
-        'Lato-Black': require('../assets/fonts/Lato-Black.ttf'),
-        'Lato-Thin': require('../assets/fonts/Lato-Thin.ttf'),
-        'Lato-Italic': require('../assets/fonts/Lato-Italic.ttf'),
-        'Lato-BoldItalic': require('../assets/fonts/Lato-BoldItalic.ttf'),
-        'Lato-BlackItalic': require('../assets/fonts/Lato-BlackItalic.ttf'),
-        'Lato-LightItalic': require('../assets/fonts/Lato-LightItalic.ttf'),
-        'Lato-ThinItalic': require('../assets/fonts/Lato-ThinItalic.ttf'),
-    });
+    try {
+        console.log('Loading font files...');
+        await Font.loadAsync({
+            'Lato-Regular': require('../assets/fonts/Lato-Regular.ttf'),
+            'Lato-Bold': require('../assets/fonts/Lato-Bold.ttf'),
+            'Lato-Light': require('../assets/fonts/Lato-Light.ttf'),
+            'Lato-Black': require('../assets/fonts/Lato-Black.ttf'),
+            'Lato-Thin': require('../assets/fonts/Lato-Thin.ttf'),
+            'Lato-Italic': require('../assets/fonts/Lato-Italic.ttf'),
+            'Lato-BoldItalic': require('../assets/fonts/Lato-BoldItalic.ttf'),
+            'Lato-BlackItalic': require('../assets/fonts/Lato-BlackItalic.ttf'),
+            'Lato-LightItalic': require('../assets/fonts/Lato-LightItalic.ttf'),
+            'Lato-ThinItalic': require('../assets/fonts/Lato-ThinItalic.ttf'),
+        });
+        console.log('All fonts loaded successfully');
+    } catch (error) {
+        console.error('Error loading fonts:', error);
+        throw new Error(`Failed to load fonts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
 }; 
 
 export const to12HourFormat = (time24: string) => {

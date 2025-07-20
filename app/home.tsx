@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Text, View } from "react-native";
 import { Announcement, Event, MosqueInfo, PrayerTime } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
+import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
-import EmptyToken from "./components/EmptyToken";
 
 export default function Home() {
     const { mosqueData } = useMosqueData();

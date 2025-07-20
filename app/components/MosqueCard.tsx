@@ -1,5 +1,5 @@
 import { useMosqueData } from '@/app/_layout';
-import { MosqueInfo } from '@/lib/types';
+import { MosqueInfo, UserData } from '@/lib/types';
 import { fetchMosqueInfo } from '@/lib/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -8,13 +8,13 @@ import React, { useState } from 'react';
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MapView from 'react-native-maps';
 
-
 interface MosqueCardProps {
     data: MosqueInfo;
     mapRef: React.RefObject<MapView | null>;
+    setUserData?: (userData: UserData) => void;
 }
 
-const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
+const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
     // truncates name and address to 35 and 45 characters respectively
     const name = data.name.length > 35 ? data.name.slice(0, 35) + "..." : data.name;
     const address = data.address.length > 45 ? data.address.slice(0, 45) + "..." : data.address;
@@ -57,14 +57,25 @@ const MosqueCard = ({ data, mapRef } : MosqueCardProps) => {
             longitudeDelta: 0.01,
         });
         const newUserData = {
-            favoriteMosques: [data],
+            favoriteMosques: [],
             lastVisitedMosque: data.id,
         }
+
+
+        // let route = "/(tabs)";
+        // const prevUserData = await AsyncStorage.getItem('userData');
+        // if (prevUserData && JSON.parse(prevUserData).lastVisitedMosque) {
+        //     route = "/(tabs)/home";
+        // }
         await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
-        
+
         const mosqueData = await fetchMosqueInfo();
         if (mosqueData) {
             setMosqueData(mosqueData);
+        }
+
+        if(setUserData) {
+            setUserData(newUserData);
         }
         
         // Replace the current route to prevent going back

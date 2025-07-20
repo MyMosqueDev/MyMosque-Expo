@@ -70,7 +70,7 @@ export type ProcessedMosqueData = {
     prayerTimes: PrayerTime;
 }
 
-export type UserData = { // TODO: This will be MosqueIDs when DB setup
-    favoriteMosques: MosqueData[];
-    lastVisitedMosque: MosqueData | null;
+export type UserData = {
+    favoriteMosques: string[];
+    lastVisitedMosque: string | null;
 }

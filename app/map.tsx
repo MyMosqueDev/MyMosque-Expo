@@ -1,27 +1,42 @@
-import * as Location from 'expo-location';
 import { MotiView } from 'moti';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from "react-native";
 import MapView, { Marker, Region } from 'react-native-maps';
 import Container from "../components/Container";
-import { MosqueData, MosqueInfo } from '../lib/types';
-import MosqueCard from "./components/MosqueCard";
 import { supabase } from '../lib/supabase';
+import { MosqueInfo, UserData } from '../lib/types';
+import MosqueCard from "./components/MosqueCard";
 
-export default function Map() {
+export default function Map({ setUserData }: { setUserData?: (userData: UserData) => void }) {
   const [mosques, setMosques] = useState<MosqueInfo[]>([]);
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
     const getMosques = async () => {
-      const { data, error } = await supabase
-        .from('mosques')
-        .select('*');
-      if (data) {
-        setMosques(data);
+      try {
+        console.log('Fetching mosques from Supabase...');
+        const { data, error } = await supabase
+          .from('mosques')
+          .select('*');
+        
+        if (error) {
+          console.error('Error fetching mosques:', error);
+          setError('Failed to load mosques');
+          return;
+        }
+        
+        if (data) {
+          console.log('Mosques loaded successfully:', data.length);
+          setMosques(data);
+        }
+      } catch (error) {
+        console.error('Error in getMosques:', error);
+        setError('Failed to load mosques');
       }
     }
+    
     getMosques();
 
     setInitialRegion({
@@ -31,6 +46,21 @@ export default function Map() {
       longitudeDelta: 0.005,
     });
   }, []);
+
+  if (error) {
+    return (
+      <Container>
+        <View className="flex-1 flex-col items-center justify-center gap-3">
+          <Text className="text-red-500 text-lg font-lato-bold text-center mb-4">
+            {error}
+          </Text>
+          <Text className="text-text/70 text-sm font-lato text-center">
+            Please check your internet connection and try again
+          </Text>
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -146,7 +176,7 @@ export default function Map() {
                     delay: 400 + (index * 100),
                   }}
                 >
-                  <MosqueCard data={mosque} mapRef={mapRef}/>
+                  <MosqueCard data={mosque} mapRef={mapRef} setUserData={setUserData}/>
                 </MotiView>
               ))
             }

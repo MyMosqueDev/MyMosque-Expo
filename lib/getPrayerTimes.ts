@@ -4,24 +4,28 @@ import { PrayerTime } from "./types";
 import { to12HourFormat } from "./utils";
 
 /**
- * Gets prayer times for the entire month from the database and formats them
+ * Gets prayer times for the current week from the database and formats them
  * @param city - the city of the mosque
  * @param lastVisitedMosqueId - the id of the mosque
  * @param createdAfter - optional date filter for incremental sync
- * @returns the prayer times for the month in correct format
+ * @returns the prayer times for the week in correct format
  */
 export const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, createdAfter?: string) => {
-    // Get current month's start and end dates
+    // Get current week's start and end dates
     const today = new Date();
-    const year = today.getUTCFullYear();
-    const month = today.getUTCMonth() + 1;
-    const endOfMonth = new Date(year, month, 0);
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Start from Sunday
+    startOfWeek.setHours(0, 0, 0, 0);
     
-    const startDate = `${year}-${String(month).padStart(2, '0')}-01 00:00:00+00`;
-    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(endOfMonth.getDate()).padStart(2, '0')} 23:59:59+00`;
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // End on Saturday
+    endOfWeek.setHours(23, 59, 59, 999);
+    
+    const startDate = startOfWeek.toISOString().replace('T', ' ').replace('Z', '+00');
+    const endDate = endOfWeek.toISOString().replace('T', ' ').replace('Z', '+00');
 
     try {
-        // Fetch prayer times for the entire month
+        // Fetch prayer times for the current week
         let query = supabase
             .from('prayer_times')
             .select()
@@ -33,7 +37,7 @@ export const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, 
             query = query.or(`created_at.gt.${createdAfter},updated_at.gt.${createdAfter}`);
         }
 
-        const { data: monthPrayerTimes, error } = await query;
+        const { data: weekPrayerTimes, error } = await query;
 
         if (error) {
             console.error('Error fetching prayer times:', error);
@@ -43,7 +47,7 @@ export const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, 
         // Format each day's prayer times
         const formattedPrayerTimes: { [date: string]: PrayerTime } = {};
         
-        for (const dayPrayerTime of monthPrayerTimes || []) {
+        for (const dayPrayerTime of weekPrayerTimes || []) {
             const formattedDay = await formatPrayerTimes(city, dayPrayerTime.times);
             formattedPrayerTimes[dayPrayerTime.date] = formattedDay;
         }
@@ -62,7 +66,6 @@ export const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, 
  * @returns the prayer times in correct format
  */
 export const formatPrayerTimes = async (city: string, mosquePrayerTimes: any) => {
-    console.log(mosquePrayerTimes);
     try {
         // fetches prayer times based off mosque location
         const prayerTimes = await getLocationPrayerTimes(city);

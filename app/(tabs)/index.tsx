@@ -1,10 +1,10 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import { ImageBackground, Text, View } from "react-native";
-import { UserData } from "@/lib/types";
 import { useMapContext } from "@/app/_layout";
 import Home from "@/app/home";
 import Map from "@/app/map";
+import { UserData } from "@/lib/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import { ImageBackground, Text, View } from "react-native";
 
 export default function Index() {
     const [userData, setUserData] = useState<UserData | null>(null);
@@ -61,12 +61,12 @@ export default function Index() {
     }
 
     // if no last visited mosque, show the map
-    if (!userData?.lastVisitedMosque) {
-        return <Map />;
-    }
+    // if (!userData?.lastVisitedMosque) {
+    //     return <Map />;
+    // }
 
     // if there is a last visited mosque, show the welcome page
     return (
-        <Home />
+       !userData?.lastVisitedMosque ? <Map setUserData={setUserData}/> : <Home />
     );
 }

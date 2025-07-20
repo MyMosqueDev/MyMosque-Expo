@@ -220,14 +220,18 @@ const getMosqueAnnouncements = async (lastVisitedMosqueId: string, createdAfter?
 
 const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, lastPrayerFetched?: string) => {
     try {
-        // Get current month's start and end dates
+        // Get current week's start and end dates
         const today = new Date();
-        const year = today.getUTCFullYear();
-        const month = today.getUTCMonth() + 1;
-        const endOfMonth = new Date(year, month, 0);
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay()); // Start from Sunday
+        startOfWeek.setHours(0, 0, 0, 0);
         
-        const startDate = `${year}-${String(month).padStart(2, '0')}-01 00:00:00+00`;
-        const endDate = `${year}-${String(month).padStart(2, '0')}-${String(endOfMonth.getDate()).padStart(2, '0')} 23:59:59+00`;
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // End on Saturday
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        const startDate = startOfWeek.toISOString().replace('T', ' ').replace('Z', '+00');
+        const endDate = endOfWeek.toISOString().replace('T', ' ').replace('Z', '+00');
 
         // Build query based on whether we're fetching all or just updates
         let query = supabase
@@ -239,11 +243,11 @@ const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, lastPra
             // Only fetch updated prayer times since last sync
             query = query.or(`created_at.gt.${lastPrayerFetched},updated_at.gt.${lastPrayerFetched}`);
         } else {
-            // First time fetch - get entire month
+            // First time fetch - get current week
             query = query.gte('date', startDate).lte('date', endDate);
         }
 
-        const { data: monthPrayerTimes, error } = await query;
+        const { data: weekPrayerTimes, error } = await query;
 
         if (error) {
             console.error('Error fetching prayer times:', error);
@@ -253,8 +257,8 @@ const getPrayerTimes = async (city: string, lastVisitedMosqueId: string, lastPra
         // Format each day's prayer times in parallel for better performance
         const formattedPrayerTimes: { [date: string]: any } = {};
         
-        if (monthPrayerTimes && monthPrayerTimes.length > 0) {
-            const formatPromises = monthPrayerTimes.map(async (dayPrayerTime) => {
+        if (weekPrayerTimes && weekPrayerTimes.length > 0) {
+            const formatPromises = weekPrayerTimes.map(async (dayPrayerTime) => {
                 const formattedDay = await formatPrayerTimes(city, dayPrayerTime.times);
                 return { date: dayPrayerTime.date, formattedDay };
             });
