@@ -6,6 +6,7 @@ import { ImageBackground, ScrollView } from "react-native";
 import AnnouncementToken from "../components/AnnouncementToken";
 
 export default function Announcements() {
+     // gets announcements from the url param
     const { announcements } = useLocalSearchParams();
     const parsedAnnouncements = JSON.parse(announcements as string) as Announcement[];
 
@@ -30,6 +31,7 @@ export default function Announcements() {
                 transition={{ type: 'spring', damping: 15, stiffness: 150 }}
                 className="flex-1 w-full px-2 gap-1 justify-start items-center"
             >
+                {/* displays all announcements */}
                 {parsedAnnouncements.map((announcement: Announcement, index: number) => (
                     <MotiView
                         key={index}

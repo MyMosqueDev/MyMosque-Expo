@@ -13,6 +13,7 @@ export default function Map({ setUserData }: { setUserData?: (userData: UserData
   const [error, setError] = useState<string | null>(null);
   const mapRef = useRef<MapView | null>(null);
 
+  // fetches mosques from supabase
   useEffect(() => {
     const getMosques = async () => {
       try {
@@ -139,7 +140,9 @@ export default function Map({ setUserData }: { setUserData?: (userData: UserData
               delay: 300,
             }}
           >
-            {/* <View className="w-full min-h-12 flex-row items-center justify-center gap-3 backdrop-blur-lg border border-white/30 bg-white/30 rounded-3xl px-4 py-2 mb-3"> 
+            {
+            // TODO: add search bar once more mosques are added
+            /* <View className="w-full min-h-12 flex-row items-center justify-center gap-3 backdrop-blur-lg border border-white/30 bg-white/30 rounded-3xl px-4 py-2 mb-3"> 
               <Feather name="search" size={20} color="#4A4A4A" className="mt-1"/>
               <TextInput
                 placeholder="Search For a Mosque"

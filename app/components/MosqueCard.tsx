@@ -24,30 +24,31 @@ const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
     const { setMosqueData } = useMosqueData();
 
     // handles toggling favorite + saving to AsyncStorage
-    const toggleFavorite = async (e: any) => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        e.stopPropagation();
-        setIsFavorited(!isFavorited);
+    // TODO: add favorite functionality (this will be done when more mosques are added)
+    // const toggleFavorite = async (e: any) => {
+    //     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    //     e.stopPropagation();
+    //     setIsFavorited(!isFavorited);
 
-        try {
-            const userData = await AsyncStorage.getItem('userData');
-            if (userData) {
-                const userDataParsed = JSON.parse(userData);
-                userDataParsed.favoriteMosques.push(data);
-                await AsyncStorage.setItem('userData', JSON.stringify(userDataParsed));
-            } else {
-                const newUserData = {
-                    favoriteMosques: [data],
-                    lastVisitedMosque: data,
-                }
-                await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    //     try {
+    //         const userData = await AsyncStorage.getItem('userData');
+    //         if (userData) {
+    //             const userDataParsed = JSON.parse(userData);
+    //             userDataParsed.favoriteMosques.push(data);
+    //             await AsyncStorage.setItem('userData', JSON.stringify(userDataParsed));
+    //         } else {
+    //             const newUserData = {
+    //                 favoriteMosques: [data],
+    //                 lastVisitedMosque: data,
+    //             }
+    //             await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
+    //         }
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
 
-    // handles pressing the card to center the map on the mosque
+    // on press updates the map and sets the pressed mosque to be the last visited mosque
     const onCardPress = async () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         mapRef.current?.animateToRegion({
@@ -56,29 +57,28 @@ const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         });
+
+        // updates user data
         const newUserData = {
             favoriteMosques: [],
             lastVisitedMosque: data.id,
         }
 
-
-        // let route = "/(tabs)";
-        // const prevUserData = await AsyncStorage.getItem('userData');
-        // if (prevUserData && JSON.parse(prevUserData).lastVisitedMosque) {
-        //     route = "/(tabs)/home";
-        // }
+        // saves user data
         await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
 
+        // fetches mosque data
         const mosqueData = await fetchMosqueInfo();
         if (mosqueData) {
             setMosqueData(mosqueData);
         }
 
+        // updates user data
         if(setUserData) {
             setUserData(newUserData);
         }
         
-        // Replace the current route to prevent going back
+        // sends back to home
         router.replace("/(tabs)");
     }
 
@@ -93,6 +93,7 @@ const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
                     <Text className="text-xl font-lato-bold text-gray-800">{name}</Text>
                     <Text className="text-base font-lato text-gray-500">{address}</Text>
                 </View>
+                {/* TODO: add favorite functionality */}
                 {/* <TouchableOpacity 
                     onPress={toggleFavorite}
                 >

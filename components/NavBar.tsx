@@ -12,11 +12,11 @@ import { View } from "react-native";
 type page = 'home' | 'events' | 'prayers';
 export default function Navbar() {
     const { mosqueData } = useMosqueData();
-    const [page, setPage] = useState<page>('home');
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null);
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerTimes || null);  
     const pathname = usePathname();
 
+    // fetches mosque data if it doesn't exist
     useEffect(() => {
         if(!mosqueData) {
             const fetchData = async () => {
@@ -33,8 +33,10 @@ export default function Navbar() {
         }
     }, [mosqueData]);
 
+    // updates the next prayer time
     const getUpdatedPrayerTimes = () => {
         if(mosquePrayerTimes) {
+            // gets the next prayer time (makes sure it hasn't changed)
             const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
             return {
                 ...mosquePrayerTimes,
@@ -44,6 +46,7 @@ export default function Navbar() {
         return mosquePrayerTimes;
     }
 
+    // hide nav bar on the following pages
     if (pathname.startsWith('/announcements') || pathname.startsWith('/eventDetails') || pathname.startsWith('/map')) {
         return null;
     }
@@ -57,10 +60,7 @@ export default function Navbar() {
     
     const currentPage = getCurrentPage();
     
-    const handlePagePress = (newPage: page) => {
-        setPage(newPage);
-    };
-    
+    // sets icon color based on the current page
     const getIconColor = (pageName: page) => {
         if (currentPage === pageName) {
             switch (pageName) {
@@ -93,7 +93,6 @@ export default function Navbar() {
                 >
                     <Link 
                         href="/" 
-                        onPress={() => handlePagePress('home')}
                         className={`px-6 py-2 rounded-full ${currentPage === 'home' ? 'bg-white/30' : ''}`}
                     >
                         <MotiView
@@ -118,7 +117,6 @@ export default function Navbar() {
                                 events: mosqueEvents ? JSON.stringify(mosqueEvents) : '[]'
                             }
                         }}
-                        onPress={() => handlePagePress('events')}
                         className={`px-6 py-2 rounded-full ${currentPage === 'events' ? 'bg-white/30' : ''}`}
                     >
                         <MotiView
@@ -143,7 +141,6 @@ export default function Navbar() {
                                 prayerTimes: mosquePrayerTimes ? JSON.stringify(getUpdatedPrayerTimes()) : '{}'
                             }
                         }}
-                        onPress={() => handlePagePress('prayers')}
                         className={`px-6 py-2 rounded-full ${currentPage === 'prayers' ? 'bg-white/30' : ''}`}
                     >
                         <MotiView

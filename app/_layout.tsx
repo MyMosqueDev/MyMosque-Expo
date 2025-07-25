@@ -37,6 +37,7 @@ export default function RootLayout() {
   
   useEffect(() => {
     async function prepare() {
+      // bunch of debug logs
       try {
         console.log('Starting app preparation...');
         
@@ -68,6 +69,7 @@ export default function RootLayout() {
 
     prepare();
 
+    // refreshes data when app is brought back to life
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
         console.log('App became active, refreshing data...');
@@ -80,6 +82,7 @@ export default function RootLayout() {
     };
   }, []);
 
+  // loading screen
   if (!fontsLoaded) {
     return (
       <ImageBackground 
@@ -96,6 +99,7 @@ export default function RootLayout() {
     );
   }
 
+  // error screen
   if (error) {
     return (
       <ImageBackground 
@@ -118,6 +122,7 @@ export default function RootLayout() {
     );
   }
 
+  // main layout
   return (
     <ErrorBoundary>
       <MosqueDataContext.Provider value={{ mosqueData, setMosqueData }}>
@@ -150,6 +155,7 @@ export default function RootLayout() {
                   }}
                 />
               </Stack>
+              {/* nav bar shows if map is not visible */}
               {!isMapVisible && <NavBar />}
             </View>
           </ImageBackground>

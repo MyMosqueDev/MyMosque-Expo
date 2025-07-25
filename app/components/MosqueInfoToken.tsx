@@ -15,7 +15,8 @@ interface GeneralMosqueInfo {
 export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
     const [upcomingEvent, setUpcomingEvent] = useState<Event | null>(null);
     
-    const formatUpcomingEventDate = (isoDateTime: string): string => { // TODO: Move to lib/utils.ts
+    // formats upcoming event date
+    const formatUpcomingEventDate = (isoDateTime: string): string => {
         const date = parseISOUTC(isoDateTime);
         if (isToday(date)) {
             return `Today @ ${formatUTC(date, "h:mm a")}`;
@@ -29,6 +30,7 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
         return `${formatUTC(date, "MMM d")} @ ${formatUTC(date, "h:mm a")}`;
     }
 
+    // gets upcoming event
     const getUpcomingEvent = (events: Event[]): Event | null => {
         const now = new Date();
         const upcoming = events
@@ -44,11 +46,13 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
         return null;
     }
 
+    // sets upcoming event
     useEffect(() => {
         const upcomingEvent = getUpcomingEvent(info.events || []);
         setUpcomingEvent(upcomingEvent);
     }, [info.events])
 
+    // updates upcoming event when app is brought back to life
     useEffect(() => {
         const subscription = AppState.addEventListener('change', (state) => {
             if (state === 'active') {

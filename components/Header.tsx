@@ -8,6 +8,8 @@ export default function Header({ name, type, title }: { name: string, type: stri
     const { mosqueData } = useMosqueData();
     name = mosqueData?.info.name || name;
     type = type || 'default'
+
+    // used in tab based pages
     if (type === 'default') {
         return (
             <View className="w-full flex-row justify-between items-center px-4 pb-3 pt-24 pr-6">
@@ -19,6 +21,7 @@ export default function Header({ name, type, title }: { name: string, type: stri
         )
     }
 
+    // used in annoucnments and events
     if (type === 'event') {
         return (
             <View className="w-full flex-row justify-between items-center px-4 pb-3 pt-24 ">

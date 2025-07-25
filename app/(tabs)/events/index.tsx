@@ -17,6 +17,7 @@ export default function Events() {
 
     const { events: eventsParam } = useLocalSearchParams();
 
+    // sets events from the url param
     useEffect(() => {
         if (eventsParam) {
             try {
@@ -30,11 +31,11 @@ export default function Events() {
         setIsLoading(false);
     }, [eventsParam]);
 
-    // Calculate week range
+    // calculate week range
     const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });
     const weekDates = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-    // Filter events for this week
+    // filder events for this week
     const weekEvents = events
         .filter(event => {
             const eventDate = parseISO(event.date);
@@ -42,12 +43,12 @@ export default function Events() {
         })
         .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
 
-    // Helper: does a day have an event?
+    // checks if event on that day
     const dayHasEvent = (date: Date) => {
         return events.some(event => isSameDay(parseISO(event.date), date));
     };
 
-    // Week range label
+    // week range label
     const weekLabel = `${format(weekStart, 'MMMM do')} - ${format(weekEnd, 'do')}`;
 
     if (isLoading) {
@@ -88,6 +89,7 @@ export default function Events() {
                     className="w-full"
                 >
                     <View className="flex-row justify-between w-full px-4 mb-4">
+                        {/* days */}
                         {weekDates.map((date, idx) => (
                             <View key={idx} className="items-center flex-1">
                                 <Text className="text-xs font-lato-bold text-[#4A4A4A] mb-1">{DAY_LABELS[idx]}</Text>
@@ -111,6 +113,7 @@ export default function Events() {
                             <Text className="text-center text-[#4A4A4A] mt-8">No events this week.</Text>
                         </MotiView>
                     )}
+                    {/* events */}
                     {weekEvents.map((event, idx) => (
                         <MotiView
                             key={event.title + event.date + idx}

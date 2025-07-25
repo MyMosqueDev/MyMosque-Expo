@@ -6,7 +6,7 @@ import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Text, View } from "react-native";
-import { Announcement, Event, MosqueInfo, PrayerTime } from "../lib/types";
+import { Announcement, Event, ProcessedMosqueData, MosqueInfo, PrayerTime } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
@@ -15,10 +15,12 @@ import PrayerToken from "./components/PrayerToken";
 
 export default function Home() {
     const { mosqueData } = useMosqueData();
-    const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
-    const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(null);
-    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(null);
-    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(null);    
+    const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(mosqueData?.info || null);
+    const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null );
+    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerTimes || null);
+    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(mosqueData?.announcements || null);    
+    
+    // gets updated prayer times
     const getUpdatedPrayerTimes = () => {
         if(mosquePrayerTimes) {
             const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
@@ -29,35 +31,33 @@ export default function Home() {
         }
         return mosquePrayerTimes;
     }
+
+    const setMosqueData = (mosqueData: ProcessedMosqueData) => {
+        setMosqueInfo(mosqueData.info);
+        setMosqueEvents(mosqueData.events);
+        setMosquePrayerTimes(mosqueData.prayerTimes);
+        setMosqueAnnouncements(mosqueData.announcements);
+    }
     
+    // fetches mosque data if it doesn't exist
     useEffect(() => {
-        if (mosqueData) {
-            setMosqueInfo(mosqueData.info);
-            setMosqueEvents(mosqueData.events);
-            setMosqueAnnouncements(mosqueData.announcements);
-            setMosquePrayerTimes(mosqueData.prayerTimes);
-        } else {
+        if (!mosqueData) {
             const fetchData = async () => {
                 const mosqueData = await fetchMosqueInfo();
-                if(mosqueData) {
-                    setMosqueInfo(mosqueData.info);
-                    setMosqueEvents(mosqueData.events);
-                    setMosquePrayerTimes(mosqueData.prayerTimes);
-                    setMosqueAnnouncements(mosqueData.announcements);
+                if (mosqueData) {
+                    setMosqueData(mosqueData);
                 }
             }
             fetchData();
         }
     }, [mosqueData]);
 
+    // refreshes data when app is brought back to life
     useEffect(() => {
         const subscription = AppState.addEventListener('change', (state) => {
             if (state === 'active') {
-                if(mosqueData) {
-                    setMosqueInfo(mosqueData.info);
-                    setMosqueEvents(mosqueData.events);
-                    setMosqueAnnouncements(mosqueData.announcements);
-                    setMosquePrayerTimes(mosqueData.prayerTimes);
+                if (mosqueData) {
+                    setMosqueData(mosqueData);
                 }
             }
         });
@@ -67,6 +67,7 @@ export default function Home() {
         };
     }, [])
 
+    
     if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents || !mosqueAnnouncements) {
         return (
             <ScrollContainer name={mosqueInfo?.name || ''}>

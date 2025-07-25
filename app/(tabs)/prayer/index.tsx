@@ -7,6 +7,7 @@ import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { AppState, Text, View } from "react-native";
 
+// TODO: make dynamic
 const DAILY_QUOTE = {
     text: "The best of you are those who learn the Qur'an and teach it.",
     source: "— Prophet Muhammad (ﷺ)"
@@ -20,6 +21,7 @@ const PRAYER_ORDER = [
     { key: 'isha', label: 'Isha' }
 ];
 
+// takes in mins and converts to time (hh: mm)
 const convertMinutesToTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
@@ -35,6 +37,7 @@ export default function Prayers() {
     const [isLoading, setIsLoading] = useState(true);
     const { prayerTimes: prayerTimesParam } = useLocalSearchParams();
 
+    // sets prayer times from the url param
     useEffect(() => {
         if (prayerTimesParam) {
             try {
@@ -48,6 +51,7 @@ export default function Prayers() {
         setIsLoading(false);
     }, [prayerTimesParam]);
 
+    // updates next prayer when app is brought back to life
     useEffect(() => {
         const subscription = AppState.addEventListener('change', (state) => {
             if (state === 'active') {
@@ -60,7 +64,6 @@ export default function Prayers() {
                 }
             }
         });
-        
         return () => {
             subscription.remove();
         };
@@ -81,15 +84,11 @@ export default function Prayers() {
         );
     }
 
-    const currentPrayerKey = prayerTimes.nextPrayer.name;
-    const currentIndex = PRAYER_ORDER.findIndex(p => p.key === currentPrayerKey);
-    const progressPercent = ((currentIndex + 1) / PRAYER_ORDER.length) * 100;
-
     return (
         <ScrollContainer name="Prayer Times">
             <View className="flex-1 w-full px-2 pt-6">
                 <View className="flex-1 justify-center items-center">
-                    {/* Progress Bar with entrance and pulsing animation */}
+                    {/* progress bar */}
                     <MotiView
                         from={{ opacity: 0, translateY: 30, scale: 0.95 }}
                         animate={{ opacity: 1, translateY: 0, scale: 1 }}
@@ -136,8 +135,9 @@ export default function Prayers() {
                             <Text className="text-xl font-lato-bold text-[#4A4A4A] w-1/3 text-center">ADHAN</Text>
                             <Text className="text-xl font-lato-bold text-[#4A4A4A] w-1/3 text-right">IQAMA</Text>
                         </View>
+                        {/* displays all prayer times */}
                         {PRAYER_ORDER.map((prayer, idx) => {
-                            const isCurrent = prayer.key === currentPrayerKey;
+                            const isCurrent = prayer.key === prayerTimes.nextPrayer.name;
                             const pt = prayerTimes[prayer.key as keyof Omit<PrayerTime, "nextPrayer">];
                             const adhan = pt.adhan;
                             const iqama = pt.iqama;
@@ -163,7 +163,7 @@ export default function Prayers() {
                         })}
                     </MotiView>
 
-                    {/* Daily Quote Section with entrance animation */}
+                    {/* daily quote  TODO: make dynamic*/}
                     <MotiView
                         from={{ opacity: 0, translateY: 30, scale: 0.95 }}
                         animate={{ opacity: 1, translateY: 0, scale: 1 }}

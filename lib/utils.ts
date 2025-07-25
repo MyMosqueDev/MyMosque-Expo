@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import * as Font from 'expo-font';
 import { syncStorage } from './syncStorage';
 
+// loads in all the fonts
 export const loadFonts = async () => {
     try {
         console.log('Loading font files...');
@@ -25,6 +26,7 @@ export const loadFonts = async () => {
     }
 }; 
 
+// converts 24 hour format to 12 hour format
 export const to12HourFormat = (time24: string) => {
     const [hourStr, minute] = time24.split(':');
     let hour = parseInt(hourStr, 10);
@@ -32,6 +34,10 @@ export const to12HourFormat = (time24: string) => {
     return `${hour}:${minute}`;
 }
 
+/**
+ * fetches the mosque info from the local storage
+ * @returns the mosque info
+ */
 export const fetchMosqueInfo = async () => {
     const userDataString = await AsyncStorage.getItem('userData');
 

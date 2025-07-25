@@ -68,6 +68,7 @@ export default function AnnouncementToken({ announcement }: { announcement: Anno
     )
 }
 
+// function that sets styles based on severity
 const getSeverityStyles = (severity: string) => {
     switch (severity.toLowerCase()) {
         case 'high':
