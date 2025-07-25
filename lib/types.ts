@@ -1,11 +1,12 @@
-export type MosqueData = {
+export type MosqueInfo = {
     name: string;
+    id: string;
     address: string;
     images?: string[] | null;
     coordinates: {
         latitude: number;
         longitude: number;
-    },
+    };
     hours: {
         monday: string;
         tuesday: string;
@@ -15,45 +16,61 @@ export type MosqueData = {
         saturday: string;
         sunday: string;
     },
-    prayerTimes: {
-        fajr: { adhan: string; iqama: string; },
-        dhuhr: { adhan: string; iqama: string; },
-        asr: { adhan: string; iqama: string; },
-        maghrib: { adhan: string; iqama: string; },
-        isha: { adhan: string; iqama: string; },
-    },
-    announcements: {
-        title: string;
-        description: string;
-        date: string;
-        severity: "low" | "medium" | "high";
-    }[];
-    events: {
-        title: string;
-        description: string;
-        date: string;
-        time: string;
-        isoDateTime: string;
-        host: string;
-        location: string;
-        image: string;
-    }[];
+    last_announcement: string | null;
+    last_event: string | null;
+    last_prayer: string | null;
 }
 
-export type EventData = {
-    mosqueName: string;
+export type Event = {
+    id: string;
     title: string;
     description: string;
     date: string;
-    time: string;
-    isoDateTime: string;
     host: string;
     location: string;
     image: string;
+    mosqueName?: string;
+    displayDate?: string;
 }
 
+export type PrayerTime = {
+    fajr: { adhan: string; iqama: string };
+    dhuhr: { adhan: string; iqama: string };
+    asr: { adhan: string; iqama: string };
+    maghrib: { adhan: string; iqama: string };
+    isha: { adhan: string; iqama: string };
+    nextPrayer: {
+        name: string;
+        minutesToNextPrayer: number;
+        percentElapsed: number;
+    };
+}
 
-export type UserData = { // TODO: This will be MosqueIDs when DB setup
-    favoriteMosques: MosqueData[];
-    lastVisitedMosque: MosqueData | null;
+export type Announcement = {
+    id: string;
+    created_at: string;
+    title: string;
+    description: string;
+    date: string;
+    severity: "low" | "medium" | "high";
+    is_deleted?: boolean;
+}
+
+export type MosqueData = {
+    info: MosqueInfo;
+    announcements: Announcement[];
+    events: Event[];
+    prayerTimes: { [date: string]: PrayerTime };
+}
+
+export type ProcessedMosqueData = {
+    info: MosqueInfo;
+    announcements: Announcement[];
+    events: Event[];
+    prayerTimes: PrayerTime;
+}
+
+export type UserData = {
+    favoriteMosques: string[];
+    lastVisitedMosque: string | null;
 }

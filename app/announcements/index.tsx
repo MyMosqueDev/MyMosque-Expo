@@ -1,13 +1,14 @@
 import Header from "@/components/Header";
-import { MosqueData } from "@/lib/types";
+import { Announcement } from "@/lib/types";
 import { useLocalSearchParams } from "expo-router";
 import { MotiView } from "moti";
 import { ImageBackground, ScrollView } from "react-native";
 import AnnouncementToken from "../components/AnnouncementToken";
 
 export default function Announcements() {
+     // gets announcements from the url param
     const { announcements } = useLocalSearchParams();
-    const parsedAnnouncements = JSON.parse(announcements as string);
+    const parsedAnnouncements = JSON.parse(announcements as string) as Announcement[];
 
     return (
         <ImageBackground 
@@ -30,7 +31,8 @@ export default function Announcements() {
                 transition={{ type: 'spring', damping: 15, stiffness: 150 }}
                 className="flex-1 w-full px-2 gap-1 justify-start items-center"
             >
-                {parsedAnnouncements.map((announcement: MosqueData["announcements"][0], index: number) => (
+                {/* displays all announcements */}
+                {parsedAnnouncements.map((announcement: Announcement, index: number) => (
                     <MotiView
                         key={index}
                         from={{ opacity: 0, translateX: -20, scale: 0.95 }}

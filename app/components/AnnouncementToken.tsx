@@ -1,10 +1,12 @@
+import { format, parseISO } from 'date-fns';
 import { useState } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
-import { MosqueData } from "../../lib/types";
+import { Announcement } from "../../lib/types";
 
-export default function AnnouncementToken({ announcement }: { announcement: MosqueData["announcements"][0] }) {
+export default function AnnouncementToken({ announcement }: { announcement: Announcement }) {
     const [modalVisible, setModalVisible] = useState(false);
     const severityStyles = getSeverityStyles(announcement.severity);
+    const date = format(parseISO(announcement.created_at), 'EEEE, MMMM d')
     
     return (
         <>
@@ -12,14 +14,14 @@ export default function AnnouncementToken({ announcement }: { announcement: Mosq
                 onPress={() => setModalVisible(true)}
                 activeOpacity={0.7}
             >
-                <View className="w-[90vw] backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md">
+                <View className="w-[90vw] min-h-[170px] backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md">
                     <View className="flex-row justify-between items-start mb-2">
                         <Text className="text-2xl font-lato-bold text-text">{announcement.title}</Text>
                         <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
                             <Text className={`${severityStyles.text} font-lato-semibold text-sm`}>{announcement.severity}</Text>
                         </View>
                     </View>
-                    <Text className="text-base text-[#5A6B7A] mb-2">{announcement.date}</Text>
+                    <Text className="text-base text-[#5A6B7A] mb-2">{date}</Text>
                     <Text className="text-base text-[#444]">{announcement.description.length > 100 ? `${announcement.description.substring(0, 100) + "..."} ` : announcement.description}{announcement.description.length > 100 && <Text className="font-bold">See More</Text>}</Text>
                 </View>
             </TouchableOpacity>
@@ -52,7 +54,7 @@ export default function AnnouncementToken({ announcement }: { announcement: Mosq
                         </View>
                         
                         <View className="flex-row justify-between items-center mb-4">
-                            <Text className="text-base text-[#5A6B7A]">{announcement.date}</Text>
+                            <Text className="text-base text-[#5A6B7A]">{date}</Text>
                             <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
                                 <Text className={`${severityStyles.text} font-lato-semibold text-sm`}>{announcement.severity}</Text>
                             </View>
@@ -66,6 +68,7 @@ export default function AnnouncementToken({ announcement }: { announcement: Mosq
     )
 }
 
+// function that sets styles based on severity
 const getSeverityStyles = (severity: string) => {
     switch (severity.toLowerCase()) {
         case 'high':

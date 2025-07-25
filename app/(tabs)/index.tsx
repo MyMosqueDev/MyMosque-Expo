@@ -1,19 +1,21 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import { ImageBackground, Text, View } from "react-native";
-import { UserData } from "@/lib/types";
 import { useMapContext } from "@/app/_layout";
 import Home from "@/app/home";
 import Map from "@/app/map";
+import { UserData } from "@/lib/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import { ImageBackground, Text, View } from "react-native";
 
 export default function Index() {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { setIsMapVisible } = useMapContext();
 
+    // loads user data from async storage
     useEffect(() => {
         const loadUserData = async () => {
             try {
+                // gets data from async
                 const userDataString = await AsyncStorage.getItem('userData');
                 if (userDataString) {
                     const parsedUserData = JSON.parse(userDataString);
@@ -26,6 +28,7 @@ export default function Index() {
                     setUserData(defaultUserData);
                 }
             } catch (error) {
+                // if error, sets default user data
                 console.error('Error loading user data:', error);
                 const defaultUserData = {
                     favoriteMosques: [],
@@ -40,8 +43,9 @@ export default function Index() {
         loadUserData();
     }, []);
 
-    // Update map visibility based on user data
+    // updates map visibility based on user data
     useEffect(() => {
+        // map doesn't show if there is user has visted a mosque
         const isMapShowing = !userData?.lastVisitedMosque;
         setIsMapVisible(isMapShowing);
     }, [userData, setIsMapVisible]);
@@ -59,14 +63,8 @@ export default function Index() {
             </ImageBackground>
         );
     }
-
-    // if no last visited mosque, show the map
-    if (!userData?.lastVisitedMosque) {
-        return <Map />;
-    }
-
-    // if there is a last visited mosque, show the welcome page
+    // if there is a last visited mosque, show the home page
     return (
-        <Home data={userData.lastVisitedMosque} />
+       !userData?.lastVisitedMosque ? <Map setUserData={setUserData}/> : <Home />
     );
 }

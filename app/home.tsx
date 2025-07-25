@@ -1,46 +1,92 @@
+import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getNextPrayer } from "@/lib/getPrayerTimes";
+import { fetchMosqueInfo } from "@/lib/utils";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
-import { MosqueData } from "../lib/types";
+import { ActivityIndicator, AppState, Text, View } from "react-native";
+import { Announcement, Event, ProcessedMosqueData, MosqueInfo, PrayerTime } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
+import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
 
-export default function Home({ data }: { data: MosqueData }) {
-    const [mosqueData, setMosqueData] = useState<MosqueData | null>(data);
-    useEffect(() => {
-        const fetchData = async () => {
-        if (!data) {
-            const userDataString = await AsyncStorage.getItem('userData');
-            if (userDataString) {
-                const parsedUserData = JSON.parse(userDataString);
-                setMosqueData(parsedUserData.lastVisitedMosque);
-                } 
+export default function Home() {
+    const { mosqueData } = useMosqueData();
+    const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(mosqueData?.info || null);
+    const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null );
+    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerTimes || null);
+    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(mosqueData?.announcements || null);    
+    
+    // gets updated prayer times
+    const getUpdatedPrayerTimes = () => {
+        if(mosquePrayerTimes) {
+            const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
+            return {
+                ...mosquePrayerTimes,
+                nextPrayer: updatedPrayerTimes
             }
         }
-        fetchData();
-    }, [data]);
+        return mosquePrayerTimes;
+    }
 
-    if(!mosqueData) {
+    const setMosqueData = (mosqueData: ProcessedMosqueData) => {
+        setMosqueInfo(mosqueData.info);
+        setMosqueEvents(mosqueData.events);
+        setMosquePrayerTimes(mosqueData.prayerTimes);
+        setMosqueAnnouncements(mosqueData.announcements);
+    }
+    
+    // fetches mosque data if it doesn't exist
+    useEffect(() => {
+        if (!mosqueData) {
+            const fetchData = async () => {
+                const mosqueData = await fetchMosqueInfo();
+                if (mosqueData) {
+                    setMosqueData(mosqueData);
+                }
+            }
+            fetchData();
+        }
+    }, [mosqueData]);
+
+    // refreshes data when app is brought back to life
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                if (mosqueData) {
+                    setMosqueData(mosqueData);
+                }
+            }
+        });
+        
+        return () => {
+            subscription.remove();
+        };
+    }, [])
+
+    
+    if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents || !mosqueAnnouncements) {
         return (
-            <View className="flex-1 items-center justify-center">
-                <Text>Loading...</Text>
-            </View>
+            <ScrollContainer name={mosqueInfo?.name || ''}>
+                <View className="flex-1 items-center justify-center">
+                    <ActivityIndicator size="large" color="#5B4B94" />
+                    <Text className="text-text mt-4 font-lato-regular">Loading mosque information...</Text>
+                </View>
+            </ScrollContainer>
         )
     }
 
     const generalMosqueInfo = {
-        address: mosqueData.address,
-        hours: mosqueData.hours,
-        events: mosqueData.events
+        address: mosqueInfo.address,
+        hours: mosqueInfo.hours,
+        events: mosqueEvents
     }
 
     return (
-        <ScrollContainer name={mosqueData.name}>
+        <ScrollContainer name={mosqueInfo.name}>
             <View className="flex-1 items-center justify-start">
                 {/* Mosque Info Token with entrance animation */}
                 <MotiView
@@ -63,11 +109,18 @@ export default function Home({ data }: { data: MosqueData }) {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Prayer Times</Text>
-                        <Link href="/prayer">
+                        <Link 
+                            href={{
+                                pathname: "/prayer",
+                                params: {
+                                    prayerTimes: mosquePrayerTimes ? JSON.stringify(getUpdatedPrayerTimes()) : '{}'
+                                }
+                            }}
+                        >
                             <Text className="text-md text-[#5B4B94] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    <PrayerToken prayerTimes={mosqueData.prayerTimes} />
+                    <PrayerToken prayerTimes={getUpdatedPrayerTimes() || mosquePrayerTimes} />
                 </MotiView>
 
                 {/* Announcements Section */}
@@ -84,14 +137,15 @@ export default function Home({ data }: { data: MosqueData }) {
                             href={{
                                 pathname: "/announcements",
                                 params: {
-                                    announcements: JSON.stringify(mosqueData.announcements)
+                                    announcements: JSON.stringify(mosqueAnnouncements)
                                 }
                             }}
                         >
                             <Text className="text-md text-[#4B944B] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    <AnnouncementsCarousel announcements={mosqueData.announcements} />
+                    {mosqueAnnouncements.length === 0 && <EmptyToken type="announcements" />}
+                    <AnnouncementsCarousel announcements={mosqueAnnouncements} />
                 </MotiView>
 
                 {/* Events Section */}
@@ -104,11 +158,22 @@ export default function Home({ data }: { data: MosqueData }) {
                 >
                     <View className="w-full flex-row justify-between items-end px-2 my-3">
                         <Text className="text-text text-[24px] font-lato-bold">Upcoming Events</Text>
-                        <Link href="/events">
+                        <Link 
+                            href={{
+                                pathname: "/events",
+                                params: {
+                                    events: mosqueEvents ? JSON.stringify(mosqueEvents) : '[]'
+                                }
+                            }}
+                        >
                             <Text className="text-md text-[#3B5A7A] font-lato-bold">View More</Text>
                         </Link>
                     </View>
-                    {mosqueData.events.slice(0, 2).map((event, index) => (
+                    {mosqueEvents
+                        .filter(event => new Date(event.date) > new Date())
+                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                        .slice(0, 2)
+                        .map((event, index) => (
                         <MotiView
                             key={event.title}
                             from={{ opacity: 0, translateX: -50 }}
@@ -121,9 +186,10 @@ export default function Home({ data }: { data: MosqueData }) {
                             }}
                             className="w-full items-center"
                         >
-                            <EventToken event={{ ...event, mosqueName: mosqueData.name }} />
+                            <EventToken event={{ ...event, mosqueName: mosqueInfo.name }} />
                         </MotiView>
                     ))}
+                    {mosqueEvents.length === 0 && <EmptyToken type="events" />}
                 </MotiView>
             </View>
         </ScrollContainer>

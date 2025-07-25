@@ -1,15 +1,71 @@
 import Feather from '@expo/vector-icons/Feather';
+import { isThisWeek, isToday, isTomorrow } from 'date-fns';
+import { parseISOUTC, formatUTC } from '../../lib/dateUtils';
 import { MotiView } from "moti";
-import { Text, View } from "react-native";
-import { MosqueData } from "../../lib/types";
+import { useEffect, useState } from 'react';
+import { AppState, Text, View } from "react-native";
+import { Event, MosqueInfo } from "../../lib/types";
 
 interface GeneralMosqueInfo {
-    address: MosqueData["address"];
-    hours: MosqueData["hours"];
-    events: MosqueData["events"];
+    address: MosqueInfo["address"];
+    hours: MosqueInfo["hours"];
+    events: Event[] | null;
 }
 
 export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
+    const [upcomingEvent, setUpcomingEvent] = useState<Event | null>(null);
+    
+    // formats upcoming event date
+    const formatUpcomingEventDate = (isoDateTime: string): string => {
+        const date = parseISOUTC(isoDateTime);
+        if (isToday(date)) {
+            return `Today @ ${formatUTC(date, "h:mm a")}`;
+        }
+        if (isTomorrow(date)) {
+            return `Tomorrow @ ${formatUTC(date, "h:mm a")}`;
+        }
+        if (isThisWeek(date, { weekStartsOn: 1 })) {
+            return `${formatUTC(date, "EEEE")} @ ${formatUTC(date, "h:mm a")}`;
+        }
+        return `${formatUTC(date, "MMM d")} @ ${formatUTC(date, "h:mm a")}`;
+    }
+
+    // gets upcoming event
+    const getUpcomingEvent = (events: Event[]): Event | null => {
+        const now = new Date();
+        const upcoming = events
+            .filter(event => {
+                const eventDate = new Date(event.date);
+                return eventDate > now;
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        if (upcoming.length > 0) {
+            upcoming[0].displayDate = formatUpcomingEventDate(upcoming[0].date);
+            return upcoming[0];
+        }
+        return null;
+    }
+
+    // sets upcoming event
+    useEffect(() => {
+        const upcomingEvent = getUpcomingEvent(info.events || []);
+        setUpcomingEvent(upcomingEvent);
+    }, [info.events])
+
+    // updates upcoming event when app is brought back to life
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                const upcomingEvent = getUpcomingEvent(info.events || []);
+                setUpcomingEvent(upcomingEvent);
+            }
+        });
+        
+        return () => {
+            subscription.remove();
+        };
+    }, [])
+
     return (
         <MotiView
             from={{ opacity: 0, scale: 0.95 }}
@@ -74,9 +130,9 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
                         >
                             <Feather name="moon" size={24} color="#5B4B94" />
                         </MotiView>
-                        <Text className="text-xl font-bold text-[#5B4B94]">Upcoming</Text>
+                        <Text className="text-xl font-bold text-[#5B4B94]">{upcomingEvent ? upcomingEvent.title : "No upcoming events"}</Text>
                     </View>
-                    <Text className="text-base text-[#5B4B94] mt-0.5 ml-10">{info.events[0].title + ", " + info.events[0].time}</Text>
+                    <Text className="text-base text-[#5B4B94] mt-0.5 ml-10">{upcomingEvent ? upcomingEvent.displayDate : "Enable notifications to stay updated!"}</Text>
                 </View>
             </MotiView>
         </MotiView>

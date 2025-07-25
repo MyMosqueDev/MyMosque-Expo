@@ -1,44 +1,67 @@
-import Feather from '@expo/vector-icons/Feather';
-import * as Location from 'expo-location';
 import { MotiView } from 'moti';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, TextInput, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import MapView, { Marker, Region } from 'react-native-maps';
 import Container from "../components/Container";
-import { mosqueData } from '../lib/data';
-import { MosqueData } from '../lib/types';
+import { supabase } from '../lib/supabase';
+import { MosqueInfo, UserData } from '../lib/types';
 import MosqueCard from "./components/MosqueCard";
 
-export default function Map() {
+export default function Map({ setUserData }: { setUserData?: (userData: UserData) => void }) {
+  const [mosques, setMosques] = useState<MosqueInfo[]>([]);
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const mapRef = useRef<MapView | null>(null);
 
+  // fetches mosques from supabase
   useEffect(() => {
-
-    const getLocation = async () => {
-      Location.requestForegroundPermissionsAsync();
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setInitialRegion({
-          latitude: 30.283252,
-          longitude: -97.744386,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        });
-        return;
+    const getMosques = async () => {
+      try {
+        console.log('Fetching mosques from Supabase...');
+        const { data, error } = await supabase
+          .from('mosques')
+          .select('*');
+        
+        if (error) {
+          console.error('Error fetching mosques:', error);
+          setError('Failed to load mosques');
+          return;
+        }
+        
+        if (data) {
+          console.log('Mosques loaded successfully:', data.length);
+          setMosques(data);
+        }
+      } catch (error) {
+        console.error('Error in getMosques:', error);
+        setError('Failed to load mosques');
       }
-      const position = await Location.getCurrentPositionAsync();
-
-      setInitialRegion({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
     }
-    getLocation();
+    
+    getMosques();
 
+    setInitialRegion({
+      latitude: 30.283252,
+      longitude: -97.744386,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    });
   }, []);
+
+  if (error) {
+    return (
+      <Container>
+        <View className="flex-1 flex-col items-center justify-center gap-3">
+          <Text className="text-red-500 text-lg font-lato-bold text-center mb-4">
+            {error}
+          </Text>
+          <Text className="text-text/70 text-sm font-lato text-center">
+            Please check your internet connection and try again
+          </Text>
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -59,7 +82,7 @@ export default function Map() {
           }}
           className="w-full justify-center items-center"
         >
-          <Text className="text-text text-4xl w-5/6 text-center font-lato-bold mb-4">Add Your Go-To Mosques!</Text>
+          <Text className="text-text text-4xl w-5/6 text-center font-lato-bold mb-4">View Our Mosques!</Text>
         </MotiView>
         
         <MotiView
@@ -86,7 +109,7 @@ export default function Map() {
             showsMyLocationButton={true}
             userInterfaceStyle="dark"
           >
-            {mosqueData.map((mosque: MosqueData, index: number) => (
+            {mosques.map((mosque: MosqueInfo, index: number) => (
               <Marker
                 key={`${mosque.name}-${index}`}
                 coordinate={{
@@ -117,7 +140,9 @@ export default function Map() {
               delay: 300,
             }}
           >
-            <View className="w-full min-h-12 flex-row items-center justify-center gap-3 backdrop-blur-lg border border-white/30 bg-white/30 rounded-3xl px-4 py-2 mb-3"> 
+            {
+            // TODO: add search bar once more mosques are added
+            /* <View className="w-full min-h-12 flex-row items-center justify-center gap-3 backdrop-blur-lg border border-white/30 bg-white/30 rounded-3xl px-4 py-2 mb-3"> 
               <Feather name="search" size={20} color="#4A4A4A" className="mt-1"/>
               <TextInput
                 placeholder="Search For a Mosque"
@@ -125,7 +150,10 @@ export default function Map() {
                 className="text-text text-lg font-lato flex-1 h-full mb-1"
                 multiline={true}
               />
-            </View>
+            </View> */}
+            <Text className="text-text/70 text-sm font-lato text-center mb-3">
+              Listed mosques are within our current limited network
+            </Text>
           </MotiView>
           
           <ScrollView 
@@ -134,7 +162,7 @@ export default function Map() {
             contentContainerStyle={{ paddingBottom: 30 }}
           >
             {
-              mosqueData.map((mosque : MosqueData, index: number) => (
+              mosques.map((mosque : MosqueInfo, index: number) => (
                 <MotiView
                   key={mosque.name}
                   from={{
@@ -151,7 +179,7 @@ export default function Map() {
                     delay: 400 + (index * 100),
                   }}
                 >
-                  <MosqueCard data={mosque} mapRef={mapRef}/>
+                  <MosqueCard data={mosque} mapRef={mapRef} setUserData={setUserData}/>
                 </MotiView>
               ))
             }

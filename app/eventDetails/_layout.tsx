@@ -4,7 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from "react";
 import { ImageBackground, Text, View } from "react-native";
 import '../../global.css';
-import { EventData } from "../../lib/types";
+import { Event } from "../../lib/types";
 import { loadFonts } from "../../lib/utils";
 
 SplashScreen.preventAutoHideAsync();
@@ -12,7 +12,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const params = useLocalSearchParams();
-    const eventData: EventData | undefined = params.eventData 
+    const eventData: Event | undefined = params.eventData 
         ? JSON.parse(params.eventData as string) 
         : undefined;
 
@@ -26,7 +26,7 @@ export default function RootLayout() {
         prepare();
     }, []);
 
-    if (!fontsLoaded) {
+    if (!fontsLoaded || !eventData?.mosqueName) {
         return null;
     }
 

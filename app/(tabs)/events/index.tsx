@@ -1,52 +1,54 @@
+import EventToken from "@/app/components/EventToken";
 import ScrollContainer from "@/components/ScrollContainer";
+import { Event } from "@/lib/types";
 import { Feather } from '@expo/vector-icons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addDays, endOfWeek, format, isSameDay, isWithinInterval, parseISO, startOfWeek } from 'date-fns';
+import { useLocalSearchParams } from 'expo-router';
 import { MotiView } from 'moti';
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { EventData, MosqueData } from "@/lib/types";
-import EventToken from "@/app/components/EventToken";
 
 const DAY_LABELS = ["S", "M", "T", "W", "Th", "F", "S"];
 
 export default function Events() {
-    const [mosqueData, setMosqueData] = useState<MosqueData | null>(null);
     const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 0 }));
-    const [events, setEvents] = useState<EventData[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchMosqueData = async () => {
-            const userDataString = await AsyncStorage.getItem('userData');
-            if (userDataString) {
-                const parsedUserData = JSON.parse(userDataString);
-                setMosqueData(parsedUserData.lastVisitedMosque);
-                setEvents(parsedUserData.lastVisitedMosque?.events || []);
-            }
-            setIsLoading(false);
-        };
-        fetchMosqueData();
-    }, []);
+    const { events: eventsParam } = useLocalSearchParams();
 
-    // Calculate week range
+    // sets events from the url param
+    useEffect(() => {
+        if (eventsParam) {
+            try {
+                const parsedEvents = JSON.parse(eventsParam as string);
+                setEvents(parsedEvents);
+            } catch (error) {
+                console.error('Error parsing events:', error);
+                setEvents([]);
+            }
+        }
+        setIsLoading(false);
+    }, [eventsParam]);
+
+    // calculate week range
     const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });
     const weekDates = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-    // Filter events for this week
+    // filder events for this week
     const weekEvents = events
         .filter(event => {
-            const eventDate = parseISO(event.isoDateTime);
+            const eventDate = parseISO(event.date);
             return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
         })
-        .sort((a, b) => parseISO(a.isoDateTime).getTime() - parseISO(b.isoDateTime).getTime());
+        .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
 
-    // Helper: does a day have an event?
+    // checks if event on that day
     const dayHasEvent = (date: Date) => {
-        return events.some(event => isSameDay(parseISO(event.isoDateTime), date));
+        return events.some(event => isSameDay(parseISO(event.date), date));
     };
 
-    // Week range label
+    // week range label
     const weekLabel = `${format(weekStart, 'MMMM do')} - ${format(weekEnd, 'do')}`;
 
     if (isLoading) {
@@ -87,6 +89,7 @@ export default function Events() {
                     className="w-full"
                 >
                     <View className="flex-row justify-between w-full px-4 mb-4">
+                        {/* days */}
                         {weekDates.map((date, idx) => (
                             <View key={idx} className="items-center flex-1">
                                 <Text className="text-xs font-lato-bold text-[#4A4A4A] mb-1">{DAY_LABELS[idx]}</Text>
@@ -110,15 +113,16 @@ export default function Events() {
                             <Text className="text-center text-[#4A4A4A] mt-8">No events this week.</Text>
                         </MotiView>
                     )}
+                    {/* events */}
                     {weekEvents.map((event, idx) => (
                         <MotiView
-                            key={event.title + event.isoDateTime + idx}
+                            key={event.title + event.date + idx}
                             from={{ opacity: 0, translateX: -20, scale: 0.95 }}
                             animate={{ opacity: 1, translateX: 0, scale: 1 }}
                             transition={{ type: 'spring', damping: 15, stiffness: 150, delay: 100 + idx * 100 }}
                             style={{ overflow: 'visible' }}
                         >
-                            <EventToken event={{ ...event, mosqueName: mosqueData?.name || '' }} />
+                            <EventToken event={event} />
                         </MotiView>
                     ))}
                 </ScrollView>

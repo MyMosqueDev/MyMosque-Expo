@@ -1,16 +1,56 @@
+import { useMosqueData } from '@/app/_layout';
+import { getNextPrayer } from '@/lib/getPrayerTimes';
+import { Event, PrayerTime } from '@/lib/types';
+import { fetchMosqueInfo } from "@/lib/utils";
 import Feather from '@expo/vector-icons/Feather';
 import { BlurView } from 'expo-blur';
 import { Link, usePathname } from 'expo-router';
 import { MotiView } from 'moti';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from "react-native";
 
 type page = 'home' | 'events' | 'prayers';
 export default function Navbar() {
-    const [page, setPage] = useState<page>('home');
+    const { mosqueData } = useMosqueData();
+    const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null);
+    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerTimes || null);  
     const pathname = usePathname();
-    
-    // Determine current page based on pathname
+
+    // fetches mosque data if it doesn't exist
+    useEffect(() => {
+        if(!mosqueData) {
+            const fetchData = async () => {
+                const mosqueData = await fetchMosqueInfo();
+                if(mosqueData) {
+                    setMosqueEvents(mosqueData.events);
+                    setMosquePrayerTimes(mosqueData.prayerTimes);
+                }
+            }
+            fetchData();
+        } else {
+            setMosqueEvents(mosqueData.events);
+            setMosquePrayerTimes(mosqueData.prayerTimes);
+        }
+    }, [mosqueData]);
+
+    // updates the next prayer time
+    const getUpdatedPrayerTimes = () => {
+        if(mosquePrayerTimes) {
+            // gets the next prayer time (makes sure it hasn't changed)
+            const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
+            return {
+                ...mosquePrayerTimes,
+                nextPrayer: updatedPrayerTimes
+            }
+        }
+        return mosquePrayerTimes;
+    }
+
+    // hide nav bar on the following pages
+    if (pathname.startsWith('/announcements') || pathname.startsWith('/eventDetails') || pathname.startsWith('/map')) {
+        return null;
+    }
+
     const getCurrentPage = (): page => {
         if (pathname === '/') return 'home';
         if (pathname === '/events') return 'events';
@@ -20,10 +60,7 @@ export default function Navbar() {
     
     const currentPage = getCurrentPage();
     
-    const handlePagePress = (newPage: page) => {
-        setPage(newPage);
-    };
-    
+    // sets icon color based on the current page
     const getIconColor = (pageName: page) => {
         if (currentPage === pageName) {
             switch (pageName) {
@@ -56,7 +93,6 @@ export default function Navbar() {
                 >
                     <Link 
                         href="/" 
-                        onPress={() => handlePagePress('home')}
                         className={`px-6 py-2 rounded-full ${currentPage === 'home' ? 'bg-white/30' : ''}`}
                     >
                         <MotiView
@@ -75,8 +111,12 @@ export default function Navbar() {
                     </Link>
                     
                     <Link 
-                        href="/events" 
-                        onPress={() => handlePagePress('events')}
+                        href={{
+                            pathname: "/events",
+                            params: {
+                                events: mosqueEvents ? JSON.stringify(mosqueEvents) : '[]'
+                            }
+                        }}
                         className={`px-6 py-2 rounded-full ${currentPage === 'events' ? 'bg-white/30' : ''}`}
                     >
                         <MotiView
@@ -95,8 +135,12 @@ export default function Navbar() {
                     </Link>
                     
                     <Link 
-                        href="/prayer" 
-                        onPress={() => handlePagePress('prayers')}
+                        href={{
+                            pathname: "/prayer",
+                            params: {
+                                prayerTimes: mosquePrayerTimes ? JSON.stringify(getUpdatedPrayerTimes()) : '{}'
+                            }
+                        }}
                         className={`px-6 py-2 rounded-full ${currentPage === 'prayers' ? 'bg-white/30' : ''}`}
                     >
                         <MotiView

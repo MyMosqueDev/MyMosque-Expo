@@ -44,6 +44,7 @@ My Mosque is a platform that helps connect masjid to their communities by provid
 - [Expo CLI](https://docs.expo.dev/get-started/installation/)
 - ExpoGo on your mobile device. [iOS Download](https://apps.apple.com/us/app/expo-go/id982107779) and [Android Download](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=en_US)
 - An iOS or Android emulator (OPTINAL). Follow the guide [here](https://docs.expo.dev/workflow/android-studio-emulator/) to set up an Android emulator or [here](https://docs.expo.dev/workflow/ios-simulator/) for an iOS simulator.
+- Supabase connection information (hit up @ali-vayani for this)
 
 ### VSCode Extensions
 
@@ -89,15 +90,40 @@ We recommend using the following VSCode extensions to improve your development e
    - **For iOS:**
 
    ```sh
-   npm expo run:ios --device
+   npx expo run:ios --device
    ```
 
    - **For Android:**
 
    ```sh
-   npm expo run:android --device
+   npx expo run:android --device
    ```
 
    > **Note**: Make sure to enable USB debugging on your Android device. You can find the instructions [here](https://developer.android.com/studio/debug/dev-options).
 
    This will install the development build onto your device.
+
+5.  **Supabase**
+
+   In the project root create a `.env.local` file and paste in the Supabase connection information 
+   ```sh
+   EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+   EXPO_PUBLIC_SUPABASE_KEY=xxxx
+   ```
+   To get this information go to Supabase -> Dashboard -> MyMosque -> Connect (In Header) -> Mobile Framework
+   If you don't have access to Supabase hit up @ali-vayani
+
+   ## Project Structure
+
+   ```txt
+   mymosque/
+   ├── app/               # Expo Router screens and local UI components
+   ├── assets/            # Images and static assets
+   ├── components/        # Global reusable UI components
+   ├── data/              # Static data and constants
+   ├── store/             # Zustand state management with MMKV persistence
+   ├── supabase/          # Supabase local client and utilities
+   ├── types/             # TypeScript type definitions
+   └── lib/               # Utility modules and helper functions that provide reusable logic
+   ```
+

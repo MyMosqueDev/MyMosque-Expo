@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { Dimensions, FlatList, View } from "react-native";
-import { MosqueData } from "../../lib/types";
+import { Announcement } from "../../lib/types";
 import AnnouncementToken from "./AnnouncementToken";
 
+// sets all dimensions
 const { width: screenWidth } = Dimensions.get('window');
 const CARD_WIDTH = screenWidth * 1;
 const CARD_SPACING = 7;
 
+// props for the announcements carousel
 interface AnnouncementsCarouselProps {
-    announcements: MosqueData["announcements"];
+    announcements: Announcement[];
 }
 
 export default function AnnouncementsCarousel({ announcements }: AnnouncementsCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    const renderAnnouncement = ({ item }: { item: MosqueData["announcements"][0] }) => (
+    // curr announcement
+    const renderAnnouncement = ({ item }: { item: Announcement }) => (
         <View style={{ width: CARD_WIDTH, marginHorizontal: CARD_SPACING / 2 }}>
             <AnnouncementToken announcement={item} />
         </View>
@@ -46,7 +49,7 @@ export default function AnnouncementsCarousel({ announcements }: AnnouncementsCa
                 scrollEventThrottle={16}
             />
 
-            {/* Pagination Dots */}
+            {/* page dots */}
             <View className="flex-row justify-center items-center">
                 {announcements.map((_, index) => (
                     <View
