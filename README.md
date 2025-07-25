@@ -103,15 +103,15 @@ We recommend using the following VSCode extensions to improve your development e
 
    This will install the development build onto your device.
 
-   - **Supabase**
+5.  **Supabase**
 
-      In the project root create a `.env.local` file and paste in the Supabase connection information 
-     ```sh
-     EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-     EXPO_PUBLIC_SUPABASE_KEY=xxxx
-     ```
-      To get this information go to Supabase -> Dashboard -> MyMosque -> Connect (In Header) -> Mobile Framework
-      If you don't have access to Supabase hit up @ali-vayani
+   In the project root create a `.env.local` file and paste in the Supabase connection information 
+   ```sh
+   EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+   EXPO_PUBLIC_SUPABASE_KEY=xxxx
+   ```
+   To get this information go to Supabase -> Dashboard -> MyMosque -> Connect (In Header) -> Mobile Framework
+   If you don't have access to Supabase hit up @ali-vayani
 
    ## Project Structure
 
