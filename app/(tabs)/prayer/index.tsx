@@ -67,7 +67,7 @@ export default function Prayers() {
         return () => {
             subscription.remove();
         };
-    }, [])
+    }, [prayerTimes])
 
     if (isLoading || !prayerTimes) {
         return (
@@ -178,7 +178,7 @@ export default function Prayers() {
                                 animate={{ opacity: 1 }}
                                 transition={{ type: 'timing', duration: 400, delay: 500 }}
                             >
-                                <Text className="text-xl font-lato-bold text-center mb-1 text-[#4A4A4A]">"{DAILY_QUOTE.text}"</Text>
+                                <Text className="text-xl font-lato-bold text-center mb-1 text-[#4A4A4A]">&quot;{DAILY_QUOTE.text}&quot;</Text>
                             </MotiView>
                             <MotiView
                                 from={{ opacity: 0 }}

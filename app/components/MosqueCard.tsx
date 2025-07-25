@@ -4,7 +4,6 @@ import { fetchMosqueInfo } from '@/lib/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MapView from 'react-native-maps';
 
@@ -20,7 +19,7 @@ const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
     const address = data.address.length > 45 ? data.address.slice(0, 45) + "..." : data.address;
 
     const images = data.images || [];
-    const [isFavorited, setIsFavorited] = useState(false);
+    // const [isFavorited, setIsFavorited] = useState(false);
     const { setMosqueData } = useMosqueData();
 
     // handles toggling favorite + saving to AsyncStorage

@@ -65,9 +65,9 @@ export default function Home() {
         return () => {
             subscription.remove();
         };
-    }, [])
+    }, [mosqueData])
 
-    
+
     if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents || !mosqueAnnouncements) {
         return (
             <ScrollContainer name={mosqueInfo?.name || ''}>
