@@ -1,9 +1,9 @@
 import Feather from '@expo/vector-icons/Feather';
-import { isThisWeek, isToday, isTomorrow } from 'date-fns';
+import { isThisWeek, isToday, isTomorrow, parseISO } from 'date-fns';
 import { MotiView } from "moti";
 import { useCallback, useEffect, useState } from 'react';
 import { AppState, Text, View } from "react-native";
-import { formatUTC, parseISOUTC } from '../../lib/dateUtils';
+import { format } from '../../lib/dateUtils';
 import { Event, MosqueInfo } from "../../lib/types";
 
 interface GeneralMosqueInfo {
@@ -17,17 +17,22 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
     
     // formats upcoming event date
     const formatUpcomingEventDate = (isoDateTime: string): string => {
-        const date = parseISOUTC(isoDateTime);
+        const date = parseISO(isoDateTime);
+        const time = new Date(date).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
         if (isToday(date)) {
-            return `Today @ ${formatUTC(date, "h:mm a")}`;
+            return `Today @ ${time}`;
         }
         if (isTomorrow(date)) {
-            return `Tomorrow @ ${formatUTC(date, "h:mm a")}`;
+            return `Tomorrow @ ${time}`;
         }
         if (isThisWeek(date, { weekStartsOn: 1 })) {
-            return `${formatUTC(date, "EEEE")} @ ${formatUTC(date, "h:mm a")}`;
+            return `${format(date, "EEEE")} @ ${time}`;
         }
-        return `${formatUTC(date, "MMM d")} @ ${formatUTC(date, "h:mm a")}`;
+        return `${format(date, "MMM d")} @ ${time}`;
     }
 
     // gets upcoming event

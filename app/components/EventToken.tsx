@@ -1,13 +1,18 @@
 import Feather from '@expo/vector-icons/Feather';
+import { parseISO } from 'date-fns';
 import { router } from 'expo-router';
 import { Text, TouchableOpacity, View } from "react-native";
-import { formatUTC, parseISOUTC } from "../../lib/dateUtils";
+import { format } from "../../lib/dateUtils";
 import { Event } from "../../lib/types";
 
 
 export default function EventToken({ event }: { event: Event }) {
-    const day = formatUTC(parseISOUTC(event.date), 'EEEE, MMMM d')
-    const time = formatUTC(parseISOUTC(event.date), 'h:mm a')
+    const day = format(parseISO(event.date), 'EEEE, MMMM d')
+    const time = new Date(event.date).toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+    });
     
     return (
         <TouchableOpacity 

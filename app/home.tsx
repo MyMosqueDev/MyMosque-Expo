@@ -45,7 +45,6 @@ export default function Home() {
             const fetchData = async () => {
                 const mosqueData = await fetchMosqueInfo();
                 if (mosqueData) {
-                    console.log('mosqueData', mosqueData.announcements);
                     setMosqueData(mosqueData);
                 }
             }
