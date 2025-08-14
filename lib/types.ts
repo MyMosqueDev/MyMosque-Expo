@@ -1,6 +1,7 @@
 export type MosqueInfo = {
     name: string;
     id: string;
+    uid: string;
     address: string;
     images?: string[] | null;
     coordinates: {
@@ -33,17 +34,30 @@ export type Event = {
     displayDate?: string;
 }
 
+export type PrayerInfo = {
+    prayerTimes: PrayerTime;
+    prayerSchedule: PrayerSchedule;
+}
+
 export type PrayerTime = {
     fajr: { adhan: string; iqama: string };
     dhuhr: { adhan: string; iqama: string };
     asr: { adhan: string; iqama: string };
     maghrib: { adhan: string; iqama: string };
     isha: { adhan: string; iqama: string };
+    jummah: JummahTime;
     nextPrayer: {
         name: string;
         minutesToNextPrayer: number;
         percentElapsed: number;
     };
+    warning?: string;
+}
+
+export type JummahTime = {
+    jummah1: { athan: string; iqama: string };
+    jummah2?: { athan: string; iqama: string };
+    jummah3?: { athan: string; iqama: string };
 }
 
 export type Announcement = {
@@ -60,17 +74,48 @@ export type MosqueData = {
     info: MosqueInfo;
     announcements: Announcement[];
     events: Event[];
-    prayerTimes: { [date: string]: PrayerTime };
+    prayerInfo: PrayerInfo;
 }
 
 export type ProcessedMosqueData = {
     info: MosqueInfo;
     announcements: Announcement[];
     events: Event[];
-    prayerTimes: PrayerTime;
+    prayerInfo: PrayerInfo;
 }
 
 export type UserData = {
     favoriteMosques: string[];
     lastVisitedMosque: string | null;
+}
+
+export type PrayerSchedule ={
+    id: string
+    name: string
+    startDate: string
+    endDate: string
+    status: "active" | "inactive" | "deleted" | null;
+    prayerTimes: {
+        fajr: string
+        dhuhr: string
+        asr: string
+        maghrib: string
+        isha: string
+    }
+    timeMode: {
+        fajr: "static" | "increment"
+        dhuhr: "static" | "increment"
+        asr: "static" | "increment"
+        maghrib: "static" | "increment"
+        isha: "static" | "increment"
+    }
+    incrementValues: {
+        fajr: number
+        dhuhr: number
+        asr: number
+        maghrib: number
+        isha: number
+    }
+    isNew?: boolean
+    warning?: string;
 }

@@ -60,7 +60,7 @@ const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
         // updates user data
         const newUserData = {
             favoriteMosques: [],
-            lastVisitedMosque: data.id,
+            lastVisitedMosque: data.uid,
         }
 
         // saves user data

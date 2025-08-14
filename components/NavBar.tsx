@@ -1,6 +1,6 @@
 import { useMosqueData } from '@/app/_layout';
-import { getNextPrayer } from '@/lib/getPrayerTimes';
-import { Event, PrayerTime } from '@/lib/types';
+import { getNextPrayer } from '@/lib/prayerTimeUtils';
+import { Event, PrayerInfo, PrayerTime } from '@/lib/types';
 import { fetchMosqueInfo } from "@/lib/utils";
 import Feather from '@expo/vector-icons/Feather';
 import { BlurView } from 'expo-blur';
@@ -13,7 +13,7 @@ type page = 'home' | 'events' | 'prayers';
 export default function Navbar() {
     const { mosqueData } = useMosqueData();
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null);
-    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerTimes || null);  
+    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerInfo | null>(mosqueData?.prayerInfo || null);  
     const pathname = usePathname();
 
     // fetches mosque data if it doesn't exist
@@ -23,13 +23,13 @@ export default function Navbar() {
                 const mosqueData = await fetchMosqueInfo();
                 if(mosqueData) {
                     setMosqueEvents(mosqueData.events);
-                    setMosquePrayerTimes(mosqueData.prayerTimes);
+                    setMosquePrayerTimes(mosqueData.prayerInfo.prayerTimes);
                 }
             }
             fetchData();
         } else {
             setMosqueEvents(mosqueData.events);
-            setMosquePrayerTimes(mosqueData.prayerTimes);
+            setMosquePrayerTimes(mosqueData.prayerInfo);
         }
     }, [mosqueData]);
 
@@ -37,9 +37,9 @@ export default function Navbar() {
     const getUpdatedPrayerTimes = () => {
         if(mosquePrayerTimes) {
             // gets the next prayer time (makes sure it hasn't changed)
-            const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
+            const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes.prayerTimes);
             return {
-                ...mosquePrayerTimes,
+                ...mosquePrayerTimes.prayerTimes,
                 nextPrayer: updatedPrayerTimes
             }
         }

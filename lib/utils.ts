@@ -40,16 +40,13 @@ export const to12HourFormat = (time24: string) => {
  */
 export const fetchMosqueInfo = async () => {
     const userDataString = await AsyncStorage.getItem('userData');
-
     if (userDataString) {
         const lastVisitedMosqueId = JSON.parse(userDataString).lastVisitedMosque;
         const mosqueData = await syncStorage(lastVisitedMosqueId);
-        const date = new Date().setHours(0, 0, 0,0 );
-        const formattedDate = format(date, "yyyy-MM-dd'T'HH:mm:ss") + '+00:00';
 
         return {
             ...mosqueData,
-            prayerTimes: mosqueData.prayerTimes[formattedDate],
+            prayerTimes: mosqueData.prayerTimes,
         }
     }
 
