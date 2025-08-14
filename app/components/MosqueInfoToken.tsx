@@ -1,9 +1,9 @@
 import Feather from '@expo/vector-icons/Feather';
 import { isThisWeek, isToday, isTomorrow } from 'date-fns';
-import { parseISOUTC, formatUTC } from '../../lib/dateUtils';
 import { MotiView } from "moti";
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AppState, Text, View } from "react-native";
+import { formatUTC, parseISOUTC } from '../../lib/dateUtils';
 import { Event, MosqueInfo } from "../../lib/types";
 
 interface GeneralMosqueInfo {
@@ -31,7 +31,7 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
     }
 
     // gets upcoming event
-    const getUpcomingEvent = (events: Event[]): Event | null => {
+    const getUpcomingEvent = useCallback((events: Event[]): Event | null => {
         const now = new Date();
         const upcoming = events
             .filter(event => {
@@ -44,13 +44,13 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
             return upcoming[0];
         }
         return null;
-    }
+    }, [])
 
     // sets upcoming event
     useEffect(() => {
         const upcomingEvent = getUpcomingEvent(info.events || []);
         setUpcomingEvent(upcomingEvent);
-    }, [info.events])
+    }, [info.events, getUpcomingEvent])
 
     // updates upcoming event when app is brought back to life
     useEffect(() => {
@@ -64,7 +64,7 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo}) {
         return () => {
             subscription.remove();
         };
-    }, [])
+    }, [getUpcomingEvent, info.events])
 
     return (
         <MotiView

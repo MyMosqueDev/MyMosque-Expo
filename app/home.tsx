@@ -1,12 +1,12 @@
 import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
-import { getNextPrayer } from "@/lib/getPrayerTimes";
+import { getNextPrayer } from "@/lib/prayerTimeUtils";
 import { fetchMosqueInfo } from "@/lib/utils";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Text, View } from "react-native";
-import { Announcement, Event, ProcessedMosqueData, MosqueInfo, PrayerTime } from "../lib/types";
+import { Announcement, Event, MosqueInfo, PrayerInfo, PrayerTime, ProcessedMosqueData } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
@@ -17,7 +17,7 @@ export default function Home() {
     const { mosqueData } = useMosqueData();
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(mosqueData?.info || null);
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null );
-    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerTimes || null);
+    const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerInfo.prayerTimes || null);
     const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(mosqueData?.announcements || null);    
     
     // gets updated prayer times
@@ -35,7 +35,7 @@ export default function Home() {
     const setMosqueData = (mosqueData: ProcessedMosqueData) => {
         setMosqueInfo(mosqueData.info);
         setMosqueEvents(mosqueData.events);
-        setMosquePrayerTimes(mosqueData.prayerTimes);
+        setMosquePrayerTimes(mosqueData?.prayerInfo.prayerTimes);
         setMosqueAnnouncements(mosqueData.announcements);
     }
     
@@ -65,9 +65,9 @@ export default function Home() {
         return () => {
             subscription.remove();
         };
-    }, [])
+    }, [mosqueData])
 
-    
+
     if(!mosqueInfo || !mosquePrayerTimes || !mosqueEvents || !mosqueAnnouncements) {
         return (
             <ScrollContainer name={mosqueInfo?.name || ''}>

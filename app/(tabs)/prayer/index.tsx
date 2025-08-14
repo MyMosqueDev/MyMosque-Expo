@@ -1,6 +1,6 @@
 import ScrollContainer from "@/components/ScrollContainer";
-import { getNextPrayer } from "@/lib/getPrayerTimes";
-import { PrayerTime } from "@/lib/types";
+import { getNextPrayer } from "@/lib/prayerTimeUtils";
+import { JummahTime, PrayerTime } from "@/lib/types";
 import { to12HourFormat } from "@/lib/utils";
 import { useLocalSearchParams } from 'expo-router';
 import { MotiView } from "moti";
@@ -13,13 +13,65 @@ const DAILY_QUOTE = {
     source: "— Prophet Muhammad (ﷺ)"
 };
 
-const PRAYER_ORDER = [
-    { key: 'fajr', label: 'Fajr' },
-    { key: 'dhuhr', label: 'Dhuhr' },
-    { key: 'asr', label: 'Asr' },
-    { key: 'maghrib', label: 'Maghrib' },
-    { key: 'isha', label: 'Isha' }
-];
+const getPrayerOrder = (prayerTimes: PrayerTime) => {
+    const isFriday = new Date().getDay() === 5;
+    const hasJummah = Object.keys(prayerTimes.jummah).length > 0;
+    if (isFriday && hasJummah) {
+        // On Friday with Jummah times, replace Dhuhr with Jummah prayers
+        const baseOrder = [
+            { key: 'fajr', label: 'Fajr' },
+            { key: 'asr', label: 'Asr' },
+            { key: 'maghrib', label: 'Maghrib' },
+            { key: 'isha', label: 'Isha' }
+        ];
+        
+        // Insert Jummah prayers after Fajr
+        const jummahPrayers = [];
+        
+        // Add first Jummah
+        jummahPrayers.push({
+            key: 'jummah1',
+            label: 'Jummah 1',
+            isJummah: true,
+            jummahKey: 'jummah1'
+        });
+        
+        // Add second Jummah if it exists
+        if (prayerTimes.jummah.jummah2) {
+            jummahPrayers.push({
+                key: 'jummah2',
+                label: 'Jummah 2',
+                isJummah: true,
+                jummahKey: 'jummah2'
+            });
+        }
+        
+        // Add third Jummah if it exists
+        if (prayerTimes.jummah.jummah3) {
+            jummahPrayers.push({
+                key: 'jummah3',
+                label: 'Jummah 3',
+                isJummah: true,
+                jummahKey: 'jummah3'
+            });
+        }
+
+        return [
+            baseOrder[0], // Fajr
+            ...jummahPrayers,
+            ...baseOrder.slice(1) // Asr, Maghrib, Isha
+        ];
+    } else {
+        // Regular prayer order
+        return [
+            { key: 'fajr', label: 'Fajr' },
+            { key: 'dhuhr', label: 'Dhuhr' },
+            { key: 'asr', label: 'Asr' },
+            { key: 'maghrib', label: 'Maghrib' },
+            { key: 'isha', label: 'Isha' }
+        ];
+    }
+};
 
 // takes in mins and converts to time (hh: mm)
 const convertMinutesToTime = (minutes: number) => {
@@ -67,7 +119,7 @@ export default function Prayers() {
         return () => {
             subscription.remove();
         };
-    }, [])
+    }, [prayerTimes])
 
     if (isLoading || !prayerTimes) {
         return (
@@ -88,6 +140,21 @@ export default function Prayers() {
         <ScrollContainer name="Prayer Times">
             <View className="flex-1 w-full px-2 pt-6">
                 <View className="flex-1 justify-center items-center">
+                    {/* Warning Display */}
+                    {prayerTimes.warning && (
+                        <MotiView
+                            from={{ opacity: 0, translateY: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, translateY: 0, scale: 1 }}
+                            transition={{ type: 'spring', damping: 15, stiffness: 150 }}
+                            className="w-full max-w-md mb-4"
+                        >
+                            <View className="w-full bg-yellow-100 rounded-3xl p-3">
+                                <Text className="text-yellow-700 text-sm font-lato-bold text-center">
+                                    ⚠️ {prayerTimes.warning}
+                                </Text>
+                            </View>
+                        </MotiView>
+                    )}
                     {/* progress bar */}
                     <MotiView
                         from={{ opacity: 0, translateY: 30, scale: 0.95 }}
@@ -136,11 +203,32 @@ export default function Prayers() {
                             <Text className="text-xl font-lato-bold text-[#4A4A4A] w-1/3 text-right">IQAMA</Text>
                         </View>
                         {/* displays all prayer times */}
-                        {PRAYER_ORDER.map((prayer, idx) => {
+                        {getPrayerOrder(prayerTimes).map((prayer: any, idx: number) => {
                             const isCurrent = prayer.key === prayerTimes.nextPrayer.name;
-                            const pt = prayerTimes[prayer.key as keyof Omit<PrayerTime, "nextPrayer">];
-                            const adhan = pt.adhan;
-                            const iqama = pt.iqama;
+                            
+                            let adhan, iqama;
+                            if (prayer.isJummah) {
+                                // Handle Jummah prayer times
+                                const jummahData = prayerTimes.jummah[prayer.jummahKey as keyof JummahTime];
+                                if (jummahData) {
+                                    adhan = jummahData.athan;
+                                    iqama = jummahData.iqama;
+                                } else {
+                                    adhan = "N/A";
+                                    iqama = "N/A";
+                                }
+                            } else {
+                                // Handle regular prayer times
+                                const pt = prayerTimes[prayer.key as keyof Omit<PrayerTime, "nextPrayer" | "jummah">];
+                                if (pt && typeof pt === 'object' && 'adhan' in pt && 'iqama' in pt) {
+                                    adhan = pt.adhan;
+                                    iqama = pt.iqama;
+                                } else {
+                                    adhan = "N/A";
+                                    iqama = "N/A";
+                                }
+                            }
+                            
                             return (
                                 <MotiView
                                     key={prayer.key}
@@ -155,7 +243,7 @@ export default function Prayers() {
                                 >
                                     <View className="flex-row justify-between items-center py-2 px-2">
                                         <Text className={`text-2xl font-lato-bold w-1/3 ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{prayer.label}</Text>
-                                        <Text className={`text-2xl font-lato-bold w-1/3 text-center ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{adhan}</Text>
+                                        <Text className={`text-2xl font-lato-bold w-1/3 text-center ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{to12HourFormat(adhan)}</Text>
                                         <Text className={`text-2xl font-lato-bold w-1/3 text-right ${isCurrent ? 'text-[#5B4B94]' : 'text-[#4A4A4A]/50'}`}>{to12HourFormat(iqama)}</Text>
                                     </View>
                                 </MotiView>
@@ -178,7 +266,7 @@ export default function Prayers() {
                                 animate={{ opacity: 1 }}
                                 transition={{ type: 'timing', duration: 400, delay: 500 }}
                             >
-                                <Text className="text-xl font-lato-bold text-center mb-1 text-[#4A4A4A]">"{DAILY_QUOTE.text}"</Text>
+                                <Text className="text-xl font-lato-bold text-center mb-1 text-[#4A4A4A]">&quot;{DAILY_QUOTE.text}&quot;</Text>
                             </MotiView>
                             <MotiView
                                 from={{ opacity: 0 }}
