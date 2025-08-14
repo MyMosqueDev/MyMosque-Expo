@@ -32,6 +32,7 @@ export type Event = {
     image: string;
     mosqueName?: string;
     displayDate?: string;
+    status?: "active" | "deleted" | "draft";
 }
 
 export type PrayerInfo = {
@@ -67,7 +68,7 @@ export type Announcement = {
     description: string;
     date: string;
     severity: "low" | "medium" | "high";
-    is_deleted?: boolean;
+    status?: "active" | "deleted" | "draft";
 }
 
 export type MosqueData = {

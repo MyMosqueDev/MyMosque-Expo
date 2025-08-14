@@ -16,6 +16,7 @@ export default function Events() {
     const [isLoading, setIsLoading] = useState(true);
 
     const { events: eventsParam } = useLocalSearchParams();
+    console.log('eventsParam', eventsParam);
 
     // sets events from the url param
     useEffect(() => {

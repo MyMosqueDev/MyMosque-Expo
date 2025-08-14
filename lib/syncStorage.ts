@@ -236,7 +236,6 @@ const getMosqueEvents = async (lastVisitedMosqueId: string, createdAfter?: strin
             .from('events')
             .select()
             .eq('masjid_id', lastVisitedMosqueId)
-            .neq('status', 'deleted')
 
         if (createdAfter) {
             query = query.or(`created_at.gt.${createdAfter},updated_at.gt.${createdAfter}`);
@@ -263,7 +262,6 @@ const getMosqueAnnouncements = async (lastVisitedMosqueId: string, createdAfter?
             .from('announcements')
             .select()
             .eq('masjid_id', lastVisitedMosqueId)
-            .neq('status', 'deleted');
 
         if (createdAfter) {
             query = query.or(`created_at.gt.${createdAfter},updated_at.gt.${createdAfter}`);

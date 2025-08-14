@@ -15,7 +15,6 @@ interface AnnouncementsCarouselProps {
 
 export default function AnnouncementsCarousel({ announcements }: AnnouncementsCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
-
     // curr announcement
     const renderAnnouncement = ({ item }: { item: Announcement }) => (
         <View style={{ width: CARD_WIDTH, marginHorizontal: CARD_SPACING / 2 }}>
@@ -33,7 +32,7 @@ export default function AnnouncementsCarousel({ announcements }: AnnouncementsCa
         <View className="w-full">
             
             <FlatList
-                data={announcements}
+                data={announcements.filter((announcement) => (announcement.status !== 'deleted' && announcement.status !== 'draft'))}
                 renderItem={renderAnnouncement}
                 keyExtractor={(item) => item.title}
                 horizontal
@@ -51,7 +50,7 @@ export default function AnnouncementsCarousel({ announcements }: AnnouncementsCa
 
             {/* page dots */}
             <View className="flex-row justify-center items-center">
-                {announcements.map((_, index) => (
+                {announcements.filter((announcement) => (announcement.status !== 'deleted' && announcement.status !== 'draft')).map((_, index) => (
                     <View
                         key={index}
                         className={`mx-1 rounded-full ${

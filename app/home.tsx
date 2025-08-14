@@ -34,9 +34,9 @@ export default function Home() {
 
     const setMosqueData = (mosqueData: ProcessedMosqueData) => {
         setMosqueInfo(mosqueData.info);
-        setMosqueEvents(mosqueData.events);
+        setMosqueEvents(mosqueData.events.filter((event) => (event.status !== 'deleted' && event.status !== 'draft')));
         setMosquePrayerTimes(mosqueData?.prayerInfo.prayerTimes);
-        setMosqueAnnouncements(mosqueData.announcements);
+        setMosqueAnnouncements(mosqueData.announcements.filter((announcement) => (announcement.status !== 'deleted' && announcement.status !== 'draft')));
     }
     
     // fetches mosque data if it doesn't exist
@@ -45,6 +45,7 @@ export default function Home() {
             const fetchData = async () => {
                 const mosqueData = await fetchMosqueInfo();
                 if (mosqueData) {
+                    console.log('mosqueData', mosqueData.announcements);
                     setMosqueData(mosqueData);
                 }
             }
@@ -162,7 +163,7 @@ export default function Home() {
                             href={{
                                 pathname: "/events",
                                 params: {
-                                    events: mosqueEvents ? JSON.stringify(mosqueEvents) : '[]'
+                                    events: mosqueEvents ? JSON.stringify(mosqueEvents.filter((event) => (event.status !== 'deleted' && event.status !== 'draft'))) : '[]'
                                 }
                             }}
                         >
@@ -170,6 +171,7 @@ export default function Home() {
                         </Link>
                     </View>
                     {mosqueEvents
+                        .filter((event) => (event.status !== 'deleted' && event.status !== 'draft'))
                         .filter(event => new Date(event.date) > new Date())
                         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                         .slice(0, 2)
