@@ -6,7 +6,7 @@ import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Text, View } from "react-native";
-import { Announcement, Event, MosqueInfo, PrayerInfo, PrayerTime, ProcessedMosqueData } from "../lib/types";
+import { Announcement, Event, MosqueInfo, PrayerTime, ProcessedMosqueData } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
@@ -15,10 +15,16 @@ import PrayerToken from "./components/PrayerToken";
 
 export default function Home() {
     const { mosqueData } = useMosqueData();
+    const announcements =  mosqueData?.announcements
+        .filter((announcement) => (announcement.status !== 'deleted' && announcement.status !== 'draft'))
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || null;
+    const events = mosqueData?.events
+        .filter((event) => (event.status !== 'deleted' && event.status !== 'draft'))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || null;
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(mosqueData?.info || null);
-    const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null );
+    const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(events);
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerInfo.prayerTimes || null);
-    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(mosqueData?.announcements || null);    
+    const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(announcements);    
     
     // gets updated prayer times
     const getUpdatedPrayerTimes = () => {
@@ -36,7 +42,10 @@ export default function Home() {
         setMosqueInfo(mosqueData.info);
         setMosqueEvents(mosqueData.events.filter((event) => (event.status !== 'deleted' && event.status !== 'draft')));
         setMosquePrayerTimes(mosqueData?.prayerInfo.prayerTimes);
-        setMosqueAnnouncements(mosqueData.announcements.filter((announcement) => (announcement.status !== 'deleted' && announcement.status !== 'draft')));
+        const announcements = mosqueData.announcements
+            .filter((announcement) => (announcement.status !== 'deleted' && announcement.status !== 'draft'))
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        setMosqueAnnouncements(announcements);
     }
     
     // fetches mosque data if it doesn't exist

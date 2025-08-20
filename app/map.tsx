@@ -6,6 +6,7 @@ import Container from "../components/Container";
 import { supabase } from '../lib/supabase';
 import { MosqueInfo, UserData } from '../lib/types';
 import MosqueCard from "./components/MosqueCard";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Map({ setUserData }: { setUserData?: (userData: UserData) => void }) {
   const [mosques, setMosques] = useState<MosqueInfo[]>([]);
@@ -30,7 +31,13 @@ export default function Map({ setUserData }: { setUserData?: (userData: UserData
         
         if (data) {
           console.log('Mosques loaded successfully:', data.length);
-          setMosques(data);
+          const settingsString = await AsyncStorage.getItem('appSettings');
+          const settings = JSON.parse(settingsString || '{}');
+          if (settings.development.enabled) {
+            setMosques(data);
+          } else {
+            setMosques(data.filter(mosque => mosque.id !== 2));
+          }
         }
       } catch (error) {
         console.error('Error in getMosques:', error);
