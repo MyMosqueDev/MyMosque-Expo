@@ -50,7 +50,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow MyMosque to use your location."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

@@ -9,7 +9,7 @@ import { MotiView } from 'moti';
 import { useEffect, useState } from 'react';
 import { View } from "react-native";
 
-type page = 'home' | 'events' | 'prayers';
+type page = 'home' | 'events' | 'prayers' | 'notifs';
 export default function Navbar() {
     const { mosqueData } = useMosqueData();
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(mosqueData?.events || null);
@@ -55,6 +55,7 @@ export default function Navbar() {
         if (pathname === '/') return 'home';
         if (pathname === '/events') return 'events';
         if (pathname === '/prayer') return 'prayers';
+        if (pathname === '/notifs') return 'notifs';
         return 'home';
     };
     
@@ -154,7 +155,7 @@ export default function Navbar() {
                                 duration: 150
                             }}
                         >
-                            <Feather name="moon" size={28} color={getIconColor('prayers')} />
+                            <Feather name="clock" size={28} color={getIconColor('prayers')} />
                         </MotiView>
                     </Link>
                 </BlurView>

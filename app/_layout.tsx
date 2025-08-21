@@ -7,7 +7,6 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import NavBar from "../components/NavBar";
 import '../global.css';
 import { fetchMosqueInfo, loadFonts } from "../lib/utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { resetStorage } from "@/lib/mmkv";
 
 SplashScreen.preventAutoHideAsync();
@@ -39,6 +38,7 @@ export default function RootLayout() {
   
   useEffect(() => {
     async function prepare() {
+      // resetStorage();
       try {
         console.log('Starting app preparation...');
         

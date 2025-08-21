@@ -20,6 +20,13 @@ export type MosqueInfo = {
     last_announcement: string | null;
     last_event: string | null;
     last_prayer: string | null;
+    contact_info: ContactInfo[];
+}
+
+export type ContactInfo = {
+    name: string;
+    phoneNumber?: string;
+    email: string;
 }
 
 export type Event = {
@@ -32,6 +39,7 @@ export type Event = {
     image: string;
     mosqueName?: string;
     displayDate?: string;
+    status?: "active" | "deleted" | "draft";
 }
 
 export type PrayerInfo = {
@@ -67,7 +75,7 @@ export type Announcement = {
     description: string;
     date: string;
     severity: "low" | "medium" | "high";
-    is_deleted?: boolean;
+    status?: "active" | "deleted" | "draft";
 }
 
 export type MosqueData = {

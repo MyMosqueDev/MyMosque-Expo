@@ -1,16 +1,17 @@
 import { Event } from "@/lib/types";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { formatUTC, parseISOUTC } from "../../lib/dateUtils";
+import { parseISO } from 'date-fns';
 import { useLocalSearchParams } from "expo-router";
 import { MotiView } from "moti";
 import { Image, ImageBackground, ScrollView, Text, View } from "react-native";
+import { format } from "../../lib/dateUtils";
 
 export default function EventDetails() {
     const params = useLocalSearchParams();
     const eventData: Event = JSON.parse(params.eventData as string)
-    const date = formatUTC(parseISOUTC(eventData.date), 'EEEE, MMMM do')
-    const time = formatUTC(parseISOUTC(eventData.date), 'h:mm a')
+    const date = format(parseISO(eventData.date), 'EEEE, MMMM do')
+    const time = format(parseISO(eventData.date), 'h:mm a')
 
     return (
         <ImageBackground 
