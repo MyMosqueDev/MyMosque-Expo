@@ -33,7 +33,8 @@ export default function Map({ setUserData }: { setUserData?: (userData: UserData
           console.log('Mosques loaded successfully:', data.length);
           const settingsString = await AsyncStorage.getItem('appSettings');
           const settings = JSON.parse(settingsString || '{}');
-          if (settings.development.enabled) {
+          console.log(settings);
+          if (settings.development && settings.development.enabled) {
             setMosques(data);
           } else {
             setMosques(data.filter(mosque => mosque.id !== 2));

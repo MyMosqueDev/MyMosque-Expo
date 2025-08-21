@@ -20,6 +20,13 @@ export type MosqueInfo = {
     last_announcement: string | null;
     last_event: string | null;
     last_prayer: string | null;
+    contact_info: ContactInfo[];
+}
+
+export type ContactInfo = {
+    name: string;
+    phoneNumber?: string;
+    email: string;
 }
 
 export type Event = {

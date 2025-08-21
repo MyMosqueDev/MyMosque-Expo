@@ -214,6 +214,7 @@ export default function Settings() {
                     }}
                     keyboardShouldPersistTaps="handled"
                 >
+                    
                     <View className="flex-1 w-full px-4 pt-6">
                         
                         {/* Mosque Section */}
