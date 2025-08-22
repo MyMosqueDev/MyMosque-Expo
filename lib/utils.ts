@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { format } from 'date-fns';
 import * as Font from 'expo-font';
 import { syncStorage } from './syncStorage';
 

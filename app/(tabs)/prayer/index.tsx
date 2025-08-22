@@ -14,16 +14,23 @@ const DAILY_QUOTE = {
 };
 
 const getPrayerOrder = (prayerTimes: PrayerTime) => {
-    const isFriday = new Date().getDay() === 5;
     const hasJummah = Object.keys(prayerTimes.jummah).length > 0;
-    if (isFriday && hasJummah) {
-        // On Friday with Jummah times, replace Dhuhr with Jummah prayers
-        const baseOrder = [
+    if (hasJummah) {
+        let baseOrder = [
             { key: 'fajr', label: 'Fajr' },
+            { key: 'dhuhr', label: 'Dhuhr' },
             { key: 'asr', label: 'Asr' },
             { key: 'maghrib', label: 'Maghrib' },
             { key: 'isha', label: 'Isha' }
-        ];
+        ]
+        if(new Date().getDay() === 5) {
+            baseOrder = [
+                { key: 'fajr', label: 'Fajr' },
+                { key: 'asr', label: 'Asr' },
+                { key: 'maghrib', label: 'Maghrib' },
+                { key: 'isha', label: 'Isha' }
+            ];
+        }
         
         // Insert Jummah prayers after Fajr
         const jummahPrayers = [];
@@ -251,7 +258,7 @@ export default function Prayers() {
                         })}
                     </MotiView>
 
-                    {/* daily quote  TODO: make dynamic*/}
+                    {/* daily quote  TODO: make dynamic
                     <MotiView
                         from={{ opacity: 0, translateY: 30, scale: 0.95 }}
                         animate={{ opacity: 1, translateY: 0, scale: 1 }}
@@ -276,7 +283,7 @@ export default function Prayers() {
                                 <Text className="text-lg font-lato-bold text-center text-[#4A4A4A]">{DAILY_QUOTE.source}</Text>
                             </MotiView>
                         </View>
-                    </MotiView>
+                    </MotiView> */}
                 </View>
             </View>
         </ScrollContainer>

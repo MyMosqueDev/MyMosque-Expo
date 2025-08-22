@@ -23,7 +23,7 @@ export default function Header({ name, type, title }: { name: string, type: stri
         return (
             <>
                 <View className="w-full flex-row justify-between items-center px-4 pb-3 pt-24 pr-6">
-                    <Text className="text-text text-3xl font-lato-bold">{name.length > 23 ? name.substring(0, 23) + '...' : name}</Text>
+                    <Text className="text-text text-3xl font-lato-bold">{name.length > 15 ? name.substring(0, 15) + '...' : name}</Text>
                     <View className="flex-row items-center gap-5">
                         <TouchableOpacity onPress={handleContactPress}>
                             <MaterialCommunityIcons name="phone" size={24} color="#4A4A4A" />

@@ -17,7 +17,7 @@ export default function EventToken({ event }: { event: Event }) {
     return (
         <TouchableOpacity 
             onPress={() => router.push({
-                pathname: "../eventDetails",
+                pathname: "/eventDetails",
                 params: {
                     eventData: JSON.stringify(event)
                 }

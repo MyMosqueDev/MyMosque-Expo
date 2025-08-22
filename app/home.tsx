@@ -2,6 +2,7 @@ import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
 import { getNextPrayer } from "@/lib/prayerTimeUtils";
 import { fetchMosqueInfo } from "@/lib/utils";
+import * as Notifications from 'expo-notifications';
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
@@ -12,20 +13,35 @@ import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
+import useNotifications from "@/lib/hooks/useNotifications";
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+    }),
+});
 
 export default function Home() {
     const { mosqueData } = useMosqueData();
+    
     const announcements =  mosqueData?.announcements
         .filter((announcement) => (announcement.status !== 'deleted' && announcement.status !== 'draft'))
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || null;
     const events = mosqueData?.events
         .filter((event) => (event.status !== 'deleted' && event.status !== 'draft'))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || null;
+
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(mosqueData?.info || null);
     const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(events);
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerInfo.prayerTimes || null);
     const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(announcements);    
     
+    useNotifications();
+
     // gets updated prayer times
     const getUpdatedPrayerTimes = () => {
         if(mosquePrayerTimes) {
@@ -38,7 +54,7 @@ export default function Home() {
         return mosquePrayerTimes;
     }
 
-    const setMosqueData = (mosqueData: ProcessedMosqueData) => {
+    const setMosqueData = (mosqueData: ProcessedMosqueData) => {``
         setMosqueInfo(mosqueData.info);
         setMosqueEvents(mosqueData.events.filter((event) => (event.status !== 'deleted' && event.status !== 'draft')));
         setMosquePrayerTimes(mosqueData?.prayerInfo.prayerTimes);

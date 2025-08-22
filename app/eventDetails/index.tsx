@@ -59,14 +59,14 @@ export default function EventDetails() {
                             >
                                 <Text className="text-text text-2xl font-lato-bold">{date}</Text>
                             </MotiView>
-                            <MotiView
+                            {/* <MotiView
                                 from={{ opacity: 0, translateX: 20 }}
                                 animate={{ opacity: 1, translateX: 0 }}
                                 transition={{ type: 'spring', damping: 15, stiffness: 150 }}
                                 delay={250}
                             >
                                 <Feather name="link" size={24} color="#4A4A4A" />
-                            </MotiView>
+                            </MotiView> */}
                         </View>
                         <MotiView
                             from={{ opacity: 0, translateY: 10 }}

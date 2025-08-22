@@ -115,7 +115,7 @@ export default function Navbar() {
                         href={{
                             pathname: "/events",
                             params: {
-                                events: mosqueEvents ? JSON.stringify(mosqueEvents) : '[]'
+                                events: mosqueEvents ? JSON.stringify(mosqueEvents.filter((event) => (event.status !== 'deleted' && event.status !== 'draft'))) : '[]'
                             }
                         }}
                         className={`px-6 py-2 rounded-full ${currentPage === 'events' ? 'bg-white/30' : ''}`}

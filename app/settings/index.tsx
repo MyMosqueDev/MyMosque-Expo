@@ -23,8 +23,8 @@ type Settings = {
 };
 
 const DEFAULT_SETTINGS: Settings = {
-    events: { enabled: false },
-    announcements: { enabled: false },
+    events: { enabled: true },
+    announcements: { enabled: true },
     development: { enabled: false },
 };
 

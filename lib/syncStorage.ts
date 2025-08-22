@@ -81,7 +81,7 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
     // this represents when we last checked for updates, regardless of whether new data was found
     const currentSyncTime = new Date().toISOString();
     const updatedMosqueInfo = { 
-        ...storageMosqueData.info,
+        ...dbMosqueData,
         last_event: currentSyncTime,
         last_announcement: currentSyncTime,
         last_prayer: currentSyncTime,

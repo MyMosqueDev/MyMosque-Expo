@@ -74,6 +74,7 @@ export type Announcement = {
     title: string;
     description: string;
     date: string;
+    image?: string;
     severity: "low" | "medium" | "high";
     status?: "active" | "deleted" | "draft";
 }

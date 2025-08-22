@@ -122,7 +122,7 @@ export default function Events() {
                             transition={{ type: 'spring', damping: 15, stiffness: 150, delay: 100 + idx * 100 }}
                             style={{ overflow: 'visible' }}
                         >
-                            <EventToken event={event} />
+                            <EventToken event={{ ...event, mosqueName: "Filler" }} />
                         </MotiView>
                     ))}
                 </ScrollView>

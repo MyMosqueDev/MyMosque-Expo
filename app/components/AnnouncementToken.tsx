@@ -1,10 +1,12 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { format, parseISO } from 'date-fns';
 import { useState } from "react";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
 import { Announcement } from "../../lib/types";
 
 export default function AnnouncementToken({ announcement }: { announcement: Announcement }) {
     const [modalVisible, setModalVisible] = useState(false);
+    const [imageModalVisible, setImageModalVisible] = useState(false);
     const severityStyles = getSeverityStyles(announcement.severity);
     const date = format(parseISO(announcement.created_at), 'EEEE, MMMM d')
     
@@ -22,8 +24,15 @@ export default function AnnouncementToken({ announcement }: { announcement: Anno
                         </View>
                     </View>
                     <Text className="text-base text-[#5A6B7A] mb-2">{date}</Text>
-                    <Text className="text-base text-[#444]">{announcement.description.length > 100 ? `${announcement.description.substring(0, 100) + "..."} ` : announcement.description}{announcement.description.length > 100 && <Text className="font-bold">See More</Text>}</Text>
+                    <Text className="text-base text-[#444]">{announcement.description.length > 80 ? `${announcement.description.substring(0, 80) + "..."} ` : announcement.description}{announcement.description.length > 85 && <Text className="font-bold">See More</Text>}</Text>
+                    {announcement.image && (
+                        <View className="absolute bottom-5 left-5 flex-row items-center">
+                            <MaterialCommunityIcons name="image" size={16} color="#5A6B7A" />
+                            <Text className="text-sm text-[#5A6B7A] ml-2 font-lato-semibold">Tap to view image</Text>
+                        </View>
+                    )}
                 </View>
+
             </TouchableOpacity>
 
             <Modal
@@ -60,10 +69,57 @@ export default function AnnouncementToken({ announcement }: { announcement: Anno
                             </View>
                         </View>
                         
+                        {announcement.image && (
+                            <View className="mb-4">
+                                <TouchableOpacity 
+                                    onPress={() => {
+                                        setImageModalVisible(true);
+                                        setModalVisible(false);
+                                    }}
+                                    activeOpacity={0.8}
+                                >
+                                    <Image 
+                                        source={{ uri: announcement.image }}
+                                        className="w-full h-48 rounded-lg"
+                                        resizeMode="cover"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        
                         <Text className="text-base text-[#444] leading-6">{announcement.description}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
+
+            {/* Full-screen image modal */}
+            {announcement.image && (
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={imageModalVisible}
+                    onRequestClose={() => setImageModalVisible(false)}
+                >
+                    <TouchableOpacity 
+                        className="flex-1 justify-center items-center bg-black/90"
+                        activeOpacity={1}
+                        onPress={() => setImageModalVisible(false)}
+                    >
+                        <Image 
+                            source={{ uri: announcement.image }}
+                            className="w-screen h-screen"
+                            resizeMode="contain"
+                        />
+                        <TouchableOpacity 
+                            onPress={() => setImageModalVisible(false)}
+                            className="absolute top-12 right-4 w-10 h-10 rounded-full justify-center items-center bg-black/50 backdrop-blur-sm border border-white/30"
+                            activeOpacity={0.7}
+                        >
+                            <Text className="text-white font-bold text-xl">×</Text>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                </Modal>
+            )}
         </>
     )
 }
