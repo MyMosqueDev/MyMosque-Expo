@@ -2,7 +2,7 @@ import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
 import { getNextPrayer } from "@/lib/prayerTimeUtils";
 import { fetchMosqueInfo } from "@/lib/utils";
-import * as Notifications from 'expo-notifications';
+// import * as Notifications from 'expo-notifications';
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
@@ -13,17 +13,17 @@ import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
-import useNotifications from "@/lib/hooks/useNotifications";
+// import useNotifications from "@/lib/hooks/useNotifications";
 
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
+// Notifications.setNotificationHandler({
+//     handleNotification: async () => ({
+//         shouldShowAlert: true,
+//         shouldPlaySound: true,
+//         shouldSetBadge: false,
+//         shouldShowBanner: true,
+//         shouldShowList: true,
+//     }),
+// });
 
 export default function Home() {
     const { mosqueData } = useMosqueData();
@@ -40,7 +40,7 @@ export default function Home() {
     const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(mosqueData?.prayerInfo.prayerTimes || null);
     const [mosqueAnnouncements, setMosqueAnnouncements] = useState<Announcement[] | null>(announcements);    
     
-    useNotifications();
+    // useNotifications();
 
     // gets updated prayer times
     const getUpdatedPrayerTimes = () => {

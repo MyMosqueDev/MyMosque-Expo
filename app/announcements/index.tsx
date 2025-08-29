@@ -5,6 +5,12 @@ import { MotiView } from "moti";
 import { ImageBackground, ScrollView } from "react-native";
 import AnnouncementToken from "../components/AnnouncementToken";
 
+/**
+ * Announcements page component
+ * 
+ * Displays a list of announcements.
+ * Announcements are passed via URL parameters and displayed in a list.
+ */
 export default function Announcements() {
      // gets announcements from the url param
     const { announcements } = useLocalSearchParams();
@@ -16,6 +22,7 @@ export default function Announcements() {
             style={{ flex: 1 }}
             resizeMode="cover"
         >
+            {/* Header Section*/}
             <Header name={"Nueces Mosque"} type="event" title={"Annoucments"} />
             <ScrollView 
                 className={'flex flex-1 px-6 pt-1'}
