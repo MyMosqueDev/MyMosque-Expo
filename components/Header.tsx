@@ -53,7 +53,7 @@ export default function Header({ name, type, title }: { name: string, type: stri
         if (type === 'settings') {
             const settings = await AsyncStorage.getItem('appSettings');
             const mosqueId = mosqueData?.info.uid;
-            // const token = await getPushToken();
+            const token = await getPushToken();
             const url = 'https://www.mymosque.app/api/pushToken';
 
             async function updatePushToken() {
@@ -64,7 +64,7 @@ export default function Header({ name, type, title }: { name: string, type: stri
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            // pushToken: token,
+                            pushToken: token,
                             mosqueId: mosqueId,
                             settings: settings
                         })

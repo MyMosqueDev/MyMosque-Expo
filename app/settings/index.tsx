@@ -4,7 +4,7 @@ import { MosqueInfo } from "@/lib/types";
 import { fetchMosqueInfo } from "@/lib/utils";
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import * as Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications';
 import { MotiView } from "moti";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, ImageBackground, KeyboardAvoidingView, Linking, Platform, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS: Settings = {
     development: { enabled: false },
 };
 
+// sorry for how awfully this is written
 export default function Settings() {
     const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
@@ -41,7 +42,7 @@ export default function Settings() {
     useEffect(() => {
         const checkNotificationPermissions = async () => {
             try {
-                // const { status } = await Notifications.getPermissionsAsync();
+                const { status } = await Notifications.getPermissionsAsync();
                 setNotificationPermission(status);
             } catch (error) {
                 console.error('Error checking notification permissions:', error);

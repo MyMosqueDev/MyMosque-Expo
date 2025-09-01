@@ -6,6 +6,13 @@ import { Announcement } from "../../lib/types";
 import AnnouncementModal from "./AnnouncementModal";
 import { getSeverityStyles } from "@/lib/utils";
 
+/**
+ * AnnouncementToken component
+ * 
+ * Displays an announcement token with a modal for more details.
+ * 
+ * @param announcement - The announcement to display
+ */
 export default function AnnouncementToken({ announcement }: { announcement: Announcement }) {
     const [modalVisible, setModalVisible] = useState(false);
     const severityStyles = getSeverityStyles(announcement.severity);

@@ -1,157 +1,128 @@
-# MyMosque
+![MyMosque Logo](https://github.com/ali-vayani/MyMosque/blob/v3/assets/images/icon.png)
 
-A React Native app for managing mosque events, prayers, and announcements.
+# MyMosque (iOS App)
 
-## 🏗️ Architecture
+My Mosque is a platform that helps connect masjid to their communities by providing an avenue to send quick announcements, post updates, and post prayer times!
 
-This project follows a modular, component-based architecture designed for maintainability and open-source collaboration.
+> This is a fully open source project run by Ali Vayani with the goal of providing students with hands on, impactful, development experience while helping their community.
 
-### Directory Structure
 
-```
-MyMosque/
-├── app/                          # Expo Router pages
-│   ├── (tabs)/                   # Tab-based navigation
-│   ├── components/               # App-specific components
-│   │   └── events/              # Events page components
-│   │       ├── WeekNavigator.tsx
-│   │       ├── WeekCalendar.tsx
-│   │       ├── EventsList.tsx
-│   │       └── README.md
-│   └── ...
-├── components/                   # Shared components
-├── lib/                         # Utilities and business logic
-│   ├── constants.ts             # App-wide constants
-│   ├── hooks/                   # Custom React hooks
-│   ├── types.ts                 # TypeScript type definitions
-│   └── ...
-└── ...
-```
+## Table of Contents
+1. [Features](#features)
+2. [Tech Stack](#tech-stack)
+3. [Getting Started](#getting-started)
+   - [Prerequisites](#prerequisites)
+   - [VSCode Extensions](#vscode-extensions)
+   - [Installation](#installation)
+4. [Project Structure](#project-structure)
+5. [Contributing](#contributing)
+6. [Related Repositories](#related-repositories)
+7. [License](#license)
 
-## 🎯 Design Principles
+## Features
+- **🕌 Masjid Network**: Connect with and follow your favorite masjids to stay updated with their latest activities and announcements
+- 📢 **Real-time Announcements**: Receive instant notifications about important mosque announcements, community updates, and urgent messages
+- 📅 **Event Management**: Stay informed about upcoming events, programs, lectures, and community gatherings at your connected masjids
+- 🕐 **Prayer Times**: Access accurate, location-based prayer times for your local masjids with automatic updates
+- 🔔 **Push Notifications**: Get real-time alerts for announcements, event reminders, and prayer time notifications to never miss important updates
+- 📱 **User-friendly Interface**: Clean, intuitive design that makes it easy to navigate between different masjids and their content
+- 🌐 **Community Connection**: Bridge the gap between masjid administration and community members through seamless digital communication
+- ⚡ **Quick Updates**: Masjid administrators can instantly share time-sensitive information with their congregation
 
-### 1. **Component Composition**
-- Break down large components into smaller, focused ones
-- Each component has a single responsibility
-- Components are reusable and testable
+## Tech Stack
+- **Framework**: [Expo](https://expo.dev/) + [React Native](https://reactnative.dev/)
+- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/)
+- **Database**: [Supabase](https://supabase.com/)
+- **Styling**: [NativeWind](https://www.nativewind.dev/) (Tailwind CSS for React Native)
+- **Icons**: [Expo Icons](https://icons.expo.fyi/Index) (Majority From Feather)
 
-### 2. **Custom Hooks**
-- Extract business logic from components
-- Make state management reusable
-- Improve testability and separation of concerns
-
-### 3. **Constants Management**
-- Centralize magic numbers and configuration
-- Use typed constants for better maintainability
-- Group related constants together
-
-### 4. **Type Safety**
-- Comprehensive TypeScript interfaces
-- Proper prop typing for all components
-- Clear documentation of data structures
-
-## 📦 Key Components
-
-### Events System
-The events system demonstrates the modular architecture:
-
-- **`WeekNavigator`**: Handles week navigation UI
-- **`WeekCalendar`**: Displays week view with event indicators  
-- **`EventsList`**: Renders scrollable list of events
-- **`useEvents`**: Custom hook for events logic
-
-### Benefits of This Structure
-
-1. **Maintainability**: Changes to one component don't affect others
-2. **Testability**: Each component can be tested in isolation
-3. **Reusability**: Components can be used in different contexts
-4. **Readability**: Clear component names and documentation
-5. **Collaboration**: Multiple developers can work on different components
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- Expo CLI
-- React Native development environment
+
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- ExpoGo on your mobile device. [iOS Download](https://apps.apple.com/us/app/expo-go/id982107779) and [Android Download](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=en_US)
+- An iOS or Android emulator (OPTINAL). Follow the guide [here](https://docs.expo.dev/workflow/android-studio-emulator/) to set up an Android emulator or [here](https://docs.expo.dev/workflow/ios-simulator/) for an iOS simulator.
+- Supabase connection information (hit up @ali-vayani for this)
+
+### VSCode Extensions
+
+We recommend using the following VSCode extensions to improve your development experience:
+
+- **[ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)**: For identifying and fixing linting issues.
+- **[Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)**: For automatic code formatting.
+- **[Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)**: For Tailwind CSS class autocomplete and IntelliSense.
 
 ### Installation
-```bash
-npm install
-```
 
-### Development
-```bash
-npm start
-```
+1. **Fork the Repository**
 
-## 🤝 Contributing
+   Go to the [MyMosque repository](https://github.com/ali-vayani/MyMosque.git), click main on the left hand sice and switch the branch to "v3" and click the [Fork](https://github.com/ali-vayani/MyMosque.git) button in the top-right corner of the page.
 
-### Code Style Guidelines
+   After forking, clone the repository to your local machine:
 
-1. **Component Structure**
-   ```tsx
-   // ✅ Good: Single responsibility, clear props
-   interface ComponentProps {
-     data: DataType;
-     onAction: (data: DataType) => void;
-   }
+   ```sh
+   git clone https://github.com/<your-username>/MyMosque.git
+   cd MyMosque
+   ```
+2. **Install Dependencies**
+
+   ```sh
+    npm install
+   ```
+3. **Run the Project & Launch Emulator**
+   ```sh
+   npm start
+   ```
+
+   To open the app on an emulator, press either of the following keys in the terminal:
+
+   - `i` to open on iOS simulator
+   - `a` to open on Android emulator
+  
    
-   export default function Component({ data, onAction }: ComponentProps) {
-     // Component logic
-   }
+4. **Download to physical device (OPTIONAL)**
+
+   If you want to test the app on a physical device, connect your device to your computer
+   with a USB cable and run the following command:
+
+   - **For iOS:**
+
+   ```sh
+   npx expo run:ios --device
    ```
 
-2. **Custom Hooks**
-   ```tsx
-   // ✅ Good: Extract business logic
-   export function useCustomHook(param: ParamType) {
-     // Hook logic
-     return { data, actions };
-   }
+   - **For Android:**
+
+   ```sh
+   npx expo run:android --device
    ```
 
-3. **Constants**
-   ```tsx
-   // ✅ Good: Centralized, typed constants
-   export const ANIMATION_CONFIG = {
-     SPRING: { damping: 15, stiffness: 120 },
-   } as const;
+   > **Note**: Make sure to enable USB debugging on your Android device. You can find the instructions [here](https://developer.android.com/studio/debug/dev-options).
+
+   This will install the development build onto your device.
+
+5.  **Supabase**
+
+   In the project root create a `.env.local` file and paste in the Supabase connection information 
+   ```sh
+   EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+   EXPO_PUBLIC_SUPABASE_KEY=xxxx
    ```
+   To get this information go to Supabase -> Dashboard -> MyMosque -> Connect (In Header) -> Mobile Framework
+   If you don't have access to Supabase hit up @ali-vayani
 
-### Adding New Features
+   ## Project Structure
 
-1. **Create focused components** for new UI elements
-2. **Extract business logic** into custom hooks
-3. **Add constants** for configuration values
-4. **Update types** for new data structures
-5. **Document** your components and hooks
-
-### Testing
-
-Each component should be testable in isolation. Consider:
-- Unit tests for business logic
-- Component tests for UI behavior
-- Integration tests for user flows
-
-## 📚 Documentation
-
-- Component documentation in `app/components/*/README.md`
-- Type definitions in `lib/types.ts`
-- Constants documentation in `lib/constants.ts`
-
-## 🔧 Configuration
-
-Key configuration files:
-- `lib/constants.ts` - App-wide constants
-- `tailwind.config.js` - Styling configuration
-- `tsconfig.json` - TypeScript configuration
-
-## 📄 License
-
-[Add your license here]
-
----
-
-Built with ❤️ for the Muslim community
-
+   ```txt
+   mymosque/
+   ├── app/               # Expo Router screens and local UI components
+   ├── assets/            # Images and static assets
+   ├── components/        # Global reusable UI components
+   ├── data/              # Static data and constants
+   ├── store/             # Zustand state management with MMKV persistence
+   ├── supabase/          # Supabase local client and utilities
+   ├── types/             # TypeScript type definitions
+   └── lib/               # Utility modules and helper functions that provide reusable logic
+   ```
