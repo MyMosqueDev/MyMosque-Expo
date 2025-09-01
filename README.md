@@ -126,4 +126,3 @@ We recommend using the following VSCode extensions to improve your development e
    ├── types/             # TypeScript type definitions
    └── lib/               # Utility modules and helper functions that provide reusable logic
    ```
-

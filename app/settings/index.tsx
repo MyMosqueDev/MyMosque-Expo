@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS: Settings = {
     development: { enabled: false },
 };
 
+// sorry for how awfully this is written
 export default function Settings() {
     const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
     const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);

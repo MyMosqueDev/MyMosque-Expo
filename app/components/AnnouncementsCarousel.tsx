@@ -8,12 +8,14 @@ const { width: screenWidth } = Dimensions.get('window');
 const CARD_WIDTH = screenWidth * 1;
 const CARD_SPACING = 7;
 
-// props for the announcements carousel
-interface AnnouncementsCarouselProps {
-    announcements: Announcement[];
-}
-
-export default function AnnouncementsCarousel({ announcements }: AnnouncementsCarouselProps) {
+/**
+ * AnnouncementsCarousel component
+ * 
+ * Displays a carousel of announcements.
+ * 
+ * @param announcements - The announcements to display
+ */
+export default function AnnouncementsCarousel({ announcements }: { announcements: Announcement[] }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     // curr announcement
     const renderAnnouncement = ({ item }: { item: Announcement }) => (

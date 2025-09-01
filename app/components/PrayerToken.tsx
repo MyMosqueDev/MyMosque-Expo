@@ -1,6 +1,15 @@
+import { to12HourFormat } from "@/lib/utils";
 import { Text, View } from "react-native";
 import { PrayerTime } from "../../lib/types";
-import { to12HourFormat } from "@/lib/utils";
+
+// Helper function to safely get prayer time
+const getPrayerTime = (prayerTimes: PrayerTime, prayerKey: string) => {
+    const prayerData = prayerTimes[prayerKey as keyof Omit<PrayerTime, "nextPrayer">];
+    if (typeof prayerData === 'object' && prayerData && 'iqama' in prayerData) {
+        return prayerData.iqama;
+    }
+    return "N/A";
+};
 
 export default function PrayerToken({ prayerTimes }: { prayerTimes: PrayerTime }) {
     // sets prayer names
@@ -33,7 +42,7 @@ export default function PrayerToken({ prayerTimes }: { prayerTimes: PrayerTime }
                         }`}>{prayer.label}</Text>
                         <Text className={`text-md font-lato-bold ${
                             isCurrentPrayer ? 'text-white' : 'text-text'
-                        }`}>{to12HourFormat(prayerTimes[prayer.key as keyof Omit<PrayerTime, "nextPrayer">].iqama)}</Text>
+                        }`}>{to12HourFormat(getPrayerTime(prayerTimes, prayer.key))}</Text>
                     </View>
                 );
             })}

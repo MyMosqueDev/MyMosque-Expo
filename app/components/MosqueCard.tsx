@@ -19,33 +19,7 @@ const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
     const address = data.address.length > 45 ? data.address.slice(0, 45) + "..." : data.address;
 
     const images = data.images || [];
-    // const [isFavorited, setIsFavorited] = useState(false);
     const { setMosqueData } = useMosqueData();
-
-    // handles toggling favorite + saving to AsyncStorage
-    // TODO: add favorite functionality (this will be done when more mosques are added)
-    // const toggleFavorite = async (e: any) => {
-    //     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    //     e.stopPropagation();
-    //     setIsFavorited(!isFavorited);
-
-    //     try {
-    //         const userData = await AsyncStorage.getItem('userData');
-    //         if (userData) {
-    //             const userDataParsed = JSON.parse(userData);
-    //             userDataParsed.favoriteMosques.push(data);
-    //             await AsyncStorage.setItem('userData', JSON.stringify(userDataParsed));
-    //         } else {
-    //             const newUserData = {
-    //                 favoriteMosques: [data],
-    //                 lastVisitedMosque: data,
-    //             }
-    //             await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
 
     // on press updates the map and sets the pressed mosque to be the last visited mosque
     const onCardPress = async () => {
@@ -92,16 +66,6 @@ const MosqueCard = ({ data, mapRef, setUserData } : MosqueCardProps) => {
                     <Text className="text-xl font-lato-bold text-gray-800">{name}</Text>
                     <Text className="text-base font-lato text-gray-500">{address}</Text>
                 </View>
-                {/* TODO: add favorite functionality */}
-                {/* <TouchableOpacity 
-                    onPress={toggleFavorite}
-                >
-                    <AntDesign 
-                        name={isFavorited ? "star" : "staro"} 
-                        size={24} 
-                        color="#FBBF24" 
-                    />
-                </TouchableOpacity> */}
             </View>
 
             <ScrollView

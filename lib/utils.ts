@@ -51,3 +51,28 @@ export const fetchMosqueInfo = async () => {
 
     return null;
 }
+
+export const getSeverityStyles = (severity: string) => {
+    switch (severity.toLowerCase()) {
+        case 'high':
+            return {
+                bg: 'bg-red-200',
+                text: 'text-red-700'
+            };
+        case 'medium':
+            return {
+                bg: 'bg-yellow-200',
+                text: 'text-yellow-700'
+            };
+        case 'low':
+            return {
+                bg: 'bg-green-200',
+                text: 'text-green-700'
+            };
+        default:
+            return {
+                bg: 'bg-gray-200',
+                text: 'text-gray-700'
+            };
+    }
+}; 

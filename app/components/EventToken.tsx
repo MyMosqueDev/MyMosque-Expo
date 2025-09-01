@@ -5,7 +5,13 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { format } from "../../lib/dateUtils";
 import { Event } from "../../lib/types";
 
-
+/**
+ * EventToken component
+ * 
+ * Displays an event token with a modal for more details.
+ * 
+ * @param event - The event to display
+ */
 export default function EventToken({ event }: { event: Event }) {
     const day = format(parseISO(event.date), 'EEEE, MMMM d')
     const time = new Date(event.date).toLocaleTimeString('en-US', { 
