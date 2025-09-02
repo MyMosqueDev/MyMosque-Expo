@@ -8,4 +8,4 @@ export default function TabsLayout() {
       <Tabs.Screen name="prayer" options={{ href: "/prayer" }} />
     </Tabs>
   );
-} 
+}

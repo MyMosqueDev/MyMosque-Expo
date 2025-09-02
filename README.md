@@ -6,8 +6,8 @@ My Mosque is a platform that helps connect masjid to their communities by provid
 
 > This is a fully open source project run by Ali Vayani with the goal of providing students with hands on, impactful, development experience while helping their community.
 
-
 ## Table of Contents
+
 1. [Features](#features)
 2. [Tech Stack](#tech-stack)
 3. [Getting Started](#getting-started)
@@ -20,6 +20,7 @@ My Mosque is a platform that helps connect masjid to their communities by provid
 7. [License](#license)
 
 ## Features
+
 - **🕌 Masjid Network**: Connect with and follow your favorite masjids to stay updated with their latest activities and announcements
 - 📢 **Real-time Announcements**: Receive instant notifications about important mosque announcements, community updates, and urgent messages
 - 📅 **Event Management**: Stay informed about upcoming events, programs, lectures, and community gatherings at your connected masjids
@@ -30,6 +31,7 @@ My Mosque is a platform that helps connect masjid to their communities by provid
 - ⚡ **Quick Updates**: Masjid administrators can instantly share time-sensitive information with their congregation
 
 ## Tech Stack
+
 - **Framework**: [Expo](https://expo.dev/) + [React Native](https://reactnative.dev/)
 - **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/)
 - **Database**: [Supabase](https://supabase.com/)
@@ -66,27 +68,27 @@ We recommend using the following VSCode extensions to improve your development e
    git clone https://github.com/<your-username>/MyMosque.git
    cd MyMosque
    ```
+
 2. **Install Dependencies**
 
    ```sh
     npm install
    ```
+
 3. **Run the Project & Launch Emulator**
+
    ```sh
    npm start
    ```
 
    To open the app on an emulator, press either of the following keys in the terminal:
-
    - `i` to open on iOS simulator
    - `a` to open on Android emulator
-  
-   
+
 4. **Download to physical device (OPTIONAL)**
 
    If you want to test the app on a physical device, connect your device to your computer
    with a USB cable and run the following command:
-
    - **For iOS:**
 
    ```sh
@@ -103,26 +105,28 @@ We recommend using the following VSCode extensions to improve your development e
 
    This will install the development build onto your device.
 
-5.  **Supabase**
+5. **Supabase**
 
-   In the project root create a `.env.local` file and paste in the Supabase connection information 
-   ```sh
-   EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-   EXPO_PUBLIC_SUPABASE_KEY=xxxx
-   ```
-   To get this information go to Supabase -> Dashboard -> MyMosque -> Connect (In Header) -> Mobile Framework
-   If you don't have access to Supabase hit up @ali-vayani
+In the project root create a `.env.local` file and paste in the Supabase connection information
 
-   ## Project Structure
+```sh
+EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+EXPO_PUBLIC_SUPABASE_KEY=xxxx
+```
 
-   ```txt
-   mymosque/
-   ├── app/               # Expo Router screens and local UI components
-   ├── assets/            # Images and static assets
-   ├── components/        # Global reusable UI components
-   ├── data/              # Static data and constants
-   ├── store/             # Zustand state management with MMKV persistence
-   ├── supabase/          # Supabase local client and utilities
-   ├── types/             # TypeScript type definitions
-   └── lib/               # Utility modules and helper functions that provide reusable logic
-   ```
+To get this information go to Supabase -> Dashboard -> MyMosque -> Connect (In Header) -> Mobile Framework
+If you don't have access to Supabase hit up @ali-vayani
+
+## Project Structure
+
+```txt
+mymosque/
+├── app/               # Expo Router screens and local UI components
+├── assets/            # Images and static assets
+├── components/        # Global reusable UI components
+├── data/              # Static data and constants
+├── store/             # Zustand state management with MMKV persistence
+├── supabase/          # Supabase local client and utilities
+├── types/             # TypeScript type definitions
+└── lib/               # Utility modules and helper functions that provide reusable logic
+```

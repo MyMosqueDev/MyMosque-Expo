@@ -16,10 +16,10 @@ export const ANIMATION_CONFIG = {
 
 // Color constants
 export const COLORS = {
-  PRIMARY: '#3B5A7A',
-  SECONDARY: '#4A4A4A',
-  SECONDARY_OPACITY: '#4A4A4A/50',
-  TEXT: '#4A4A4A',
+  PRIMARY: "#3B5A7A",
+  SECONDARY: "#4A4A4A",
+  SECONDARY_OPACITY: "#4A4A4A/50",
+  TEXT: "#4A4A4A",
 } as const;
 
 // Layout constants
@@ -35,4 +35,4 @@ export const DAY_LABELS = ["S", "M", "T", "W", "Th", "F", "S"] as const;
 // Week configuration
 export const WEEK_CONFIG = {
   weekStartsOn: 0, // Sunday
-} as const; 
+} as const;

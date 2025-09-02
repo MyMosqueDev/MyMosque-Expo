@@ -2,15 +2,30 @@
 // TODO: figure out what was wrong with date-fns and replace with it
 // all of this was vibe coded
 
-
-
-
 // Custom date formatting utilities to replace date-fns
 
-const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAYS_OF_WEEK = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 /**
@@ -25,8 +40,8 @@ export function parseISO(dateString: string): Date {
  */
 export function parseISOUTC(dateString: string): Date {
   // Remove the timezone indicator and parse as UTC
-  const utcString = dateString.replace(/[+-]\d{2}:\d{2}$/, '');
-  return new Date(utcString + 'Z');
+  const utcString = dateString.replace(/[+-]\d{2}:\d{2}$/, "");
+  return new Date(utcString + "Z");
 }
 
 /**
@@ -36,7 +51,7 @@ export function formatDay(date: Date): string {
   const dayOfWeek = DAYS_OF_WEEK[date.getDay()];
   const month = MONTHS[date.getMonth()];
   const day = date.getDate();
-  
+
   return `${dayOfWeek}, ${month} ${day}`;
 }
 
@@ -47,7 +62,7 @@ export function formatDayUTC(date: Date): string {
   const dayOfWeek = DAYS_OF_WEEK[date.getUTCDay()];
   const month = MONTHS[date.getUTCMonth()];
   const day = date.getUTCDate();
-  
+
   return `${dayOfWeek}, ${month} ${day}`;
 }
 
@@ -57,15 +72,15 @@ export function formatDayUTC(date: Date): string {
 export function formatTime(date: Date): string {
   let hours = date.getHours();
   const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  
+  const ampm = hours >= 12 ? "PM" : "AM";
+
   // Convert to 12-hour format
   hours = hours % 12;
   hours = hours ? hours : 12; // 0 should be 12
-  
+
   // Pad minutes with leading zero if needed
-  const paddedMinutes = minutes.toString().padStart(2, '0');
-  
+  const paddedMinutes = minutes.toString().padStart(2, "0");
+
   return `${hours}:${paddedMinutes} ${ampm}`;
 }
 
@@ -75,15 +90,15 @@ export function formatTime(date: Date): string {
 export function formatTimeUTC(date: Date): string {
   let hours = date.getUTCHours();
   const minutes = date.getUTCMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  
+  const ampm = hours >= 12 ? "PM" : "AM";
+
   // Convert to 12-hour format
   hours = hours % 12;
   hours = hours ? hours : 12; // 0 should be 12
-  
+
   // Pad minutes with leading zero if needed
-  const paddedMinutes = minutes.toString().padStart(2, '0');
-  
+  const paddedMinutes = minutes.toString().padStart(2, "0");
+
   return `${hours}:${paddedMinutes} ${ampm}`;
 }
 
@@ -95,7 +110,7 @@ export function formatDayWithOrdinal(date: Date): string {
   const month = MONTHS[date.getMonth()];
   const day = date.getDate();
   const ordinal = getOrdinalSuffix(day);
-  
+
   return `${dayOfWeek}, ${month} ${day}${ordinal}`;
 }
 
@@ -106,7 +121,7 @@ export function formatMonthDay(date: Date): string {
   const month = MONTHS[date.getMonth()];
   const day = date.getDate();
   const ordinal = getOrdinalSuffix(day);
-  
+
   return `${month} ${day}${ordinal}`;
 }
 
@@ -116,7 +131,7 @@ export function formatMonthDay(date: Date): string {
 export function formatDayOnly(date: Date): string {
   const day = date.getDate();
   const ordinal = getOrdinalSuffix(day);
-  
+
   return `${day}${ordinal}`;
 }
 
@@ -133,7 +148,7 @@ export function formatDayName(date: Date): string {
 export function formatShortMonthDay(date: Date): string {
   const month = MONTHS[date.getMonth()].substring(0, 3);
   const day = date.getDate();
-  
+
   return `${month} ${day}`;
 }
 
@@ -141,12 +156,16 @@ export function formatShortMonthDay(date: Date): string {
  * Get ordinal suffix for a number (1st, 2nd, 3rd, etc.)
  */
 function getOrdinalSuffix(day: number): string {
-  if (day > 3 && day < 21) return 'th';
+  if (day > 3 && day < 21) return "th";
   switch (day % 10) {
-    case 1: return 'st';
-    case 2: return 'nd';
-    case 3: return 'rd';
-    default: return 'th';
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
   }
 }
 
@@ -155,9 +174,11 @@ function getOrdinalSuffix(day: number): string {
  */
 export function isToday(date: Date): boolean {
   const today = new Date();
-  return date.getDate() === today.getDate() &&
-         date.getMonth() === today.getMonth() &&
-         date.getFullYear() === today.getFullYear();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
 }
 
 /**
@@ -166,33 +187,44 @@ export function isToday(date: Date): boolean {
 export function isTomorrow(date: Date): boolean {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  return date.getDate() === tomorrow.getDate() &&
-         date.getMonth() === tomorrow.getMonth() &&
-         date.getFullYear() === tomorrow.getFullYear();
+  return (
+    date.getDate() === tomorrow.getDate() &&
+    date.getMonth() === tomorrow.getMonth() &&
+    date.getFullYear() === tomorrow.getFullYear()
+  );
 }
 
 /**
  * Check if a date is this week
  */
-export function isThisWeek(date: Date, options: { weekStartsOn: number } = { weekStartsOn: 0 }): boolean {
+export function isThisWeek(
+  date: Date,
+  options: { weekStartsOn: number } = { weekStartsOn: 0 },
+): boolean {
   const today = new Date();
   const startOfWeek = startOfWeekDate(today, options.weekStartsOn);
   const endOfWeek = endOfWeekDate(today, options.weekStartsOn);
-  
+
   return date >= startOfWeek && date <= endOfWeek;
 }
 
 /**
  * Get start of week
  */
-export function startOfWeek(date: Date, options: { weekStartsOn: number } = { weekStartsOn: 0 }): Date {
+export function startOfWeek(
+  date: Date,
+  options: { weekStartsOn: number } = { weekStartsOn: 0 },
+): Date {
   return startOfWeekDate(date, options.weekStartsOn);
 }
 
 /**
  * Get end of week
  */
-export function endOfWeek(date: Date, options: { weekStartsOn: number } = { weekStartsOn: 0 }): Date {
+export function endOfWeek(
+  date: Date,
+  options: { weekStartsOn: number } = { weekStartsOn: 0 },
+): Date {
   return endOfWeekDate(date, options.weekStartsOn);
 }
 
@@ -209,15 +241,20 @@ export function addDays(date: Date, days: number): Date {
  * Check if two dates are the same day
  */
 export function isSameDay(date1: Date, date2: Date): boolean {
-  return date1.getDate() === date2.getDate() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getFullYear() === date2.getFullYear();
+  return (
+    date1.getDate() === date2.getDate() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear()
+  );
 }
 
 /**
  * Check if a date is within an interval
  */
-export function isWithinInterval(date: Date, interval: { start: Date; end: Date }): boolean {
+export function isWithinInterval(
+  date: Date,
+  interval: { start: Date; end: Date },
+): boolean {
   return date >= interval.start && date <= interval.end;
 }
 
@@ -245,19 +282,19 @@ function endOfWeekDate(date: Date, weekStartsOn: number): Date {
  */
 export function format(date: Date, formatString: string): string {
   switch (formatString) {
-    case 'EEEE, MMMM d':
+    case "EEEE, MMMM d":
       return formatDay(date);
-    case 'EEEE, MMMM do':
+    case "EEEE, MMMM do":
       return formatDayWithOrdinal(date);
-    case 'h:mm a':
+    case "h:mm a":
       return formatTime(date);
-    case 'MMMM do':
+    case "MMMM do":
       return formatMonthDay(date);
-    case 'do':
+    case "do":
       return formatDayOnly(date);
-    case 'EEEE':
+    case "EEEE":
       return formatDayName(date);
-    case 'MMM d':
+    case "MMM d":
       return formatShortMonthDay(date);
     default:
       throw new Error(`Unsupported format: ${formatString}`);
@@ -269,23 +306,23 @@ export function format(date: Date, formatString: string): string {
  */
 export function formatUTC(date: Date, formatString: string): string {
   switch (formatString) {
-    case 'EEEE, MMMM d':
+    case "EEEE, MMMM d":
       return formatDayUTC(date);
-    case 'EEEE, MMMM do':
+    case "EEEE, MMMM do":
       const dayOfWeek = DAYS_OF_WEEK[date.getUTCDay()];
       const month = MONTHS[date.getUTCMonth()];
       const day = date.getUTCDate();
       const ordinal = getOrdinalSuffix(day);
       return `${dayOfWeek}, ${month} ${day}${ordinal}`;
-    case 'h:mm a':
+    case "h:mm a":
       return formatTimeUTC(date);
-    case 'EEEE':
+    case "EEEE":
       return DAYS_OF_WEEK[date.getUTCDay()];
-    case 'MMM d':
+    case "MMM d":
       const monthShort = MONTHS[date.getUTCMonth()].substring(0, 3);
       const dayShort = date.getUTCDate();
       return `${monthShort} ${dayShort}`;
     default:
       throw new Error(`Unsupported UTC format: ${formatString}`);
   }
-} 
+}

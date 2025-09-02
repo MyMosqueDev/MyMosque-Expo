@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
   children: React.ReactNode;
@@ -21,46 +21,52 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <View style={{ 
-          flex: 1, 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          padding: 20,
-          backgroundColor: '#f8f9fa'
-        }}>
-          <Text style={{ 
-            fontSize: 20, 
-            fontWeight: 'bold', 
-            color: '#FF6B6B', 
-            textAlign: 'center',
-            marginBottom: 20
-          }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+            backgroundColor: "#f8f9fa",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "#FF6B6B",
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
             Something went wrong
           </Text>
-          <Text style={{ 
-            fontSize: 14, 
-            color: '#6c757d', 
-            textAlign: 'center',
-            marginBottom: 30
-          }}>
-            {this.state.error?.message || 'An unexpected error occurred'}
+          <Text
+            style={{
+              fontSize: 14,
+              color: "#6c757d",
+              textAlign: "center",
+              marginBottom: 30,
+            }}
+          >
+            {this.state.error?.message || "An unexpected error occurred"}
           </Text>
           <TouchableOpacity
             onPress={() => this.setState({ hasError: false })}
             style={{
-              backgroundColor: '#5B4B94',
+              backgroundColor: "#5B4B94",
               paddingHorizontal: 20,
               paddingVertical: 10,
-              borderRadius: 8
+              borderRadius: 8,
             }}
           >
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>
+            <Text style={{ color: "white", fontWeight: "bold" }}>
               Try Again
             </Text>
           </TouchableOpacity>
@@ -72,4 +78,4 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
-export default ErrorBoundary; 
+export default ErrorBoundary;

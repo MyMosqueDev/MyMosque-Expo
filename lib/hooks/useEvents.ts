@@ -1,7 +1,7 @@
-import { WEEK_CONFIG } from '@/lib/constants';
-import { Event } from '@/lib/types';
-import { endOfWeek, isWithinInterval, parseISO, startOfWeek } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { WEEK_CONFIG } from "@/lib/constants";
+import { Event } from "@/lib/types";
+import { endOfWeek, isWithinInterval, parseISO, startOfWeek } from "date-fns";
+import { useEffect, useState } from "react";
 
 interface UseEventsReturn {
   events: Event[];
@@ -13,12 +13,16 @@ interface UseEventsReturn {
 
 /**
  * Custom hook for managing events data and week filtering
- * 
+ *
  * @param eventsParam - Events data from URL parameters
  * @returns Object containing events state and week management functions
  */
-export function useEvents(eventsParam: string | string[] | undefined): UseEventsReturn {
-  const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date(), WEEK_CONFIG));
+export function useEvents(
+  eventsParam: string | string[] | undefined,
+): UseEventsReturn {
+  const [weekStart, setWeekStart] = useState<Date>(
+    startOfWeek(new Date(), WEEK_CONFIG),
+  );
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +33,7 @@ export function useEvents(eventsParam: string | string[] | undefined): UseEvents
         const parsedEvents = JSON.parse(eventsParam as string);
         setEvents(parsedEvents);
       } catch (error) {
-        console.error('Error parsing events:', error);
+        console.error("Error parsing events:", error);
         setEvents([]);
       }
     }
@@ -39,7 +43,7 @@ export function useEvents(eventsParam: string | string[] | undefined): UseEvents
   // Filter events for the current week
   const weekEnd = endOfWeek(weekStart, WEEK_CONFIG);
   const weekEvents = events
-    .filter(event => {
+    .filter((event) => {
       const eventDate = parseISO(event.date);
       return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
     })
@@ -52,4 +56,4 @@ export function useEvents(eventsParam: string | string[] | undefined): UseEvents
     weekStart,
     setWeekStart,
   };
-} 
+}
