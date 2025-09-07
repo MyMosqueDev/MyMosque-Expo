@@ -1,15 +1,16 @@
 import { useMosqueData } from "@/app/_layout";
 import { MosqueInfo, UserData } from "@/lib/types";
 import { fetchMosqueInfo } from "@/lib/utils";
+import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import {
-  ImageBackground,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ImageBackground,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import MapView from "react-native-maps";
 
@@ -65,40 +66,49 @@ const MosqueCard = ({ data, mapRef, setUserData }: MosqueCardProps) => {
 
   return (
     <TouchableOpacity
-      className="w-full bg-white/30 rounded-2xl p-4 my-2 backdrop-blur-lg border border-white/30"
+      className="w-full bg-white/30 rounded-2xl my-2 backdrop-blur-lg border border-white/30 overflow-hidden"
       onPress={onCardPress}
       activeOpacity={0.8}
     >
-      <View className="flex-row justify-between items-start mb-4">
-        <View>
-          <Text className="text-xl font-lato-bold text-gray-800">{name}</Text>
-          <Text className="text-base font-lato text-gray-500">{address}</Text>
+      <View className="p-4">
+        <View className="flex-row justify-between items-start mb-4">
+          <View>
+            <Text className="text-xl font-lato-bold text-gray-800">{name}</Text>
+            <Text className="text-base font-lato text-gray-500">{address}</Text>
+          </View>
         </View>
-      </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="flex-row"
-      >
-        {images.length > 0 ? (
-          images.map((imageUrl: string, index: number) => (
-            <ImageBackground
-              key={index}
-              source={{ uri: imageUrl }}
-              className={`w-44 h-24 ${index === images.length - 1 ? "" : "mr-2"}`}
-              imageStyle={{ borderRadius: 6 }}
-              resizeMode="cover"
-            />
-          ))
-        ) : (
-          <>
-            <View className="w-32 h-24 bg-white/70 rounded-lg mr-2" />
-            <View className="w-32 h-24 bg-white/70 rounded-lg mr-2" />
-            <View className="w-32 h-24 bg-white/70 rounded-lg" />
-          </>
-        )}
-      </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="flex-row"
+        >
+          {images.length > 0 ? (
+            images.map((imageUrl: string, index: number) => (
+              <ImageBackground
+                key={index}
+                source={{ uri: imageUrl }}
+                className={`w-44 h-24 ${index === images.length - 1 ? "" : "mr-2"}`}
+                imageStyle={{ borderRadius: 6 }}
+                resizeMode="cover"
+              />
+            ))
+          ) : (
+            <>
+              <View className="w-32 h-24 bg-white/70 rounded-lg mr-2" />
+              <View className="w-32 h-24 bg-white/70 rounded-lg mr-2" />
+              <View className="w-32 h-24 bg-white/70 rounded-lg" />
+            </>
+          )}
+        </ScrollView>
+      </View>
+      
+      {/* Darker lip at the bottom */}
+      <View className=" px-6 pb-1 flex-row justify-end items-center gap-2">
+        {/* <View></View> */}
+        <Text className="text-gray-500 font-lato-bold text-sm">Click To View!</Text>
+        <Feather name="arrow-right" size={16} color="#6b7280" />
+      </View>
     </TouchableOpacity>
   );
 };
