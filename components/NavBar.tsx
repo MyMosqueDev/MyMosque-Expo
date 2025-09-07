@@ -9,7 +9,7 @@ import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 
-type page = "home" | "events" | "prayers" | "notifs";
+type page = "home" | "events" | "prayers" | "notifs" | "settings";
 export default function Navbar() {
   const { mosqueData } = useMosqueData();
   const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(
@@ -54,7 +54,8 @@ export default function Navbar() {
   if (
     pathname.startsWith("/announcements") ||
     pathname.startsWith("/eventDetails") ||
-    pathname.startsWith("/map")
+    pathname.startsWith("/map") ||
+    pathname.startsWith("/settings")
   ) {
     return null;
   }
