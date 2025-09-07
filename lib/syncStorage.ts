@@ -5,6 +5,7 @@
 // this is done by checking the last_event, last_announcement, and last_prayer times and comparing them to their database counterparts
 // if the last_x stored in the local storage is older than the last_x in the db, we need to get the data from the db
 // this is done by checking the last_event, last_announcement, and last_prayer times and comparing them to their database counterparts
+// prayer times are also synced daily at midnight to ensure fresh prayer times for each new day
 
 import { storage } from "./mmkv";
 import { formatPrayerTimes } from "./prayerTimeUtils";
@@ -213,10 +214,16 @@ const syncPrayerTimes = async (
   const scheduleEnd = storageMosqueData.prayerInfo.prayerSchedule?.endDate;
   const jummahTimes = dbMosqueData.jummah_times;
 
-  // Check if we need to sync: either data is outdated or current schedule has expired
+  // Check if it's a new day since last sync (midnight resync)
+  const lastSyncDate = new Date(lastPrayerFetched);
+  const currentDate = new Date();
+  const isNewDay = lastSyncDate.toDateString() !== currentDate.toDateString();
+
+  // Check if we need to sync: either data is outdated, current schedule has expired, or it's a new day
   const shouldSync =
     lastPrayerFetched < lastPrayerPushed ||
-    (scheduleEnd && new Date(scheduleEnd) < new Date());
+    (scheduleEnd && new Date(scheduleEnd) < new Date()) ||
+    isNewDay;
 
   if (shouldSync) {
     const city = dbMosqueData.address.split(",")[1].trim();

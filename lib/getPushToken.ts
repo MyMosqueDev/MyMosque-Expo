@@ -1,5 +1,5 @@
-import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import * as Notifications from "expo-notifications";
 
 export const getPushToken = async () => {
   let token = "";

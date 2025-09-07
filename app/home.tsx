@@ -1,5 +1,6 @@
 import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
+import useNotifications from "@/lib/hooks/useNotifications";
 import { getNextPrayer } from "@/lib/prayerTimeUtils";
 import { fetchMosqueInfo } from "@/lib/utils";
 import * as Notifications from "expo-notifications";
@@ -8,18 +9,17 @@ import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Text, View } from "react-native";
 import {
-  Announcement,
-  Event,
-  MosqueInfo,
-  PrayerTime,
-  ProcessedMosqueData,
+    Announcement,
+    Event,
+    MosqueInfo,
+    PrayerTime,
+    ProcessedMosqueData,
 } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EmptyToken from "./components/EmptyToken";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
-import useNotifications from "@/lib/hooks/useNotifications";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
