@@ -8,17 +8,17 @@ import * as Notifications from "expo-notifications";
 import { MotiView } from "moti";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  ScrollView,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    ImageBackground,
+    KeyboardAvoidingView,
+    Linking,
+    Platform,
+    ScrollView,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 // Types for settings
