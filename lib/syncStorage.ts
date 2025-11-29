@@ -220,20 +220,27 @@ const syncPrayerTimes = async (
   const isNewDay = lastSyncDate.toDateString() !== currentDate.toDateString();
 
   // Check if we need to sync: either data is outdated, current schedule has expired, or it's a new day
+  console.log("--------------------------------");
+  console.log("lastSyncDate", lastSyncDate);
+  console.log("lastPrayerFetched", lastPrayerFetched);
+  console.log("lastPrayerPushed", lastPrayerPushed);
+  console.log("scheduleEnd", scheduleEnd);
+  console.log("isNewDay", isNewDay);
   const shouldSync =
     lastPrayerFetched < lastPrayerPushed ||
     (scheduleEnd && new Date(scheduleEnd) < new Date()) ||
     isNewDay;
 
+  console.log("shouldSync", shouldSync);
   if (shouldSync) {
     const city = dbMosqueData.address.split(",")[1].trim();
     const newPrayerTimes = await getPrayerTimes(
       city,
       lastVisitedMosqueId,
-      lastPrayerFetched,
+      undefined,
       jummahTimes,
     );
-
+    console.log("newPrayerTimes", newPrayerTimes);
     if (newPrayerTimes && Object.keys(newPrayerTimes).length > 0) {
       return newPrayerTimes;
     } else {

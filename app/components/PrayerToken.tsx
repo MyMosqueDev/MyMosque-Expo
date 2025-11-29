@@ -1,6 +1,5 @@
 import { to12HourFormat } from "@/lib/utils";
-import { router } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { PrayerTime } from "../../lib/types";
 
 // Helper function to safely get prayer time
@@ -27,16 +26,8 @@ export default function PrayerToken({
     { key: "isha", label: "Isha" },
   ];
 
-  const handlePress = () => {
-    router.push("/(tabs)/prayer");
-  };
-
   return (
-    <TouchableOpacity 
-      onPress={handlePress}
-      className="w-full h-20 flex flex-row backdrop-blur-lg border border-white/30 rounded-2xl m-1 bg-white/50 shadow-md active:bg-white/70"
-      activeOpacity={0.8}
-    >
+    <View className="w-full h-20 flex flex-row backdrop-blur-lg border border-white/30 rounded-2xl m-1 bg-white/50 shadow-md">
       {/* displays all prayer times */}
       {prayerNames.map((prayer, index) => {
         // checks if current prayer
@@ -69,6 +60,6 @@ export default function PrayerToken({
           </View>
         );
       })}
-    </TouchableOpacity>
+    </View>
   );
 }
