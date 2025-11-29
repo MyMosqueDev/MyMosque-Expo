@@ -20,7 +20,7 @@ export default function EventsList({ events }: EventsListProps) {
       contentContainerStyle={{ paddingBottom: LAYOUT.SCROLL_PADDING_BOTTOM }}
       style={{ overflow: "visible" }}
     >
-      {events.length === 0 && (
+      {events && events.length === 0 && (
         <MotiView
           from={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -39,7 +39,7 @@ export default function EventsList({ events }: EventsListProps) {
         </MotiView>
       )}
 
-      {events.map((event, idx) => (
+      {events && events.length > 0 && events.map((event, idx) => (
         <MotiView
           key={`${event.id}-${event.date}-${idx}`}
           from={{ opacity: 0, translateX: -20, scale: 0.95 }}

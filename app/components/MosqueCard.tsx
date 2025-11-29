@@ -102,13 +102,10 @@ const MosqueCard = ({ data, mapRef, setUserData }: MosqueCardProps) => {
           )}
         </ScrollView>
       </View>
-      
-      {/* Darker lip at the bottom */}
-      <View className=" px-6 pb-1 flex-row justify-end items-center gap-2">
-        {/* <View></View> */}
+      {/* <View className=" px-6 pb-1 flex-row justify-end items-center gap-2">
         <Text className="text-gray-500 font-lato-bold text-sm">Click To View!</Text>
         <Feather name="arrow-right" size={16} color="#6b7280" />
-      </View>
+      </View> */}
     </TouchableOpacity>
   );
 };

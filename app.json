@@ -2,7 +2,7 @@
   "expo": {
     "name": "MyMosque",
     "slug": "my-mosque",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mymosque",
@@ -39,7 +39,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/splash_icon.png",
           "imageWidth": 250,
           "resizeMode": "cover",
           "backgroundColor": "#ffffff"
