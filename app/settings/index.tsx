@@ -498,12 +498,12 @@ export default function Settings() {
               delay={500}
               className="w-full mb-6"
             >
-              <Text className="text-[#4A4A4A] text-lg font-lato-bold mb-4 uppercase tracking-wide">
+              {/* <Text className="text-[#4A4A4A] text-lg font-lato-bold mb-4 uppercase tracking-wide">
                 Development
-              </Text>
+              </Text> */}
 
               {/* Development Mode */}
-              <MotiView
+              {/* <MotiView
                 from={{ opacity: 0, translateY: 20 }}
                 animate={{ opacity: 1, translateY: 0 }}
                 transition={{ type: "spring", damping: 15, stiffness: 150 }}
@@ -562,8 +562,8 @@ export default function Settings() {
                     </MotiView>
                   )}
                 </View>
-              </MotiView>
-            </MotiView>
+               </MotiView> */}
+            </MotiView> 
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

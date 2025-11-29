@@ -36,7 +36,7 @@ export default function Header({
           </Text>
           <View className="flex-row items-center gap-5">
             <TouchableOpacity onPress={handleContactPress}>
-              <MaterialCommunityIcons name="phone" size={24} color="#4A4A4A" />
+                <MaterialCommunityIcons name="information" size={24} color="#4A4A4A" />
             </TouchableOpacity>
             <Link href={{ pathname: "/settings" }}>
               <MaterialCommunityIcons name="cog" size={24} color="#4A4A4A" />
