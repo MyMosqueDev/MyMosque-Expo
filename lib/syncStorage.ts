@@ -40,24 +40,6 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
       getPrayerTimes(lastVisitedMosqueId, jummahTimes),
     ]);
 
-    // Default prayer times if none found
-    const defaultPrayerTimes: PrayerTime = {
-      fajr: { adhan: "00:00", iqama: "00:00" },
-      dhuhr: { adhan: "00:00", iqama: "00:00" },
-      asr: { adhan: "00:00", iqama: "00:00" },
-      maghrib: { adhan: "00:00", iqama: "00:00" },
-      isha: { adhan: "00:00", iqama: "00:00" },
-      jummah: jummahTimes || {
-        jummah1: { athan: "00:00", iqama: "00:00" },
-      },
-      nextPrayer: {
-        name: "Fajr",
-        minutesToNextPrayer: 0,
-        percentElapsed: 0,
-      },
-      warning: null,
-    };
-
     // creates the mosque data object with both monthly schedule and today's times
     const mosqueData: MosqueData = {
       info: {
@@ -70,8 +52,8 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
       },
       announcements: announcements || [],
       events: events || [],
-      prayerTimes: prayerTimesResult?.todaysPrayerTimes || defaultPrayerTimes,
-      monthlyPrayerSchedule: prayerTimesResult?.monthlySchedule || null,
+      prayerTimes: prayerTimesResult.todaysPrayerTimes,
+      monthlyPrayerSchedule: prayerTimesResult.monthlySchedule,
       jummahTimes: jummahTimes || null,
     };
 
@@ -204,7 +186,7 @@ const syncAnnouncements = async (
 // Return type for syncPrayerTimes
 type SyncPrayerTimesResult = {
   prayerTimes: PrayerTime;
-  monthlyPrayerSchedule: DBPrayerTimes | null;
+  monthlyPrayerSchedule: DBPrayerTimes;
   jummahTimes: JummahTime | null;
 };
 
@@ -239,24 +221,11 @@ const syncPrayerTimes = async (
       jummahTimes,
     );
 
-    if (prayerTimesResult) {
-      return {
-        prayerTimes: prayerTimesResult.todaysPrayerTimes,
-        monthlyPrayerSchedule: prayerTimesResult.monthlySchedule,
-        jummahTimes: jummahTimes || null,
-      };
-    } else {
-      // Failed to fetch new data, return stored data with warning
-      const prayerInfoWithWarning = {
-        ...storageMosqueData.prayerTimes,
-        warning: "Current prayer times may be outdated",
-      };
-      return {
-        prayerTimes: prayerInfoWithWarning,
-        monthlyPrayerSchedule: storageMosqueData.monthlyPrayerSchedule || null,
-        jummahTimes: storageMosqueData.jummahTimes || jummahTimes || null,
-      };
-    }
+    return {
+      prayerTimes: prayerTimesResult.todaysPrayerTimes,
+      monthlyPrayerSchedule: prayerTimesResult.monthlySchedule,
+      jummahTimes: jummahTimes || null,
+    };
   }
   
   // No sync needed - compute today's times from stored monthly schedule
@@ -272,11 +241,15 @@ const syncPrayerTimes = async (
     };
   }
   
-  // Fallback: return stored prayer times as-is
+  // No monthly schedule stored (old data) - fetch one
+  const prayerTimesResult = await getPrayerTimes(
+    lastVisitedMosqueId,
+    jummahTimes,
+  );
   return {
-    prayerTimes: storageMosqueData.prayerTimes,
-    monthlyPrayerSchedule: storageMosqueData.monthlyPrayerSchedule || null,
-    jummahTimes: storageMosqueData.jummahTimes || jummahTimes || null,
+    prayerTimes: prayerTimesResult.todaysPrayerTimes,
+    monthlyPrayerSchedule: prayerTimesResult.monthlySchedule,
+    jummahTimes: jummahTimes || null,
   };
 };
 
@@ -367,10 +340,53 @@ const getMosqueAnnouncements = async (
 type PrayerTimesResult = {
   monthlySchedule: DBPrayerTimes;
   todaysPrayerTimes: PrayerTime;
-} | null;
+};
+
+/**
+ * Creates default prayer times with 00:00 for all prayers
+ */
+const createDefaultPrayerTimes = (jummahTimes?: JummahTime): PrayerTime => ({
+  fajr: { adhan: "00:00", iqama: "00:00" },
+  dhuhr: { adhan: "00:00", iqama: "00:00" },
+  asr: { adhan: "00:00", iqama: "00:00" },
+  maghrib: { adhan: "00:00", iqama: "00:00" },
+  isha: { adhan: "00:00", iqama: "00:00" },
+  jummah: jummahTimes || { jummah1: { athan: "00:00", iqama: "00:00" } },
+  nextPrayer: { name: "Fajr", minutesToNextPrayer: 0, percentElapsed: 0 },
+  warning: "No prayer schedule available for this mosque",
+});
+
+/**
+ * Creates a default empty monthly schedule
+ */
+const createDefaultMonthlySchedule = (): DBPrayerTimes => {
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const monthYear = `${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getFullYear()).slice(-2)}`;
+  
+  const defaultDay = {
+    fajr: { adhan: "00:00", iqama: "00:00" },
+    sunrise: { adhan: "00:00", iqama: "00:00" },
+    dhuhr: { adhan: "00:00", iqama: "00:00" },
+    asr: { adhan: "00:00", iqama: "00:00" },
+    maghrib: { adhan: "00:00", iqama: "00:00" },
+    sunset: { adhan: "00:00", iqama: "00:00" },
+    isha: { adhan: "00:00", iqama: "00:00" },
+  };
+  
+  return {
+    "mm-yy": monthYear,
+    prayer_times: Array.from({ length: daysInMonth }, (_, i) => ({
+      day: String(i + 1),
+      times: defaultDay,
+    })),
+  };
+};
 
 /**
  * gets the prayer times from the db for the current month
+ * Falls back to most recent schedule if current month not available
+ * Returns default 00:00 times if no schedules exist
  * @param lastVisitedMosqueId - the id of the mosque
  * @param jummahTimes - the jummah times for the mosque
  * @returns both the raw monthly schedule and today's processed prayer times
@@ -381,36 +397,82 @@ const getPrayerTimes = async (
 ): Promise<PrayerTimesResult> => {
   try {
     const monthYear = `${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getFullYear()).slice(-2)}`;
-    // gets the prayer times from the db
-    let query = supabase
+    
+    // First, try to get the current month's schedule
+    const { data: currentMonthData, error: currentMonthError } = await supabase
       .from("new_prayer_times")
       .select()
       .eq("mosque_id", lastVisitedMosqueId)
       .eq("mm-yy", monthYear)
       .single();
 
-    const { data: prayerTimes, error } = await query;
-    if (error) {
-      console.error("Error fetching prayer times:", error);
-      return null;
+    if (currentMonthData && !currentMonthError) {
+      // Current month schedule found
+      const monthlySchedule = currentMonthData as DBPrayerTimes;
+      const todaysPrayerTimes = getCurrentPrayerTime(monthlySchedule, jummahTimes as JummahTime);
+      console.log("todaysPrayerTimes (current month)", todaysPrayerTimes);
+      return { monthlySchedule, todaysPrayerTimes };
     }
 
-    if (!prayerTimes) {
-      console.log("No prayer schedule found for current month");
-      return null;
+    // Current month not found - fetch all schedules and use most recent
+    console.log("Current month schedule not found, fetching all schedules...");
+    const { data: allSchedules, error: allSchedulesError } = await supabase
+      .from("new_prayer_times")
+      .select()
+      .eq("mosque_id", lastVisitedMosqueId)
+      .order("mm-yy", { ascending: false });
+
+    if (allSchedulesError) {
+      console.error("Error fetching all prayer schedules:", allSchedulesError);
+      // Return default times with warning
+      return {
+        monthlySchedule: createDefaultMonthlySchedule(),
+        todaysPrayerTimes: createDefaultPrayerTimes(jummahTimes),
+      };
     }
 
-    const monthlySchedule = prayerTimes as DBPrayerTimes;
-    const todaysPrayerTimes = getCurrentPrayerTime(monthlySchedule, jummahTimes as JummahTime);
+    if (!allSchedules || allSchedules.length === 0) {
+      // No schedules exist at all
+      console.log("No prayer schedules found for this mosque");
+      return {
+        monthlySchedule: createDefaultMonthlySchedule(),
+        todaysPrayerTimes: createDefaultPrayerTimes(jummahTimes),
+      };
+    }
+
+    // Use the most recent schedule with a warning
+    const mostRecentSchedule = allSchedules[0] as DBPrayerTimes;
+    console.log(`Using most recent schedule from ${mostRecentSchedule["mm-yy"]}`);
     
-    console.log("todaysPrayerTimes", todaysPrayerTimes);
-    
-    return {
-      monthlySchedule,
-      todaysPrayerTimes,
+    // Get today's day of month (1-indexed, then -1 for array index)
+    const today = new Date().getDate() - 1;
+    // Make sure we don't go out of bounds if the old schedule has fewer days
+    const dayIndex = Math.min(today, mostRecentSchedule.prayer_times.length - 1);
+    const dailyTimes = mostRecentSchedule.prayer_times[dayIndex].times;
+
+    const todaysPrayerTimes: PrayerTime = {
+      fajr: dailyTimes.fajr,
+      dhuhr: dailyTimes.dhuhr,
+      asr: dailyTimes.asr,
+      maghrib: dailyTimes.maghrib,
+      isha: dailyTimes.isha,
+      jummah: jummahTimes || { jummah1: { athan: "00:00", iqama: "00:00" } },
+      nextPrayer: { name: "", minutesToNextPrayer: 0, percentElapsed: 0 },
+      warning: `Prayer times may be outdated (from ${mostRecentSchedule["mm-yy"]})`,
     };
+
+    // Calculate next prayer
+    const { getNextPrayer } = await import("./prayerTimeUtils");
+    todaysPrayerTimes.nextPrayer = getNextPrayer(todaysPrayerTimes);
+
+    console.log("todaysPrayerTimes (fallback)", todaysPrayerTimes);
+    return { monthlySchedule: mostRecentSchedule, todaysPrayerTimes };
   } catch (error) {
     console.error("Error in getPrayerTimes:", error);
-    return null;
+    // Return default times on any error
+    return {
+      monthlySchedule: createDefaultMonthlySchedule(),
+      todaysPrayerTimes: createDefaultPrayerTimes(jummahTimes),
+    };
   }
 };
