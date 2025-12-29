@@ -8,9 +8,9 @@
 // prayer times are also synced daily at midnight to ensure fresh prayer times for each new day
 
 import { storage } from "./mmkv";
-import { formatPrayerTimes } from "./prayerTimeUtils";
+import { getCurrentPrayerTime } from "./prayerTimeUtils";
 import { supabase } from "./supabase";
-import { JummahTime, MosqueData, PrayerSchedule } from "./types";
+import { DBPrayerTimes, JummahTime, MosqueData, ProcessedMosqueData } from "./types";
 
 // syncs the local storage with the db & returns all mosque info
 /**
@@ -20,26 +20,31 @@ import { JummahTime, MosqueData, PrayerSchedule } from "./types";
  */
 export const syncStorage = async (lastVisitedMosqueId: string) => {
   const dbMosqueData = await getMosqueData(lastVisitedMosqueId); // gets the mosque data from the db
+  // storage.clearAll(); // temp
+
+
   if (!dbMosqueData) {
     throw new Error(`Mosque with ID ${lastVisitedMosqueId} not found`);
   }
   const jummahTimes: JummahTime = dbMosqueData.jummah_times;
+  const prayerSettings = dbMosqueData.prayer_settings;
 
   // gets the mosque data from the local storage
   const storageData = storage.getString(`mosqueData-${lastVisitedMosqueId}`);
-
   const storageMosqueData = storageData ? JSON.parse(storageData) : null;
 
   // first time visiting this mosque, so we need to get all the data from the db
   if (!storageMosqueData || Object.keys(storageMosqueData).length === 0) {
+    console.log("first time visiting this mosque, so we need to get all the data from the db");
     const city = dbMosqueData.address.split(",")[1].trim();
 
     // gets all the needed data from supabase
     const [announcements, events, prayerTimes] = await Promise.all([
       getMosqueAnnouncements(lastVisitedMosqueId),
       getMosqueEvents(lastVisitedMosqueId),
-      getPrayerTimes(city, lastVisitedMosqueId, "", jummahTimes),
+      getPrayerTimes(city, lastVisitedMosqueId, jummahTimes as JummahTime),
     ]);
+
 
     // creates the mosque data object
     const mosqueData: MosqueData = {
@@ -49,11 +54,11 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
         last_announcement:
           dbMosqueData.last_announcement || new Date().toISOString(),
         last_prayer: dbMosqueData.last_prayer || new Date().toISOString(),
+        prayer_times_settings: prayerSettings || null,
       },
       announcements: announcements || [],
       events: events || [],
-      prayerInfo: (prayerTimes || {
-        prayerTimes: {
+      prayerTimes: (prayerTimes || {
           fajr: { adhan: "00:00", iqama: "00:00" },
           dhuhr: { adhan: "00:00", iqama: "00:00" },
           asr: { adhan: "00:00", iqama: "00:00" },
@@ -67,20 +72,20 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
             minutesToNextPrayer: 0,
             percentElapsed: 0,
           },
-        },
         prayerSchedule: null,
       }) as any,
     };
+
 
     storage.set(
       `mosqueData-${mosqueData.info.uid}`,
       JSON.stringify(mosqueData),
     );
 
-    syncPrayerTimes(lastVisitedMosqueId, mosqueData, dbMosqueData);
+    // syncPrayerTimes(lastVisitedMosqueId, mosqueData, dbMosqueData);
     return mosqueData;
   }
-
+  console.log("not first time visiting this mosque, so we need to sync the data from the db");
   // syncs the events, announcements, and prayer times in parallel
   const [updatedEvents, updatedAnnouncements, updatedPrayerTimes] =
     await Promise.all([
@@ -99,11 +104,11 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
     last_prayer: currentSyncTime,
   };
 
-  const updatedMosqueData = {
+  const updatedMosqueData : ProcessedMosqueData = {
     ...storageMosqueData,
     events: updatedEvents,
     announcements: updatedAnnouncements,
-    prayerInfo: updatedPrayerTimes,
+    prayerTimes: updatedPrayerTimes,
     info: updatedMosqueInfo,
   };
 
@@ -211,7 +216,6 @@ const syncPrayerTimes = async (
 ) => {
   const lastPrayerFetched = storageMosqueData.info.last_prayer;
   const lastPrayerPushed = dbMosqueData.last_prayer;
-  const scheduleEnd = storageMosqueData.prayerInfo.prayerSchedule?.endDate;
   const jummahTimes = dbMosqueData.jummah_times;
 
   // Check if it's a new day since last sync (midnight resync)
@@ -224,41 +228,35 @@ const syncPrayerTimes = async (
   console.log("lastSyncDate", lastSyncDate);
   console.log("lastPrayerFetched", lastPrayerFetched);
   console.log("lastPrayerPushed", lastPrayerPushed);
-  console.log("scheduleEnd", scheduleEnd);
   console.log("isNewDay", isNewDay);
-  const shouldSync =
-    lastPrayerFetched < lastPrayerPushed ||
-    (scheduleEnd && new Date(scheduleEnd) < new Date()) ||
-    isNewDay;
-
+  const shouldSync = lastPrayerFetched < lastPrayerPushed;
   console.log("shouldSync", shouldSync);
+  // const shouldSync = true;
   if (shouldSync) {
     const city = dbMosqueData.address.split(",")[1].trim();
     const newPrayerTimes = await getPrayerTimes(
       city,
       lastVisitedMosqueId,
-      undefined,
-      jummahTimes,
+      jummahTimes as JummahTime,
     );
-    console.log("newPrayerTimes", newPrayerTimes);
+
     if (newPrayerTimes && Object.keys(newPrayerTimes).length > 0) {
       return newPrayerTimes;
     } else {
-      const prayerInfoWithWarning = {
-        ...storageMosqueData.prayerInfo,
-        prayerTimes: {
-          ...storageMosqueData.prayerInfo.prayerTimes,
-          warning: "Current prayer times may be outdated",
-        },
-        prayerSchedule: {
-          ...storageMosqueData.prayerInfo.prayerSchedule,
-          warning: "Current prayer times may be outdated",
-        },
-      };
-      return prayerInfoWithWarning;
+      // const prayerInfoWithWarning = {
+      //   ...storageMosqueData.prayerInfo,
+      //   prayerTimes: {
+      //     ...storageMosqueData.prayerInfo.prayerTimes,
+      //     warning: "Current prayer times may be outdated",
+      //   },
+      //   prayerSchedule: {
+      //     ...storageMosqueData.prayerInfo.prayerSchedule,
+      //     warning: "Current prayer times may be outdated",
+      //   },
+      // };
+      return newPrayerTimes;
     }
   }
-
   return storageMosqueData.prayerInfo;
 };
 
@@ -355,43 +353,32 @@ const getMosqueAnnouncements = async (
 const getPrayerTimes = async (
   city: string,
   lastVisitedMosqueId: string,
-  createdAfter?: string,
   jummahTimes?: JummahTime,
 ) => {
   try {
-    const now = new Date().toISOString();
 
+    const monthYear = `${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getFullYear()).slice(-2)}`;
     // gets the prayer times from the db
     let query = supabase
-      .from("test_prayer_times")
+      .from("new_prayer_times")
       .select()
-      .eq("masjid_id", lastVisitedMosqueId)
-      .neq("status", "deleted")
-      .lte("startDate", now)
-      .gte("endDate", now)
-      .order("startDate", { ascending: false }); // Get most recent schedule first
+      .eq("mosque_id", lastVisitedMosqueId)
+      .eq("mm-yy", monthYear)
+      .single();
 
-    if (createdAfter) {
-      query = query.or(
-        `created_at.gt.${createdAfter},updated_at.gt.${createdAfter}`,
-      );
-    }
-
-    const { data: prayerSchedules, error } = await query;
+    const { data: prayerTimes, error } = await query;
     if (error) {
       console.error("Error fetching prayer times:", error);
       return null;
     }
 
-    if (!prayerSchedules || prayerSchedules.length === 0) {
-      console.log("No prayer schedule found for current date range");
-      return null;
-    }
-
-    // Use the most recent schedule (first in the ordered results)
-    const activeSchedule = prayerSchedules[0] as PrayerSchedule;
-
-    return formatPrayerTimes(city, activeSchedule, jummahTimes as JummahTime);
+    // if (!prayerTimes || prayerTimes.length === 0) {
+    //   console.log("No prayer schedule found for current date range");
+    //   return null;
+    // }
+    const currentPrayerTime = getCurrentPrayerTime(prayerTimes as DBPrayerTimes, jummahTimes as JummahTime);;
+    console.log("currentPrayerTime", currentPrayerTime);
+    return currentPrayerTime;
   } catch (error) {
     console.error("Error in getPrayerTimes:", error);
     return null;

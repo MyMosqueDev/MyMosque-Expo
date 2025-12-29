@@ -1,4 +1,4 @@
-import { JummahTime, PrayerTime } from "@/lib/types";
+import { PrayerTime } from "@/lib/types";
 import { to12HourFormat } from "@/lib/utils";
 import { MotiView, View } from "moti";
 import { Text } from "react-native";
@@ -6,8 +6,8 @@ import { Text } from "react-native";
 // Helper function to get prayer times
 const getPrayerTimes = (prayer: any, prayerTimes: PrayerTime) => {
   if (prayer.isJummah) {
-    const jummahKey = prayer.jummahKey as keyof JummahTime;
-    const jummahData = prayerTimes.jummah[jummahKey];
+    const jummahKey = prayer.jummahKey;
+    const jummahData = prayerTimes.jummah[jummahKey as keyof typeof prayerTimes.jummah];
     return {
       adhan: jummahData?.athan || "N/A",
       iqama: jummahData?.iqama || "N/A",
@@ -18,8 +18,8 @@ const getPrayerTimes = (prayer: any, prayerTimes: PrayerTime) => {
         prayer.key as keyof Omit<PrayerTime, "nextPrayer" | "jummah">
       ];
     return {
-      adhan: pt && typeof pt === "object" && "adhan" in pt ? pt.adhan : "N/A",
-      iqama: pt && typeof pt === "object" && "iqama" in pt ? pt.iqama : "N/A",
+      adhan: pt && typeof pt === "object" && "adhan" in pt ? pt.adhan.replace(/ [AP]M$/i, "") : "N/A",
+      iqama: pt && typeof pt === "object" && "iqama" in pt ? pt.iqama.replace(/ [AP]M$/i, "") : "N/A",
     };
   }
 };
@@ -99,11 +99,8 @@ const getPrayerOrder = (prayerTimes: PrayerTime) => {
  *
  * @param prayerTimes - The prayer times to display
  */
-export default function PrayerList({
-  prayerTimes,
-}: {
-  prayerTimes: PrayerTime;
-}) {
+export default function PrayerList({prayerTimes,}: { prayerTimes: PrayerTime;}) {
+  console.log("prayerTimes --", prayerTimes);
   return (
     <MotiView
       from={{ opacity: 0, translateY: 20 }}
@@ -129,7 +126,7 @@ export default function PrayerList({
       {getPrayerOrder(prayerTimes).map((prayer: any, idx: number) => {
         const isCurrent = prayer.key === prayerTimes.nextPrayer.name;
         const { adhan, iqama } = getPrayerTimes(prayer, prayerTimes);
-
+        console.log(prayer)
         return (
           <MotiView
             key={prayer.key}
@@ -151,12 +148,12 @@ export default function PrayerList({
               <Text
                 className={`text-2xl font-lato-bold w-1/3 text-center ${isCurrent ? "text-[#5B4B94]" : "text-[#4A4A4A]/50"}`}
               >
-                {to12HourFormat(adhan)}
+                {adhan}
               </Text>
               <Text
                 className={`text-2xl font-lato-bold w-1/3 text-right ${isCurrent ? "text-[#5B4B94]" : "text-[#4A4A4A]/50"}`}
               >
-                {to12HourFormat(iqama)}
+                {iqama}
               </Text>
             </View>
           </MotiView>

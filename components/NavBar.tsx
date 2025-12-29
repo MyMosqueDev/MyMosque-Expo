@@ -1,6 +1,6 @@
 import { useMosqueData } from "@/app/_layout";
 import { getNextPrayer } from "@/lib/prayerTimeUtils";
-import { Event, PrayerInfo } from "@/lib/types";
+import { Event, PrayerTime } from "@/lib/types";
 import { fetchMosqueInfo } from "@/lib/utils";
 import Feather from "@expo/vector-icons/Feather";
 import { BlurView } from "expo-blur";
@@ -15,8 +15,8 @@ export default function Navbar() {
   const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(
     mosqueData?.events || null,
   );
-  const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerInfo | null>(
-    mosqueData?.prayerInfo || null,
+  const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(
+    mosqueData?.prayerTimes || null,
   );
   const pathname = usePathname();
 
@@ -27,13 +27,13 @@ export default function Navbar() {
         const mosqueData = await fetchMosqueInfo();
         if (mosqueData) {
           setMosqueEvents(mosqueData.events);
-          setMosquePrayerTimes(mosqueData.prayerInfo.prayerTimes);
+          setMosquePrayerTimes(mosqueData.prayerTimes);
         }
       };
       fetchData();
     } else {
       setMosqueEvents(mosqueData.events);
-      setMosquePrayerTimes(mosqueData.prayerInfo);
+      setMosquePrayerTimes(mosqueData.prayerTimes);
     }
   }, [mosqueData]);
 
@@ -41,9 +41,9 @@ export default function Navbar() {
   const getUpdatedPrayerTimes = () => {
     if (mosquePrayerTimes) {
       // gets the next prayer time (makes sure it hasn't changed)
-      const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes.prayerTimes);
+      const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
       return {
-        ...mosquePrayerTimes.prayerTimes,
+        ...mosquePrayerTimes,
         nextPrayer: updatedPrayerTimes,
       };
     }

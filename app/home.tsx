@@ -56,7 +56,7 @@ export default function Home() {
   );
   const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(events);
   const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(
-    mosqueData?.prayerInfo.prayerTimes || null,
+    mosqueData?.prayerTimes || null,
   );
   const [mosqueAnnouncements, setMosqueAnnouncements] = useState<
     Announcement[] | null
@@ -66,13 +66,13 @@ export default function Home() {
 
   // gets updated prayer times
   const getUpdatedPrayerTimes = () => {
-    if (mosquePrayerTimes) {
-      const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
-      return {
-        ...mosquePrayerTimes,
-        nextPrayer: updatedPrayerTimes,
-      };
-    }
+    // if (mosquePrayerTimes) {
+    //   const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
+    //   return {
+    //     ...mosquePrayerTimes,
+    //     nextPrayer: updatedPrayerTimes,
+    //   };
+    // }
     return mosquePrayerTimes;
   };
 
@@ -83,7 +83,7 @@ export default function Home() {
         (event) => event.status !== "deleted" && event.status !== "draft",
       ),
     );
-    setMosquePrayerTimes(mosqueData?.prayerInfo.prayerTimes);
+    setMosquePrayerTimes(mosqueData.prayerTimes);
     const announcements = mosqueData.announcements
       .filter(
         (announcement) =>
