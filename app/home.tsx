@@ -66,13 +66,13 @@ export default function Home() {
 
   // gets updated prayer times
   const getUpdatedPrayerTimes = () => {
-    // if (mosquePrayerTimes) {
-    //   const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
-    //   return {
-    //     ...mosquePrayerTimes,
-    //     nextPrayer: updatedPrayerTimes,
-    //   };
-    // }
+    if (mosquePrayerTimes) {
+      const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
+      return {
+        ...mosquePrayerTimes,
+        nextPrayer: updatedPrayerTimes,
+      };
+    }
     return mosquePrayerTimes;
   };
 

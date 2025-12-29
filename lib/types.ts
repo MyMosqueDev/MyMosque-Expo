@@ -42,11 +42,6 @@ export type Event = {
   status?: "active" | "deleted" | "draft";
 };
 
-// export type PrayerInfo = {
-//   prayerTimes: PrayerTime;
-//   prayerSchedule: PrayerSchedule;
-// };
-
 export type DBPrayerTimes = {
   "mm-yy": string;
   prayer_times: {

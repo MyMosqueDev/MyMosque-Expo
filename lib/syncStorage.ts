@@ -20,8 +20,6 @@ import { DBPrayerTimes, JummahTime, MosqueData, ProcessedMosqueData } from "./ty
  */
 export const syncStorage = async (lastVisitedMosqueId: string) => {
   const dbMosqueData = await getMosqueData(lastVisitedMosqueId); // gets the mosque data from the db
-  // storage.clearAll(); // temp
-
 
   if (!dbMosqueData) {
     throw new Error(`Mosque with ID ${lastVisitedMosqueId} not found`);
@@ -35,14 +33,13 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
 
   // first time visiting this mosque, so we need to get all the data from the db
   if (!storageMosqueData || Object.keys(storageMosqueData).length === 0) {
-    console.log("first time visiting this mosque, so we need to get all the data from the db");
     const city = dbMosqueData.address.split(",")[1].trim();
 
     // gets all the needed data from supabase
     const [announcements, events, prayerTimes] = await Promise.all([
       getMosqueAnnouncements(lastVisitedMosqueId),
       getMosqueEvents(lastVisitedMosqueId),
-      getPrayerTimes(city, lastVisitedMosqueId, jummahTimes as JummahTime),
+      getPrayerTimes(lastVisitedMosqueId, jummahTimes),
     ]);
 
 
@@ -82,10 +79,9 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
       JSON.stringify(mosqueData),
     );
 
-    // syncPrayerTimes(lastVisitedMosqueId, mosqueData, dbMosqueData);
     return mosqueData;
   }
-  console.log("not first time visiting this mosque, so we need to sync the data from the db");
+
   // syncs the events, announcements, and prayer times in parallel
   const [updatedEvents, updatedAnnouncements, updatedPrayerTimes] =
     await Promise.all([
@@ -218,43 +214,23 @@ const syncPrayerTimes = async (
   const lastPrayerPushed = dbMosqueData.last_prayer;
   const jummahTimes = dbMosqueData.jummah_times;
 
-  // Check if it's a new day since last sync (midnight resync)
-  const lastSyncDate = new Date(lastPrayerFetched);
-  const currentDate = new Date();
-  const isNewDay = lastSyncDate.toDateString() !== currentDate.toDateString();
-
-  // Check if we need to sync: either data is outdated, current schedule has expired, or it's a new day
-  console.log("--------------------------------");
-  console.log("lastSyncDate", lastSyncDate);
-  console.log("lastPrayerFetched", lastPrayerFetched);
-  console.log("lastPrayerPushed", lastPrayerPushed);
-  console.log("isNewDay", isNewDay);
   const shouldSync = lastPrayerFetched < lastPrayerPushed;
-  console.log("shouldSync", shouldSync);
-  // const shouldSync = true;
+
   if (shouldSync) {
-    const city = dbMosqueData.address.split(",")[1].trim();
     const newPrayerTimes = await getPrayerTimes(
-      city,
       lastVisitedMosqueId,
       jummahTimes as JummahTime,
     );
 
+
     if (newPrayerTimes && Object.keys(newPrayerTimes).length > 0) {
       return newPrayerTimes;
-    } else {
-      // const prayerInfoWithWarning = {
-      //   ...storageMosqueData.prayerInfo,
-      //   prayerTimes: {
-      //     ...storageMosqueData.prayerInfo.prayerTimes,
-      //     warning: "Current prayer times may be outdated",
-      //   },
-      //   prayerSchedule: {
-      //     ...storageMosqueData.prayerInfo.prayerSchedule,
-      //     warning: "Current prayer times may be outdated",
-      //   },
-      // };
-      return newPrayerTimes;
+    } else { // TODO: TEST
+      const prayerInfoWithWarning = {
+        ...storageMosqueData.prayerTimes,
+        warning: "Current prayer times may be outdated",
+      };
+      return prayerInfoWithWarning;
     }
   }
   return storageMosqueData.prayerInfo;
@@ -351,7 +327,6 @@ const getMosqueAnnouncements = async (
  * @returns the prayer times
  */
 const getPrayerTimes = async (
-  city: string,
   lastVisitedMosqueId: string,
   jummahTimes?: JummahTime,
 ) => {
