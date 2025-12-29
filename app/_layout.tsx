@@ -1,7 +1,8 @@
+import { getTodaysPrayerTimes } from "@/lib/prayerTimeUtils";
 import { ProcessedMosqueData } from "@/lib/types";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { AppState, ImageBackground, Text, View } from "react-native";
 import ErrorBoundary from "../components/ErrorBoundary";
 import NavBar from "../components/NavBar";
@@ -36,6 +37,12 @@ export default function RootLayout() {
     null,
   );
   const [error, setError] = useState<string | null>(null);
+  const mosqueDataRef = useRef<ProcessedMosqueData | null>(null);
+
+  // Keep ref in sync with state for use in AppState listener
+  useEffect(() => {
+    mosqueDataRef.current = mosqueData;
+  }, [mosqueData]);
 
   useEffect(() => {
     async function prepare() {
@@ -48,13 +55,13 @@ export default function RootLayout() {
         await loadFonts();
         console.log("Fonts loaded successfully");
 
-        // Fetch mosque info
+        // Fetch mosque info (this handles sync logic internally)
         console.log("Fetching mosque info...");
-        const mosqueData = await fetchMosqueInfo();
-        console.log("Mosque data fetched:", mosqueData ? "success" : "null");
+        const fetchedMosqueData = await fetchMosqueInfo();
+        console.log("Mosque data fetched:", fetchedMosqueData ? "success" : "null");
 
-        if (mosqueData) {
-          setMosqueData(mosqueData);
+        if (fetchedMosqueData) {
+          setMosqueData(fetchedMosqueData);
         }
 
         setFontsLoaded(true);
@@ -71,12 +78,33 @@ export default function RootLayout() {
       }
     }
 
+    // Recomputes today's prayer times from stored monthly schedule (no network call)
+    function refreshPrayerTimesLocally() {
+      const currentData = mosqueDataRef.current;
+      if (currentData?.monthlyPrayerSchedule && currentData?.jummahTimes) {
+        const freshPrayerTimes = getTodaysPrayerTimes(
+          currentData.monthlyPrayerSchedule,
+          currentData.jummahTimes,
+        );
+        if (freshPrayerTimes) {
+          setMosqueData({
+            ...currentData,
+            prayerTimes: freshPrayerTimes,
+          });
+          console.log("Prayer times refreshed locally from stored monthly schedule");
+        }
+      }
+    }
+
     prepare();
 
-    // refreshes data when app is brought back to life
+    // Refreshes data when app is brought back to life
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") {
-        console.log("App became active, refreshing data...");
+        console.log("App became active...");
+        // First, quickly refresh prayer times locally from stored monthly data
+        refreshPrayerTimesLocally();
+        // Then do a full sync in background to check for any updates
         prepare();
       }
     });

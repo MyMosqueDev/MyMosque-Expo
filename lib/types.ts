@@ -97,6 +97,8 @@ export type MosqueData = {
   announcements: Announcement[];
   events: Event[];
   prayerTimes: PrayerTime;
+  monthlyPrayerSchedule: DBPrayerTimes | null;
+  jummahTimes: JummahTime | null;
 };
 
 export type ProcessedMosqueData = {
@@ -104,6 +106,8 @@ export type ProcessedMosqueData = {
   announcements: Announcement[];
   events: Event[];
   prayerTimes: PrayerTime;
+  monthlyPrayerSchedule: DBPrayerTimes | null;
+  jummahTimes: JummahTime | null;
 };
 
 export type UserData = {

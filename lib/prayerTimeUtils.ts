@@ -119,3 +119,21 @@ export const addMinutesToTime = (time24: string, minutesToAdd: number) => {
   const minuteFormatted = minute.toString().padStart(2, "0");
   return `${hourFormatted}:${minuteFormatted}`;
 };
+
+/**
+ * Computes today's prayer times from a stored monthly schedule.
+ * Use this when recomputing prayer times on app activation or day change.
+ * @param monthlySchedule - the stored monthly prayer schedule from MMKV
+ * @param jummahTimes - the jummah times for the mosque
+ * @returns today's prayer times with next prayer info, or null if schedule is invalid
+ */
+export const getTodaysPrayerTimes = (
+  monthlySchedule: DBPrayerTimes | null,
+  jummahTimes: JummahTime | null,
+): PrayerTime | null => {
+  if (!monthlySchedule || !jummahTimes) {
+    return null;
+  }
+  
+  return getCurrentPrayerTime(monthlySchedule, jummahTimes);
+};
