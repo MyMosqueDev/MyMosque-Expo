@@ -1,7 +1,7 @@
 import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
 import useNotifications from "@/lib/hooks/useNotifications";
-import { getNextPrayer } from "@/lib/prayerTimeUtils";
+import { getNextPrayer, getTodaysPrayerTimes } from "@/lib/prayerTimeUtils";
 import { fetchMosqueInfo } from "@/lib/utils";
 import * as Notifications from "expo-notifications";
 import { Link } from "expo-router";
@@ -9,11 +9,13 @@ import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Text, View } from "react-native";
 import {
-    Announcement,
-    Event,
-    MosqueInfo,
-    PrayerTime,
-    ProcessedMosqueData,
+  Announcement,
+  DBPrayerTimes,
+  Event,
+  JummahTime,
+  MosqueInfo,
+  PrayerTime,
+  ProcessedMosqueData,
 } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EmptyToken from "./components/EmptyToken";
@@ -56,11 +58,18 @@ export default function Home() {
   );
   const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(events);
   const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(
-    mosqueData?.prayerInfo.prayerTimes || null,
+    mosqueData?.prayerTimes || null,
   );
   const [mosqueAnnouncements, setMosqueAnnouncements] = useState<
     Announcement[] | null
   >(announcements);
+  // Store monthly schedule and jummah times for local recomputation
+  const [monthlySchedule, setMonthlySchedule] = useState<DBPrayerTimes | null>(
+    mosqueData?.monthlyPrayerSchedule || null,
+  );
+  const [jummahTimes, setJummahTimes] = useState<JummahTime | null>(
+    mosqueData?.jummahTimes || null,
+  );
 
   useNotifications();
 
@@ -76,14 +85,17 @@ export default function Home() {
     return mosquePrayerTimes;
   };
 
-  const setMosqueData = (mosqueData: ProcessedMosqueData) => {
+  const setMosqueDataState = (mosqueData: ProcessedMosqueData) => {
     setMosqueInfo(mosqueData.info);
     setMosqueEvents(
       mosqueData.events.filter(
         (event) => event.status !== "deleted" && event.status !== "draft",
       ),
     );
-    setMosquePrayerTimes(mosqueData?.prayerInfo.prayerTimes);
+    setMosquePrayerTimes(mosqueData.prayerTimes);
+    // Store monthly schedule and jummah times for local recomputation
+    setMonthlySchedule(mosqueData.monthlyPrayerSchedule);
+    setJummahTimes(mosqueData.jummahTimes);
     const announcements = mosqueData.announcements
       .filter(
         (announcement) =>
@@ -100,21 +112,33 @@ export default function Home() {
   useEffect(() => {
     if (!mosqueData) {
       const fetchData = async () => {
-        const mosqueData = await fetchMosqueInfo();
-        if (mosqueData) {
-          setMosqueData(mosqueData);
+        const fetchedData = await fetchMosqueInfo();
+        if (fetchedData) {
+          setMosqueDataState(fetchedData);
         }
       };
       fetchData();
     }
   }, [mosqueData]);
 
-  // refreshes data when app is brought back to life
+  // Update local state when context mosqueData changes
+  useEffect(() => {
+    if (mosqueData) {
+      setMosqueDataState(mosqueData);
+    }
+  }, [mosqueData]);
+
+  // Refreshes prayer times when app is brought back to life
+  // Uses stored monthly schedule to recompute today's times locally
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") {
-        if (mosqueData) {
-          setMosqueData(mosqueData);
+        // Recompute prayer times from stored monthly schedule
+        if (monthlySchedule && jummahTimes) {
+          const freshPrayerTimes = getTodaysPrayerTimes(monthlySchedule, jummahTimes);
+          if (freshPrayerTimes) {
+            setMosquePrayerTimes(freshPrayerTimes);
+          }
         }
       }
     });
@@ -122,7 +146,7 @@ export default function Home() {
     return () => {
       subscription.remove();
     };
-  }, [mosqueData]);
+  }, [monthlySchedule, jummahTimes]);
 
   if (
     !mosqueInfo ||

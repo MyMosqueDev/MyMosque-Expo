@@ -43,7 +43,7 @@ export default function AnnouncementsCarousel({
             announcement.status !== "draft",
         )}
         renderItem={renderAnnouncement}
-        keyExtractor={(item) => item.title}
+        keyExtractor={(item) => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         snapToInterval={CARD_WIDTH + CARD_SPACING}

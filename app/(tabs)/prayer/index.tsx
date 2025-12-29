@@ -8,6 +8,7 @@ import Loading from "@/app/components/Loading";
 import PrayerWarning from "./components/PrayerWarning";
 import PrayerProgress from "./components/PrayerProgress";
 import PrayerList from "./components/PrayerList";
+import { useMosqueData } from "@/app/_layout";
 
 /**
  * Prayer page component
@@ -20,7 +21,6 @@ export default function Prayers() {
   const [isLoading, setIsLoading] = useState(true);
   const { prayerTimes: prayerTimesParam } = useLocalSearchParams();
 
-  // sets all the prayer times
   useEffect(() => {
     if (prayerTimesParam) {
       try {
@@ -60,14 +60,10 @@ export default function Prayers() {
     <ScrollContainer name="Prayer Times">
       <View className="flex-1 w-full px-2 pt-6">
         <View className="flex-1 justify-center items-center">
-          {/* Warning Display */}
           {prayerTimes.warning && (
             <PrayerWarning warning={prayerTimes.warning} />
           )}
-          {/* progress bar */}
           <PrayerProgress prayerTimes={prayerTimes} />
-
-          {/* Prayer Times List with staggered animations */}
           <PrayerList prayerTimes={prayerTimes} />
         </View>
       </View>

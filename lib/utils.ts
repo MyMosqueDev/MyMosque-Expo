@@ -35,6 +35,36 @@ export const to12HourFormat = (time24: string) => {
   return `${hour}:${minute}`;
 };
 
+// converts 12 hour format (with AM/PM) to 24 hour format
+// also handles times already in 24 hour format
+export const to24HourFormat = (time: string): string => {
+  if (!time || time === "N/A") return "00:00";
+  
+  const trimmed = time.trim().toUpperCase();
+  
+  // Check if it already looks like 24-hour format (no AM/PM)
+  if (!trimmed.includes("AM") && !trimmed.includes("PM")) {
+    // Already in 24-hour format, just return as-is
+    return time;
+  }
+  
+  // Parse 12-hour format with AM/PM
+  const [timePart, modifier] = trimmed.split(/\s+/);
+  let [hours, minutes] = timePart.split(":").map(Number);
+  
+  if (modifier === "PM" && hours < 12) {
+    hours += 12;
+  }
+  if (modifier === "AM" && hours === 12) {
+    hours = 0;
+  }
+  
+  const hoursStr = hours.toString().padStart(2, "0");
+  const minutesStr = minutes.toString().padStart(2, "0");
+  
+  return `${hoursStr}:${minutesStr}`;
+};
+
 /**
  * fetches the mosque info from the local storage
  * @returns the mosque info
@@ -44,7 +74,6 @@ export const fetchMosqueInfo = async () => {
   if (userDataString) {
     const lastVisitedMosqueId = JSON.parse(userDataString).lastVisitedMosque;
     const mosqueData = await syncStorage(lastVisitedMosqueId);
-
     return {
       ...mosqueData,
       prayerTimes: mosqueData.prayerTimes,

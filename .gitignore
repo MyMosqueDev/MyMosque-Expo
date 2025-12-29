@@ -40,3 +40,6 @@ app-example
 
 android/*
 ios/*
+
+/ios
+/android

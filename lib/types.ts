@@ -42,9 +42,22 @@ export type Event = {
   status?: "active" | "deleted" | "draft";
 };
 
-export type PrayerInfo = {
-  prayerTimes: PrayerTime;
-  prayerSchedule: PrayerSchedule;
+export type DBPrayerTimes = {
+  "mm-yy": string;
+  prayer_times: {
+    day: string;
+    times: DailyPrayerTimes;
+  }[];
+}
+
+export type DailyPrayerTimes = {
+  fajr: { adhan: string; iqama: string };
+  sunrise: { adhan: string; iqama: string };
+  dhuhr: { adhan: string; iqama: string };
+  asr: { adhan: string; iqama: string };
+  maghrib: { adhan: string; iqama: string };
+  sunset: { adhan: string; iqama: string };
+  isha: { adhan: string; iqama: string };
 };
 
 export type PrayerTime = {
@@ -59,7 +72,7 @@ export type PrayerTime = {
     minutesToNextPrayer: number;
     percentElapsed: number;
   };
-  warning?: string;
+  warning: string | null;
 };
 
 export type JummahTime = {
@@ -83,14 +96,18 @@ export type MosqueData = {
   info: MosqueInfo;
   announcements: Announcement[];
   events: Event[];
-  prayerInfo: PrayerInfo;
+  prayerTimes: PrayerTime;
+  monthlyPrayerSchedule: DBPrayerTimes | null;
+  jummahTimes: JummahTime | null;
 };
 
 export type ProcessedMosqueData = {
   info: MosqueInfo;
   announcements: Announcement[];
   events: Event[];
-  prayerInfo: PrayerInfo;
+  prayerTimes: PrayerTime;
+  monthlyPrayerSchedule: DBPrayerTimes | null;
+  jummahTimes: JummahTime | null;
 };
 
 export type UserData = {

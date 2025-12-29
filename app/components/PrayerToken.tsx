@@ -7,7 +7,7 @@ const getPrayerTime = (prayerTimes: PrayerTime, prayerKey: string) => {
   const prayerData =
     prayerTimes[prayerKey as keyof Omit<PrayerTime, "nextPrayer">];
   if (typeof prayerData === "object" && prayerData && "iqama" in prayerData) {
-    return prayerData.iqama;
+    return prayerData.iqama.replace(/ [AP]M$/i, "");
   }
   return "N/A";
 };
@@ -55,7 +55,7 @@ export default function PrayerToken({
                 isCurrentPrayer ? "text-white" : "text-text"
               }`}
             >
-              {to12HourFormat(getPrayerTime(prayerTimes, prayer.key))}
+              {getPrayerTime(prayerTimes, prayer.key)}
             </Text>
           </View>
         );
