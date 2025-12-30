@@ -1,6 +1,14 @@
 import Header from "@/components/Header";
 import ScrollContainer from "@/components/ScrollContainer";
-import { MosqueInfo } from "@/lib/types";
+import {
+  DEFAULT_PRAYER_NOTIFICATION_SETTINGS,
+  getJummahCount,
+  loadPrayerNotificationSettings,
+  PrayerNotificationSettings,
+  savePrayerNotificationSettings,
+  schedulePrayerNotifications,
+} from "@/lib/prayerNotifications";
+import { JummahTime, MosqueInfo } from "@/lib/types";
 import { fetchMosqueInfo } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,17 +16,16 @@ import * as Notifications from "expo-notifications";
 import { MotiView } from "moti";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    Alert,
-    ImageBackground,
-    KeyboardAvoidingView,
-    Linking,
-    Platform,
-    ScrollView,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  ScrollView,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 // Types for settings
@@ -44,12 +51,17 @@ const DEFAULT_SETTINGS: SettingsType = {
 export default function Settings() {
   const [settings, setSettings] = useState<SettingsType>(DEFAULT_SETTINGS);
   const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
+  const [mosqueId, setMosqueId] = useState<string | null>(null);
+  const [jummahTimes, setJummahTimes] = useState<JummahTime | null>(null);
+  const [prayerNotificationSettings, setPrayerNotificationSettings] =
+    useState<PrayerNotificationSettings>(DEFAULT_PRAYER_NOTIFICATION_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
   const [notificationPermission, setNotificationPermission] =
     useState<string>("unknown");
   const [devPassword, setDevPassword] = useState("");
   const [showDevInput, setShowDevInput] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prayerNotificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check notification permissions
   useEffect(() => {
@@ -76,10 +88,16 @@ export default function Settings() {
           setSettings(JSON.parse(settingsString));
         }
 
+        // Load prayer notification settings from MMKV
+        const prayerSettings = loadPrayerNotificationSettings();
+        setPrayerNotificationSettings(prayerSettings);
+
         // Load mosque info
         const mosqueData = await fetchMosqueInfo();
         if (mosqueData) {
           setMosqueInfo(mosqueData.info);
+          setMosqueId(mosqueData.info.uid);
+          setJummahTimes(mosqueData.jummahTimes || null);
         }
       } catch (error) {
         console.error("Error loading settings:", error);
@@ -191,11 +209,67 @@ export default function Settings() {
     }
   };
 
+  // Update prayer notification settings with debounced scheduling
+  const updatePrayerNotificationSettings = useCallback(
+    (newSettings: PrayerNotificationSettings) => {
+      setPrayerNotificationSettings(newSettings);
+      savePrayerNotificationSettings(newSettings);
+
+      // Debounce the scheduling to avoid too many API calls
+      if (prayerNotificationTimeoutRef.current) {
+        clearTimeout(prayerNotificationTimeoutRef.current);
+      }
+
+      prayerNotificationTimeoutRef.current = setTimeout(async () => {
+        if (mosqueId && mosqueInfo?.name) {
+          await schedulePrayerNotifications(mosqueId, mosqueInfo.name);
+        }
+      }, 500);
+    },
+    [mosqueId, mosqueInfo?.name]
+  );
+
+  // Toggle main prayer notifications switch
+  const togglePrayerNotifications = useCallback(
+    (enabled: boolean) => {
+      const newSettings = { ...prayerNotificationSettings, enabled };
+      updatePrayerNotificationSettings(newSettings);
+    },
+    [prayerNotificationSettings, updatePrayerNotificationSettings]
+  );
+
+  // Toggle individual prayer notification
+  const togglePrayerNotification = useCallback(
+    (prayer: keyof PrayerNotificationSettings["prayers"], enabled: boolean) => {
+      const newSettings = {
+        ...prayerNotificationSettings,
+        prayers: { ...prayerNotificationSettings.prayers, [prayer]: enabled },
+      };
+      updatePrayerNotificationSettings(newSettings);
+    },
+    [prayerNotificationSettings, updatePrayerNotificationSettings]
+  );
+
+  // Toggle jummah notification
+  const toggleJummahNotification = useCallback(
+    (jummah: keyof PrayerNotificationSettings["jummah"], enabled: boolean) => {
+      const newSettings = {
+        ...prayerNotificationSettings,
+        jummah: { ...prayerNotificationSettings.jummah, [jummah]: enabled },
+      };
+      updatePrayerNotificationSettings(newSettings);
+    },
+    [prayerNotificationSettings, updatePrayerNotificationSettings]
+  );
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
+      }
+      if (prayerNotificationTimeoutRef.current) {
+        clearTimeout(prayerNotificationTimeoutRef.current);
       }
     };
   }, []);
@@ -313,6 +387,201 @@ export default function Settings() {
                       ios_backgroundColor="#E5E7EB"
                     />
                   </View>
+                </View>
+              </MotiView>
+
+              {/* Prayer Time Notifications */}
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: "spring", damping: 15, stiffness: 150 }}
+                delay={200}
+                className="w-full mb-3"
+              >
+                <View className="w-full bg-white/70 rounded-2xl p-4 shadow-md border border-white/30">
+                  {/* Main toggle */}
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-10 h-10 bg-white/50 rounded-full items-center justify-center mr-3">
+                        <Ionicons name="time" size={20} color="#5B4B94" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-base font-lato-bold text-[#4A4A4A]">
+                          Prayer Time Notifications
+                        </Text>
+                        <Text className="text-xs font-lato text-[#6B7280] mt-0.5">
+                          Get notified 15 min before and at iqama
+                        </Text>
+                      </View>
+                    </View>
+                    <Switch
+                      value={prayerNotificationSettings.enabled}
+                      onValueChange={togglePrayerNotifications}
+                      trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                      thumbColor="#FFFFFF"
+                      ios_backgroundColor="#E5E7EB"
+                    />
+                  </View>
+
+                  {/* Expandable prayer toggles */}
+                  {prayerNotificationSettings.enabled && (
+                    <MotiView
+                      from={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      transition={{ type: "timing", duration: 200 }}
+                      className="mt-4 pt-4 border-t border-gray-200"
+                    >
+                      {/* Daily Prayers */}
+                      <Text className="text-xs font-lato-bold text-[#6B7280] uppercase tracking-wide mb-3">
+                        Daily Prayers
+                      </Text>
+
+                      {/* Fajr */}
+                      <View className="flex-row items-center justify-between py-2">
+                        <Text className="text-sm font-lato text-[#4A4A4A]">
+                          Fajr
+                        </Text>
+                        <Switch
+                          value={prayerNotificationSettings.prayers.fajr}
+                          onValueChange={(value) =>
+                            togglePrayerNotification("fajr", value)
+                          }
+                          trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                          thumbColor="#FFFFFF"
+                          ios_backgroundColor="#E5E7EB"
+                        />
+                      </View>
+
+                      {/* Dhuhr */}
+                      <View className="flex-row items-center justify-between py-2">
+                        <Text className="text-sm font-lato text-[#4A4A4A]">
+                          Dhuhr
+                        </Text>
+                        <Switch
+                          value={prayerNotificationSettings.prayers.dhuhr}
+                          onValueChange={(value) =>
+                            togglePrayerNotification("dhuhr", value)
+                          }
+                          trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                          thumbColor="#FFFFFF"
+                          ios_backgroundColor="#E5E7EB"
+                        />
+                      </View>
+
+                      {/* Asr */}
+                      <View className="flex-row items-center justify-between py-2">
+                        <Text className="text-sm font-lato text-[#4A4A4A]">
+                          Asr
+                        </Text>
+                        <Switch
+                          value={prayerNotificationSettings.prayers.asr}
+                          onValueChange={(value) =>
+                            togglePrayerNotification("asr", value)
+                          }
+                          trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                          thumbColor="#FFFFFF"
+                          ios_backgroundColor="#E5E7EB"
+                        />
+                      </View>
+
+                      {/* Maghrib */}
+                      <View className="flex-row items-center justify-between py-2">
+                        <Text className="text-sm font-lato text-[#4A4A4A]">
+                          Maghrib
+                        </Text>
+                        <Switch
+                          value={prayerNotificationSettings.prayers.maghrib}
+                          onValueChange={(value) =>
+                            togglePrayerNotification("maghrib", value)
+                          }
+                          trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                          thumbColor="#FFFFFF"
+                          ios_backgroundColor="#E5E7EB"
+                        />
+                      </View>
+
+                      {/* Isha */}
+                      <View className="flex-row items-center justify-between py-2">
+                        <Text className="text-sm font-lato text-[#4A4A4A]">
+                          Isha
+                        </Text>
+                        <Switch
+                          value={prayerNotificationSettings.prayers.isha}
+                          onValueChange={(value) =>
+                            togglePrayerNotification("isha", value)
+                          }
+                          trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                          thumbColor="#FFFFFF"
+                          ios_backgroundColor="#E5E7EB"
+                        />
+                      </View>
+
+                      {/* Jummah section - only show if mosque has jummah times */}
+                      {jummahTimes && getJummahCount(jummahTimes) > 0 && (
+                        <>
+                          <Text className="text-xs font-lato-bold text-[#6B7280] uppercase tracking-wide mt-4 mb-3">
+                            Friday Prayers
+                          </Text>
+
+                          {/* Jummah 1 */}
+                          {jummahTimes.jummah1 && (
+                            <View className="flex-row items-center justify-between py-2">
+                              <Text className="text-sm font-lato text-[#4A4A4A]">
+                                {getJummahCount(jummahTimes) === 1
+                                  ? "Jummah"
+                                  : "Jummah 1"}
+                              </Text>
+                              <Switch
+                                value={prayerNotificationSettings.jummah.jummah1}
+                                onValueChange={(value) =>
+                                  toggleJummahNotification("jummah1", value)
+                                }
+                                trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                                thumbColor="#FFFFFF"
+                                ios_backgroundColor="#E5E7EB"
+                              />
+                            </View>
+                          )}
+
+                          {/* Jummah 2 */}
+                          {jummahTimes.jummah2 && (
+                            <View className="flex-row items-center justify-between py-2">
+                              <Text className="text-sm font-lato text-[#4A4A4A]">
+                                Jummah 2
+                              </Text>
+                              <Switch
+                                value={prayerNotificationSettings.jummah.jummah2}
+                                onValueChange={(value) =>
+                                  toggleJummahNotification("jummah2", value)
+                                }
+                                trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                                thumbColor="#FFFFFF"
+                                ios_backgroundColor="#E5E7EB"
+                              />
+                            </View>
+                          )}
+
+                          {/* Jummah 3 */}
+                          {jummahTimes.jummah3 && (
+                            <View className="flex-row items-center justify-between py-2">
+                              <Text className="text-sm font-lato text-[#4A4A4A]">
+                                Jummah 3
+                              </Text>
+                              <Switch
+                                value={prayerNotificationSettings.jummah.jummah3}
+                                onValueChange={(value) =>
+                                  toggleJummahNotification("jummah3", value)
+                                }
+                                trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                                thumbColor="#FFFFFF"
+                                ios_backgroundColor="#E5E7EB"
+                              />
+                            </View>
+                          )}
+                        </>
+                      )}
+                    </MotiView>
+                  )}
                 </View>
               </MotiView>
             </MotiView>
