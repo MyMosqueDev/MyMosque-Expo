@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import ScrollContainer from "@/components/ScrollContainer";
+import { getPushToken } from "@/lib/getPushToken";
 import {
   DEFAULT_PRAYER_NOTIFICATION_SETTINGS,
   getJummahCount,
@@ -12,6 +13,7 @@ import { JummahTime, MosqueInfo } from "@/lib/types";
 import { fetchMosqueInfo } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import { MotiView } from "moti";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -27,6 +29,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+
 
 // Types for settings
 type SettingsType = {
@@ -77,6 +80,44 @@ export default function Settings() {
 
     checkNotificationPermissions();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      return async () => {
+        const token = await getPushToken();
+        const url = "https://www.mymosque.app/api/pushToken";
+
+        async function updatePushToken() {
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                pushToken: token,
+                mosqueId: mosqueId,
+                settings: settings,
+              }),
+            });
+
+            // Check if response has content before parsing
+            const text = await response.text();
+            if (text) {
+              const data = JSON.parse(text);
+              console.log("Response with options:", data);
+              return data;
+            }
+            console.log("Push token updated (empty response)");
+            return null;
+          } catch (error) {
+            console.error("Error updating push token:", error);
+          }
+        }
+        await updatePushToken();
+      };
+    }, [])
+  );
 
   // Load settings and mosque info
   useEffect(() => {
