@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import ScrollContainer from "@/components/ScrollContainer";
+import { useDevMode } from "@/lib/devMode";
 import { getPushToken } from "@/lib/getPushToken";
 import {
   DEFAULT_PRAYER_NOTIFICATION_SETTINGS,
@@ -26,6 +27,7 @@ import {
   ScrollView,
   Switch,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
@@ -52,6 +54,7 @@ const DEFAULT_SETTINGS: SettingsType = {
 
 // sorry for how awfully this is written
 export default function Settings() {
+  const { isDevMode, toggleDevMode } = useDevMode();
   const [settings, setSettings] = useState<SettingsType>(DEFAULT_SETTINGS);
   const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
   const [mosqueId, setMosqueId] = useState<string | null>(null);
@@ -212,8 +215,8 @@ export default function Settings() {
 
   // Handle development mode password
   const handleDevPassword = () => {
-    if (devPassword === "dev2025") {
-      updateSetting("development", true);
+    const success = toggleDevMode(devPassword);
+    if (success) {
       setShowDevInput(false);
       setDevPassword("");
       Alert.alert("Success", "Development mode enabled!");
@@ -223,10 +226,10 @@ export default function Settings() {
     }
   };
 
-  // Toggle development mode
-  const toggleDevMode = () => {
-    if (settings.development.enabled) {
-      updateSetting("development", false);
+  // Toggle development mode UI
+  const handleToggleDevMode = () => {
+    if (isDevMode) {
+      toggleDevMode();
       Alert.alert(
         "Development Mode Disabled",
         "Development mode has been turned off.",
@@ -808,12 +811,12 @@ export default function Settings() {
               delay={500}
               className="w-full mb-6"
             >
-              {/* <Text className="text-[#4A4A4A] text-lg font-lato-bold mb-4 uppercase tracking-wide">
+              <Text className="text-[#4A4A4A] text-lg font-lato-bold mb-4 uppercase tracking-wide">
                 Development
-              </Text> */}
+              </Text>
 
               {/* Development Mode */}
-              {/* <MotiView
+              <MotiView
                 from={{ opacity: 0, translateY: 20 }}
                 animate={{ opacity: 1, translateY: 0 }}
                 transition={{ type: "spring", damping: 15, stiffness: 150 }}
@@ -824,18 +827,25 @@ export default function Settings() {
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center flex-1">
                       <View className="w-10 h-10 bg-white/50 rounded-full items-center justify-center mr-3">
-                        <Ionicons name="code" size={20} color="#5B4B94" />
+                        <Ionicons name="bug" size={20} color="#5B4B94" />
                       </View>
-                      <Text className="text-base font-lato-bold text-[#4A4A4A]">
-                        Development Mode
-                      </Text>
+                      <View className="flex-1">
+                        <Text className="text-base font-lato-bold text-[#4A4A4A]">
+                          Development Mode
+                        </Text>
+                        {isDevMode && (
+                          <Text className="text-xs font-lato text-[#88AE79] mt-0.5">
+                            Tap the floating bug icon to view debug info
+                          </Text>
+                        )}
+                      </View>
                     </View>
                     <TouchableOpacity
-                      onPress={toggleDevMode}
-                      className={`px-4 py-2 rounded-lg ${settings.development.enabled ? "bg-red-500" : "bg-[#5B4B94]"}`}
+                      onPress={handleToggleDevMode}
+                      className={`px-4 py-2 rounded-lg ${isDevMode ? "bg-red-500" : "bg-[#5B4B94]"}`}
                     >
                       <Text className="text-white font-lato-bold text-sm">
-                        {settings.development.enabled ? "Disable" : "Enable"}
+                        {isDevMode ? "Disable" : "Enable"}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -872,7 +882,7 @@ export default function Settings() {
                     </MotiView>
                   )}
                 </View>
-               </MotiView> */}
+              </MotiView>
             </MotiView> 
           </View>
         </ScrollView>

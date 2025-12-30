@@ -1,3 +1,4 @@
+import { DevModeProvider } from "@/lib/devMode";
 import { loadPrayerNotificationSettings, schedulePrayerNotifications } from "@/lib/prayerNotifications";
 import { getTodaysPrayerTimes } from "@/lib/prayerTimeUtils";
 import { ProcessedMosqueData } from "@/lib/types";
@@ -6,6 +7,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { AppState, ImageBackground, Text, View } from "react-native";
 import ErrorBoundary from "../components/ErrorBoundary";
+import FloatingDebugButton from "../components/FloatingDebugButton";
 import NavBar from "../components/NavBar";
 import "../global.css";
 import { fetchMosqueInfo, loadFonts } from "../lib/utils";
@@ -207,42 +209,46 @@ export default function RootLayout() {
   // main layout
   return (
     <ErrorBoundary>
-      <MosqueDataContext.Provider value={{ mosqueData, setMosqueData }}>
-        <MapContext.Provider value={{ isMapVisible, setIsMapVisible }}>
-          <ImageBackground
-            source={require("../assets/background.png")}
-            style={{ flex: 1 }}
-            resizeMode="cover"
-          >
-            <View style={{ flex: 1 }}>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="map"
-                  options={{
-                    headerShown: false,
-                    gestureEnabled: false,
-                  }}
-                />
-                <Stack.Screen
-                  name="announcements"
-                  options={{
-                    animation: "slide_from_right",
-                  }}
-                />
-                <Stack.Screen
-                  name="eventDetails"
-                  options={{
-                    animation: "slide_from_right",
-                  }}
-                />
-              </Stack>
-              {/* nav bar shows if map is not visible */}
-              {!isMapVisible && <NavBar />}
-            </View>
-          </ImageBackground>
-        </MapContext.Provider>
-      </MosqueDataContext.Provider>
+      <DevModeProvider>
+        <MosqueDataContext.Provider value={{ mosqueData, setMosqueData }}>
+          <MapContext.Provider value={{ isMapVisible, setIsMapVisible }}>
+            <ImageBackground
+              source={require("../assets/background.png")}
+              style={{ flex: 1 }}
+              resizeMode="cover"
+            >
+              <View style={{ flex: 1 }}>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name="map"
+                    options={{
+                      headerShown: false,
+                      gestureEnabled: false,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="announcements"
+                    options={{
+                      animation: "slide_from_right",
+                    }}
+                  />
+                  <Stack.Screen
+                    name="eventDetails"
+                    options={{
+                      animation: "slide_from_right",
+                    }}
+                  />
+                </Stack>
+                {/* nav bar shows if map is not visible */}
+                {!isMapVisible && <NavBar />}
+                {/* floating debug button shows when dev mode is enabled */}
+                <FloatingDebugButton />
+              </View>
+            </ImageBackground>
+          </MapContext.Provider>
+        </MosqueDataContext.Provider>
+      </DevModeProvider>
     </ErrorBoundary>
   );
 }
