@@ -8,6 +8,7 @@
 // prayer times are also synced daily at midnight to ensure fresh prayer times for each new day
 
 import { storage } from "./mmkv";
+import { loadPrayerNotificationSettings, schedulePrayerNotifications } from "./prayerNotifications";
 import { getCurrentPrayerTime } from "./prayerTimeUtils";
 import { supabase } from "./supabase";
 import { DBPrayerTimes, JummahTime, MosqueData, PrayerTime, ProcessedMosqueData } from "./types";
@@ -62,6 +63,14 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
       JSON.stringify(mosqueData),
     );
 
+    // Schedule prayer notifications for first-time visit if enabled
+    const prayerNotificationSettings = loadPrayerNotificationSettings();
+    if (prayerNotificationSettings.enabled) {
+      schedulePrayerNotifications(lastVisitedMosqueId, dbMosqueData.name).catch(
+        (error) => console.error("Error scheduling prayer notifications:", error)
+      );
+    }
+
     return mosqueData;
   }
 
@@ -97,6 +106,18 @@ export const syncStorage = async (lastVisitedMosqueId: string) => {
     `mosqueData-${lastVisitedMosqueId}`,
     JSON.stringify(updatedMosqueData),
   );
+
+  // Reschedule prayer notifications if prayer times were updated
+  if (prayerTimesResult.prayerTimesUpdated) {
+    const prayerNotificationSettings = loadPrayerNotificationSettings();
+    if (prayerNotificationSettings.enabled) {
+      // Schedule in background to not block the sync
+      schedulePrayerNotifications(lastVisitedMosqueId, updatedMosqueInfo.name).catch(
+        (error) => console.error("Error rescheduling prayer notifications:", error)
+      );
+    }
+  }
+
   return updatedMosqueData;
 };
 
@@ -188,6 +209,7 @@ type SyncPrayerTimesResult = {
   prayerTimes: PrayerTime;
   monthlyPrayerSchedule: DBPrayerTimes;
   jummahTimes: JummahTime | null;
+  prayerTimesUpdated: boolean; // Flag to indicate if prayer times were updated from DB
 };
 
 /**
@@ -225,6 +247,7 @@ const syncPrayerTimes = async (
       prayerTimes: prayerTimesResult.todaysPrayerTimes,
       monthlyPrayerSchedule: prayerTimesResult.monthlySchedule,
       jummahTimes: jummahTimes || null,
+      prayerTimesUpdated: true,
     };
   }
   
@@ -238,6 +261,7 @@ const syncPrayerTimes = async (
       prayerTimes: todaysPrayerTimes,
       monthlyPrayerSchedule: storageMosqueData.monthlyPrayerSchedule,
       jummahTimes: storageMosqueData.jummahTimes || jummahTimes || null,
+      prayerTimesUpdated: false,
     };
   }
   
@@ -250,6 +274,7 @@ const syncPrayerTimes = async (
     prayerTimes: prayerTimesResult.todaysPrayerTimes,
     monthlyPrayerSchedule: prayerTimesResult.monthlySchedule,
     jummahTimes: jummahTimes || null,
+    prayerTimesUpdated: true,
   };
 };
 

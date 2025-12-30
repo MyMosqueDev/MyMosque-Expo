@@ -60,44 +60,11 @@ export default function Header({
     );
   }
 
-  const onBack = async () => {
-    router.back();
-    if (type === "settings") {
-      const settings = await AsyncStorage.getItem("appSettings");
-      const mosqueId = mosqueData?.info.uid;
-      const token = await getPushToken();
-      const url = "https://www.mymosque.app/api/pushToken";
-
-      async function updatePushToken() {
-        try {
-          const response = await fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              pushToken: token,
-              mosqueId: mosqueId,
-              settings: settings,
-            }),
-          });
-
-          const data = await response.json();
-          console.log("Response with options:", data);
-          return data;
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      }
-      await updatePushToken();
-    }
-  };
-
   // used in annoucnments, events, and notifications
   if (type === "event" || type === "settings") {
     return (
       <View className="w-full flex-row justify-between items-center px-4 pb-3 pt-24 ">
-        <TouchableOpacity onPress={onBack}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Feather name="arrow-left" size={24} color="#4A4A4A" />
         </TouchableOpacity>
         <View className="flex-col items-center">

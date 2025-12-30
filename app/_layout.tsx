@@ -1,3 +1,4 @@
+import { loadPrayerNotificationSettings, schedulePrayerNotifications } from "@/lib/prayerNotifications";
 import { getTodaysPrayerTimes } from "@/lib/prayerTimeUtils";
 import { ProcessedMosqueData } from "@/lib/types";
 import { Stack } from "expo-router";
@@ -62,6 +63,17 @@ export default function RootLayout() {
 
         if (fetchedMosqueData) {
           setMosqueData(fetchedMosqueData);
+
+          // Schedule prayer notifications on app startup if enabled
+          const prayerNotificationSettings = loadPrayerNotificationSettings();
+          if (prayerNotificationSettings.enabled && fetchedMosqueData.info?.uid && fetchedMosqueData.info?.name) {
+            schedulePrayerNotifications(
+              fetchedMosqueData.info.uid,
+              fetchedMosqueData.info.name
+            ).catch((error) =>
+              console.error("Error scheduling prayer notifications on startup:", error)
+            );
+          }
         }
 
         setFontsLoaded(true);
