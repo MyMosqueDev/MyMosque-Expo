@@ -1,3 +1,4 @@
+import { useDevMode } from "@/lib/devMode";
 import { MotiView } from "moti";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
@@ -6,13 +7,13 @@ import Container from "../components/Container";
 import { supabase } from "../lib/supabase";
 import { MosqueInfo, UserData } from "../lib/types";
 import MosqueCard from "./components/MosqueCard";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Map({
   setUserData,
 }: {
   setUserData?: (userData: UserData) => void;
 }) {
+  const { isDevMode } = useDevMode();
   const [mosques, setMosques] = useState<MosqueInfo[]>([]);
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,9 +34,8 @@ export default function Map({
 
         if (data) {
           console.log("Mosques loaded successfully:", data.length);
-          const settingsString = await AsyncStorage.getItem("appSettings");
-          const settings = JSON.parse(settingsString || "{}");
-          if (settings.development && settings.development.enabled) {
+          // Show Development Mosque (id === 2) only when dev mode is enabled
+          if (isDevMode) {
             setMosques(data);
           } else {
             setMosques(data.filter((mosque) => mosque.id !== 2));
@@ -55,7 +55,7 @@ export default function Map({
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     });
-  }, []);
+  }, [isDevMode]); // Re-fetch when dev mode changes
 
   if (error) {
     return (
