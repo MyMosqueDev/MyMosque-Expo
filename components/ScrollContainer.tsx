@@ -3,9 +3,11 @@ import Header from "./Header";
 export default function ScrollContainer({
   children,
   name,
+  type,
 }: {
   children: React.ReactNode;
   name: string;
+  type?: "default" | "event" | "settings" | "error"
 }) {
   return (
     <ImageBackground
@@ -13,7 +15,7 @@ export default function ScrollContainer({
       style={{ flex: 1 }}
       resizeMode="cover"
     >
-      <Header name={name} type="default" title={null} />
+      <Header name={name} type={type || "default"} title={null} />
       <ScrollView
         className={"flex flex-1 px-4 pt-1"}
         showsVerticalScrollIndicator={false}

@@ -1,181 +1,59 @@
 import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
 import useNotifications from "@/lib/hooks/useNotifications";
-import { getNextPrayer, getTodaysPrayerTimes } from "@/lib/prayerTimeUtils";
-import { fetchMosqueInfo } from "@/lib/utils";
-import * as Notifications from "expo-notifications";
+import { getNextPrayer } from "@/lib/prayerTimeUtils";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, AppState, Text, View } from "react-native";
-import {
-  Announcement,
-  DBPrayerTimes,
-  Event,
-  JummahTime,
-  MosqueInfo,
-  PrayerTime,
-  ProcessedMosqueData,
-} from "../lib/types";
+import { useEffect, useMemo, useState } from "react";
+import { Text, View } from "react-native";
+import { Announcement, Event, ProcessedMosqueData } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EmptyToken from "./components/EmptyToken";
+import ErrorScreen from "./components/ErrorScreen";
 import EventToken from "./components/EventToken";
 import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
 export default function Home() {
-  const { mosqueData } = useMosqueData();
+  const { mosqueData } : { mosqueData: ProcessedMosqueData | null } = useMosqueData();
 
-  const announcements =
-    mosqueData?.announcements
-      .filter(
-        (announcement) =>
-          announcement.status !== "deleted" && announcement.status !== "draft",
-      )
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      ) || null;
-  const events =
-    mosqueData?.events
-      .filter((event) => event.status !== "deleted" && event.status !== "draft")
-      .sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-      ) || null;
+  if (!mosqueData) {
+    return <ErrorScreen error="No mosque data found" />;
+  }
 
-  const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(
-    mosqueData?.info || null,
-  );
-  const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(events);
-  const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(
-    mosqueData?.prayerTimes || null,
-  );
-  const [mosqueAnnouncements, setMosqueAnnouncements] = useState<
-    Announcement[] | null
-  >(announcements);
-  // Store monthly schedule and jummah times for local recomputation
-  const [monthlySchedule, setMonthlySchedule] = useState<DBPrayerTimes | null>(
-    mosqueData?.monthlyPrayerSchedule || null,
-  );
-  const [jummahTimes, setJummahTimes] = useState<JummahTime | null>(
-    mosqueData?.jummahTimes || null,
-  );
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  const displayedEvents = useMemo(() => {
+    return mosqueData.events.filter(
+      e => new Date(e.date) > new Date()
+    );
+  }, [mosqueData.events]);
+
+  const displayedAnnouncements = useMemo(() => {
+    return mosqueData.announcements.filter(
+      a => new Date(a.created_at) > oneWeekAgo
+    );
+  }, [mosqueData.announcements]);
+
+  const updatedPrayerTimes = useMemo(() => ({
+    ...mosqueData.prayerTimes,
+    nextPrayer: getNextPrayer(mosqueData.prayerTimes),
+  }), [mosqueData.prayerTimes]);
+  
 
   useNotifications();
 
-  // gets updated prayer times
-  const getUpdatedPrayerTimes = () => {
-    if (mosquePrayerTimes) {
-      const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
-      return {
-        ...mosquePrayerTimes,
-        nextPrayer: updatedPrayerTimes,
-      };
-    }
-    return mosquePrayerTimes;
-  };
-
-  const setMosqueDataState = (mosqueData: ProcessedMosqueData) => {
-    setMosqueInfo(mosqueData.info);
-    setMosqueEvents(
-      mosqueData.events.filter(
-        (event) => event.status !== "deleted" && event.status !== "draft",
-      ),
-    );
-    setMosquePrayerTimes(mosqueData.prayerTimes);
-    // Store monthly schedule and jummah times for local recomputation
-    setMonthlySchedule(mosqueData.monthlyPrayerSchedule);
-    setJummahTimes(mosqueData.jummahTimes);
-    const announcements = mosqueData.announcements
-      .filter(
-        (announcement) =>
-          announcement.status !== "deleted" && announcement.status !== "draft",
-      )
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      );
-    setMosqueAnnouncements(announcements);
-  };
-
-  // fetches mosque data if it doesn't exist
-  useEffect(() => {
-    if (!mosqueData) {
-      const fetchData = async () => {
-        const fetchedData = await fetchMosqueInfo();
-        if (fetchedData) {
-          setMosqueDataState(fetchedData);
-        }
-      };
-      fetchData();
-    }
-  }, [mosqueData]);
-
-  // Update local state when context mosqueData changes
-  useEffect(() => {
-    if (mosqueData) {
-      setMosqueDataState(mosqueData);
-    }
-  }, [mosqueData]);
-
-  // Refreshes prayer times when app is brought back to life
-  // Uses stored monthly schedule to recompute today's times locally
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (state) => {
-      if (state === "active") {
-        // Recompute prayer times from stored monthly schedule
-        if (monthlySchedule && jummahTimes) {
-          const freshPrayerTimes = getTodaysPrayerTimes(monthlySchedule, jummahTimes);
-          if (freshPrayerTimes) {
-            setMosquePrayerTimes(freshPrayerTimes);
-          }
-        }
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [monthlySchedule, jummahTimes]);
-
-  if (
-    !mosqueInfo ||
-    !mosquePrayerTimes ||
-    !mosqueEvents ||
-    !mosqueAnnouncements
-  ) {
-    return (
-      <ScrollContainer name={mosqueInfo?.name || ""}>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#5B4B94" />
-          <Text className="text-text mt-4 font-lato-regular">
-            Loading mosque information...
-          </Text>
-        </View>
-      </ScrollContainer>
-    );
-  }
-
   const generalMosqueInfo = {
-    address: mosqueInfo.address,
-    hours: mosqueInfo.hours,
-    events: mosqueEvents,
+    address: mosqueData.info.address,
+    hours: mosqueData.info.hours,
+    events: displayedEvents,
   };
 
   return (
-    <ScrollContainer name={mosqueInfo.name}>
+    <ScrollContainer name={mosqueData.info.name}>
       <View className="flex-1 items-center justify-start">
-        {/* Mosque Info Token with entrance animation */}
+        {/* Mosque Info Token */}
         <MotiView
           from={{ opacity: 0, translateY: 50, scale: 0.9 }}
           animate={{ opacity: 1, translateY: 0, scale: 1 }}
@@ -202,9 +80,7 @@ export default function Home() {
               href={{
                 pathname: "/prayer",
                 params: {
-                  prayerTimes: mosquePrayerTimes
-                    ? JSON.stringify(getUpdatedPrayerTimes())
-                    : "{}",
+                  prayerTimes: JSON.stringify(updatedPrayerTimes)
                 },
               }}
             >
@@ -214,7 +90,7 @@ export default function Home() {
             </Link>
           </View>
           <PrayerToken
-            prayerTimes={getUpdatedPrayerTimes() || mosquePrayerTimes}
+            prayerTimes={updatedPrayerTimes}
           />
         </MotiView>
 
@@ -234,7 +110,7 @@ export default function Home() {
               href={{
                 pathname: "/announcements",
                 params: {
-                  announcements: JSON.stringify(mosqueAnnouncements),
+                  announcements: JSON.stringify(mosqueData.announcements),
                 },
               }}
             >
@@ -243,10 +119,7 @@ export default function Home() {
               </Text>
             </Link>
           </View>
-          {mosqueAnnouncements.length === 0 && (
-            <EmptyToken type="announcements" />
-          )}
-          <AnnouncementsCarousel announcements={mosqueAnnouncements} />
+          <AnnouncementsCarousel announcements={displayedAnnouncements} />
         </MotiView>
 
         {/* Events Section */}
@@ -265,15 +138,7 @@ export default function Home() {
               href={{
                 pathname: "/events",
                 params: {
-                  events: mosqueEvents
-                    ? JSON.stringify(
-                        mosqueEvents.filter(
-                          (event) =>
-                            event.status !== "deleted" &&
-                            event.status !== "draft",
-                        ),
-                      )
-                    : "[]",
+                  events: JSON.stringify(mosqueData.events)
                 },
               }}
             >
@@ -282,18 +147,10 @@ export default function Home() {
               </Text>
             </Link>
           </View>
-          {mosqueEvents
-            .filter(
-              (event) => event.status !== "deleted" && event.status !== "draft",
-            )
-            .filter((event) => new Date(event.date) > new Date())
-            .sort(
-              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-            )
-            .slice(0, 2)
+          {displayedEvents
             .map((event, index) => (
               <MotiView
-                key={event.title}
+                key={index}
                 from={{ opacity: 0, translateX: -50 }}
                 animate={{ opacity: 1, translateX: 0 }}
                 transition={{
@@ -304,10 +161,10 @@ export default function Home() {
                 }}
                 className="w-full items-center"
               >
-                <EventToken event={{ ...event, mosqueName: mosqueInfo.name }} />
+                <EventToken event={{ ...event, mosqueName: mosqueData.info.name }} />
               </MotiView>
             ))}
-          {mosqueEvents.length === 0 && <EmptyToken type="events" />}
+          {displayedEvents.length === 0 && <EmptyToken type="events" />}
         </MotiView>
       </View>
     </ScrollContainer>

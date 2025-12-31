@@ -32,8 +32,6 @@ import {
   View
 } from "react-native";
 
-
-// Types for settings
 type SettingsType = {
   events: {
     enabled: boolean;
@@ -69,7 +67,6 @@ export default function Settings() {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prayerNotificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Check notification permissions
   useEffect(() => {
     const checkNotificationPermissions = async () => {
       try {
@@ -104,7 +101,6 @@ export default function Settings() {
               }),
             });
 
-            // Check if response has content before parsing
             const text = await response.text();
             if (text) {
               const data = JSON.parse(text);
