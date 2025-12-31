@@ -8,7 +8,6 @@ import Loading from "@/app/components/Loading";
 import PrayerWarning from "./components/PrayerWarning";
 import PrayerProgress from "./components/PrayerProgress";
 import PrayerList from "./components/PrayerList";
-import { useMosqueData } from "@/app/_layout";
 
 /**
  * Prayer page component

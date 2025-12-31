@@ -39,21 +39,23 @@ export default function EventsList({ events }: EventsListProps) {
         </MotiView>
       )}
 
-      {events && events.length > 0 && events.map((event, idx) => (
-        <MotiView
-          key={`${event.id}-${event.date}-${idx}`}
-          from={{ opacity: 0, translateX: -20, scale: 0.95 }}
-          animate={{ opacity: 1, translateX: 0, scale: 1 }}
-          transition={{
-            type: "spring",
-            ...ANIMATION_CONFIG.SPRING_STIFF,
-            delay: 100 + idx * 100,
-          }}
-          style={{ overflow: "visible" }}
-        >
-          <EventToken event={{ ...event, mosqueName: "Filler" }} />
-        </MotiView>
-      ))}
+      {events &&
+        events.length > 0 &&
+        events.map((event, idx) => (
+          <MotiView
+            key={`${event.id}-${event.date}-${idx}`}
+            from={{ opacity: 0, translateX: -20, scale: 0.95 }}
+            animate={{ opacity: 1, translateX: 0, scale: 1 }}
+            transition={{
+              type: "spring",
+              ...ANIMATION_CONFIG.SPRING_STIFF,
+              delay: 100 + idx * 100,
+            }}
+            style={{ overflow: "visible" }}
+          >
+            <EventToken event={{ ...event, mosqueName: "Filler" }} />
+          </MotiView>
+        ))}
     </ScrollView>
   );
 }

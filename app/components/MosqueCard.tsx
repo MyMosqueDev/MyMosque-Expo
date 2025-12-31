@@ -1,16 +1,15 @@
 import { useMosqueData } from "@/app/_layout";
 import { MosqueInfo, UserData } from "@/lib/types";
 import { fetchMosqueInfo } from "@/lib/utils";
-import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import {
-    ImageBackground,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ImageBackground,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import MapView from "react-native-maps";
 

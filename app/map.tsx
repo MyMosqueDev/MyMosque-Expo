@@ -2,14 +2,18 @@ import { useDevMode } from "@/lib/devMode";
 import { MotiView } from "moti";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import MapView, { Marker, Region } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import Container from "../components/Container";
 import { supabase } from "../lib/supabase";
 import { MosqueInfo, UserData } from "../lib/types";
 import MosqueCard from "./components/MosqueCard";
 import ErrorScreen from "./components/ErrorScreen";
 
-export default function Map({setUserData}: { setUserData?: (userData: UserData) => void}) {
+export default function Map({
+  setUserData,
+}: {
+  setUserData?: (userData: UserData) => void;
+}) {
   const { isDevMode } = useDevMode();
   const [allMosques, setAllMosques] = useState<MosqueInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +24,7 @@ export default function Map({setUserData}: { setUserData?: (userData: UserData) 
     longitude: -97.744386,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
-  }
+  };
 
   useEffect(() => {
     const getMosques = async () => {
@@ -48,16 +52,12 @@ export default function Map({setUserData}: { setUserData?: (userData: UserData) 
   }, [isDevMode]);
 
   const mosques = useMemo(
-    () => isDevMode
-      ? allMosques
-      : allMosques.filter(m => m.id !== '2'),
-    [allMosques, isDevMode]
+    () => (isDevMode ? allMosques : allMosques.filter((m) => m.id !== "2")),
+    [allMosques, isDevMode],
   );
 
   if (error) {
-    return (
-      <ErrorScreen error={error} />
-    );
+    return <ErrorScreen error={error} />;
   }
 
   return (

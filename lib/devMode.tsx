@@ -2,7 +2,13 @@
 // Global state management for developer mode across the app
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
 const DEV_MODE_STORAGE_KEY = "devModeEnabled";
 const DEV_PASSWORD = "dev2025";
@@ -47,7 +53,10 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
   // Save dev mode state when it changes
   const setDevMode = async (enabled: boolean) => {
     try {
-      await AsyncStorage.setItem(DEV_MODE_STORAGE_KEY, enabled ? "true" : "false");
+      await AsyncStorage.setItem(
+        DEV_MODE_STORAGE_KEY,
+        enabled ? "true" : "false",
+      );
       setIsDevMode(enabled);
     } catch (error) {
       console.error("Error saving dev mode state:", error);
@@ -69,9 +78,10 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <DevModeContext.Provider value={{ isDevMode, setDevMode, toggleDevMode, isLoading }}>
+    <DevModeContext.Provider
+      value={{ isDevMode, setDevMode, toggleDevMode, isLoading }}
+    >
       {children}
     </DevModeContext.Provider>
   );
 };
-

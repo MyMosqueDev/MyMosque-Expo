@@ -57,17 +57,32 @@ const getPrayerOrder = (prayerTimes: PrayerTime): Prayer[] => {
 
     // Insert Jummah prayers after Fajr
     const jummahPrayers: JummahPrayer[] = [
-      { key: "jummah1", label: "Jummah 1", isJummah: true, jummahKey: "jummah1" },
+      {
+        key: "jummah1",
+        label: "Jummah 1",
+        isJummah: true,
+        jummahKey: "jummah1",
+      },
     ];
 
     // Add second Jummah if it exists
     if (prayerTimes.jummah.jummah2) {
-      jummahPrayers.push({ key: "jummah2", label: "Jummah 2", isJummah: true, jummahKey: "jummah2" });
+      jummahPrayers.push({
+        key: "jummah2",
+        label: "Jummah 2",
+        isJummah: true,
+        jummahKey: "jummah2",
+      });
     }
 
     // Add third Jummah if it exists
     if (prayerTimes.jummah.jummah3) {
-      jummahPrayers.push({ key: "jummah3", label: "Jummah 3", isJummah: true, jummahKey: "jummah3" });
+      jummahPrayers.push({
+        key: "jummah3",
+        label: "Jummah 3",
+        isJummah: true,
+        jummahKey: "jummah3",
+      });
     }
 
     return [
@@ -94,7 +109,11 @@ const getPrayerOrder = (prayerTimes: PrayerTime): Prayer[] => {
  *
  * @param prayerTimes - The prayer times to display
  */
-export default function PrayerList({prayerTimes,}: { prayerTimes: PrayerTime;}) {
+export default function PrayerList({
+  prayerTimes,
+}: {
+  prayerTimes: PrayerTime;
+}) {
   console.log("prayerTimes --", prayerTimes);
   return (
     <MotiView
@@ -121,7 +140,7 @@ export default function PrayerList({prayerTimes,}: { prayerTimes: PrayerTime;}) 
       {getPrayerOrder(prayerTimes).map((prayer, idx) => {
         const isCurrent = prayer.key === prayerTimes.nextPrayer.name;
         const { adhan, iqama } = getPrayerTimes(prayer, prayerTimes);
-        console.log(prayer)
+        console.log(prayer);
         return (
           <MotiView
             key={prayer.key}

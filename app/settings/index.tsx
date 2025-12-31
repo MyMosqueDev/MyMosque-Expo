@@ -29,7 +29,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 type SettingsType = {
@@ -65,7 +65,9 @@ export default function Settings() {
   const [devPassword, setDevPassword] = useState("");
   const [showDevInput, setShowDevInput] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const prayerNotificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prayerNotificationTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   useEffect(() => {
     const checkNotificationPermissions = async () => {
@@ -115,7 +117,7 @@ export default function Settings() {
         }
         await updatePushToken();
       };
-    }, [])
+    }, []),
   );
 
   // Load settings and mosque info
@@ -150,21 +152,27 @@ export default function Settings() {
   }, []);
 
   // Debounced save settings to AsyncStorage
-  const debouncedSaveSettings = useCallback(async (newSettings: SettingsType) => {
-    // Clear existing timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    // Set new timeout
-    saveTimeoutRef.current = setTimeout(async () => {
-      try {
-        await AsyncStorage.setItem("appSettings", JSON.stringify(newSettings));
-      } catch (error) {
-        console.error("Error saving settings:", error);
+  const debouncedSaveSettings = useCallback(
+    async (newSettings: SettingsType) => {
+      // Clear existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
-    }, 300);
-  }, []);
+
+      // Set new timeout
+      saveTimeoutRef.current = setTimeout(async () => {
+        try {
+          await AsyncStorage.setItem(
+            "appSettings",
+            JSON.stringify(newSettings),
+          );
+        } catch (error) {
+          console.error("Error saving settings:", error);
+        }
+      }, 300);
+    },
+    [],
+  );
 
   // Update individual setting
   const updateSetting = useCallback(
@@ -266,7 +274,7 @@ export default function Settings() {
         }
       }, 500);
     },
-    [mosqueId, mosqueInfo?.name]
+    [mosqueId, mosqueInfo?.name],
   );
 
   // Toggle main prayer notifications switch
@@ -275,7 +283,7 @@ export default function Settings() {
       const newSettings = { ...prayerNotificationSettings, enabled };
       updatePrayerNotificationSettings(newSettings);
     },
-    [prayerNotificationSettings, updatePrayerNotificationSettings]
+    [prayerNotificationSettings, updatePrayerNotificationSettings],
   );
 
   // Toggle individual prayer notification
@@ -287,7 +295,7 @@ export default function Settings() {
       };
       updatePrayerNotificationSettings(newSettings);
     },
-    [prayerNotificationSettings, updatePrayerNotificationSettings]
+    [prayerNotificationSettings, updatePrayerNotificationSettings],
   );
 
   // Toggle jummah notification
@@ -299,7 +307,7 @@ export default function Settings() {
       };
       updatePrayerNotificationSettings(newSettings);
     },
-    [prayerNotificationSettings, updatePrayerNotificationSettings]
+    [prayerNotificationSettings, updatePrayerNotificationSettings],
   );
 
   // Cleanup timeout on unmount
@@ -572,11 +580,16 @@ export default function Settings() {
                                   : "Jummah 1"}
                               </Text>
                               <Switch
-                                value={prayerNotificationSettings.jummah.jummah1}
+                                value={
+                                  prayerNotificationSettings.jummah.jummah1
+                                }
                                 onValueChange={(value) =>
                                   toggleJummahNotification("jummah1", value)
                                 }
-                                trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                                trackColor={{
+                                  false: "#E5E7EB",
+                                  true: "#5B4B94",
+                                }}
                                 thumbColor="#FFFFFF"
                                 ios_backgroundColor="#E5E7EB"
                               />
@@ -590,11 +603,16 @@ export default function Settings() {
                                 Jummah 2
                               </Text>
                               <Switch
-                                value={prayerNotificationSettings.jummah.jummah2}
+                                value={
+                                  prayerNotificationSettings.jummah.jummah2
+                                }
                                 onValueChange={(value) =>
                                   toggleJummahNotification("jummah2", value)
                                 }
-                                trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                                trackColor={{
+                                  false: "#E5E7EB",
+                                  true: "#5B4B94",
+                                }}
                                 thumbColor="#FFFFFF"
                                 ios_backgroundColor="#E5E7EB"
                               />
@@ -608,11 +626,16 @@ export default function Settings() {
                                 Jummah 3
                               </Text>
                               <Switch
-                                value={prayerNotificationSettings.jummah.jummah3}
+                                value={
+                                  prayerNotificationSettings.jummah.jummah3
+                                }
                                 onValueChange={(value) =>
                                   toggleJummahNotification("jummah3", value)
                                 }
-                                trackColor={{ false: "#E5E7EB", true: "#5B4B94" }}
+                                trackColor={{
+                                  false: "#E5E7EB",
+                                  true: "#5B4B94",
+                                }}
                                 thumbColor="#FFFFFF"
                                 ios_backgroundColor="#E5E7EB"
                               />
@@ -879,7 +902,7 @@ export default function Settings() {
                   )}
                 </View>
               </MotiView>
-            </MotiView> 
+            </MotiView>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

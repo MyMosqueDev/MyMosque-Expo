@@ -31,37 +31,39 @@ export type PrayerNotificationSettings = {
   };
 };
 
-export const DEFAULT_PRAYER_NOTIFICATION_SETTINGS: PrayerNotificationSettings = {
-  enabled: false,
-  prayers: {
-    fajr: true,
-    dhuhr: true,
-    asr: true,
-    maghrib: true,
-    isha: true,
-  },
-  jummah: {
-    jummah1: true,
-    jummah2: true,
-    jummah3: true,
-  },
-};
+export const DEFAULT_PRAYER_NOTIFICATION_SETTINGS: PrayerNotificationSettings =
+  {
+    enabled: false,
+    prayers: {
+      fajr: true,
+      dhuhr: true,
+      asr: true,
+      maghrib: true,
+      isha: true,
+    },
+    jummah: {
+      jummah1: true,
+      jummah2: true,
+      jummah3: true,
+    },
+  };
 
 // Storage helpers
-export const loadPrayerNotificationSettings = (): PrayerNotificationSettings => {
-  try {
-    const settingsString = storage.getString(PRAYER_NOTIFICATION_STORAGE_KEY);
-    if (settingsString) {
-      return JSON.parse(settingsString);
+export const loadPrayerNotificationSettings =
+  (): PrayerNotificationSettings => {
+    try {
+      const settingsString = storage.getString(PRAYER_NOTIFICATION_STORAGE_KEY);
+      if (settingsString) {
+        return JSON.parse(settingsString);
+      }
+    } catch (error) {
+      console.error("Error loading prayer notification settings:", error);
     }
-  } catch (error) {
-    console.error("Error loading prayer notification settings:", error);
-  }
-  return DEFAULT_PRAYER_NOTIFICATION_SETTINGS;
-};
+    return DEFAULT_PRAYER_NOTIFICATION_SETTINGS;
+  };
 
 export const savePrayerNotificationSettings = (
-  settings: PrayerNotificationSettings
+  settings: PrayerNotificationSettings,
 ): void => {
   try {
     storage.set(PRAYER_NOTIFICATION_STORAGE_KEY, JSON.stringify(settings));
@@ -77,13 +79,13 @@ export const cancelAllPrayerNotifications = async (): Promise<void> => {
       await Notifications.getAllScheduledNotificationsAsync();
 
     const prayerNotifications = scheduledNotifications.filter((notification) =>
-      notification.identifier.startsWith(PRAYER_NOTIFICATION_PREFIX)
+      notification.identifier.startsWith(PRAYER_NOTIFICATION_PREFIX),
     );
 
     await Promise.all(
       prayerNotifications.map((notification) =>
-        Notifications.cancelScheduledNotificationAsync(notification.identifier)
-      )
+        Notifications.cancelScheduledNotificationAsync(notification.identifier),
+      ),
     );
 
     console.log(`Cancelled ${prayerNotifications.length} prayer notifications`);
@@ -118,7 +120,7 @@ const parseTime = (timeStr: string): { hours: number; minutes: number } => {
 const subtractMinutes = (
   hours: number,
   minutes: number,
-  minutesToSubtract: number
+  minutesToSubtract: number,
 ): { hours: number; minutes: number } => {
   let totalMinutes = hours * 60 + minutes - minutesToSubtract;
   if (totalMinutes < 0) {
@@ -136,7 +138,7 @@ const scheduleNotification = async (
   title: string,
   body: string,
   date: Date,
-  data: Record<string, any>
+  data: Record<string, any>,
 ): Promise<void> => {
   // Don't schedule notifications in the past
   if (date <= new Date()) {
@@ -168,12 +170,12 @@ const scheduleNotification = async (
 // Main function to schedule prayer notifications
 export const schedulePrayerNotifications = async (
   mosqueId: string,
-  mosqueName: string
+  mosqueName: string,
 ): Promise<void> => {
   try {
     // Load settings
     const settings = loadPrayerNotificationSettings();
-    
+
     // If notifications are disabled, cancel all and return
     if (!settings.enabled) {
       await cancelAllPrayerNotifications();
@@ -191,7 +193,8 @@ export const schedulePrayerNotifications = async (
     }
 
     const mosqueData = JSON.parse(mosqueDataString);
-    const monthlySchedule: DBPrayerTimes | null = mosqueData.monthlyPrayerSchedule;
+    const monthlySchedule: DBPrayerTimes | null =
+      mosqueData.monthlyPrayerSchedule;
     const jummahTimes: JummahTime | null = mosqueData.jummahTimes;
 
     if (!monthlySchedule || !monthlySchedule.prayer_times) {
@@ -211,15 +214,24 @@ export const schedulePrayerNotifications = async (
 
     let scheduledCount = 0;
 
-    for (let dayIndex = currentDay - 1; dayIndex < monthlySchedule.prayer_times.length; dayIndex++) {
+    for (
+      let dayIndex = currentDay - 1;
+      dayIndex < monthlySchedule.prayer_times.length;
+      dayIndex++
+    ) {
       const dayData = monthlySchedule.prayer_times[dayIndex];
       const dayOfMonth = parseInt(dayData.day, 10);
-      const isFriday = new Date(currentYear, currentMonth, dayOfMonth).getDay() === 5;
+      const isFriday =
+        new Date(currentYear, currentMonth, dayOfMonth).getDay() === 5;
 
       // Schedule regular prayers (skip Dhuhr on Fridays if Jummah is enabled)
       for (const prayer of prayersToSchedule) {
         // Skip Dhuhr on Fridays if any Jummah is enabled
-        if (prayer === "dhuhr" && isFriday && Object.values(settings.jummah).some(Boolean)) {
+        if (
+          prayer === "dhuhr" &&
+          isFriday &&
+          Object.values(settings.jummah).some(Boolean)
+        ) {
           continue;
         }
 
@@ -230,25 +242,37 @@ export const schedulePrayerNotifications = async (
 
         // Schedule 15 minutes before iqama
         const before15 = subtractMinutes(hours, minutes, 15);
-        const date15Before = new Date(currentYear, currentMonth, dayOfMonth, before15.hours, before15.minutes);
-        
+        const date15Before = new Date(
+          currentYear,
+          currentMonth,
+          dayOfMonth,
+          before15.hours,
+          before15.minutes,
+        );
+
         await scheduleNotification(
           `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${prayer}-15min`,
           `15 minutes until ${formatPrayerName(prayer)}`,
           `${formatPrayerName(prayer)} iqama at ${mosqueName}`,
           date15Before,
-          { prayer, mosqueId, notificationType: "15min" }
+          { prayer, mosqueId, notificationType: "15min" },
         );
 
         // Schedule at iqama time
-        const dateIqama = new Date(currentYear, currentMonth, dayOfMonth, hours, minutes);
-        
+        const dateIqama = new Date(
+          currentYear,
+          currentMonth,
+          dayOfMonth,
+          hours,
+          minutes,
+        );
+
         await scheduleNotification(
           `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${prayer}-iqama`,
           `${formatPrayerName(prayer)} at ${mosqueName}`,
           `Iqama time for ${formatPrayerName(prayer)}`,
           dateIqama,
-          { prayer, mosqueId, notificationType: "iqama" }
+          { prayer, mosqueId, notificationType: "iqama" },
         );
 
         scheduledCount += 2;
@@ -256,7 +280,10 @@ export const schedulePrayerNotifications = async (
 
       // Schedule Jummah on Fridays
       if (isFriday && jummahTimes) {
-        const jummahEntries: Array<{ key: keyof typeof settings.jummah; data: { athan: string; iqama: string } | undefined }> = [
+        const jummahEntries: Array<{
+          key: keyof typeof settings.jummah;
+          data: { athan: string; iqama: string } | undefined;
+        }> = [
           { key: "jummah1", data: jummahTimes.jummah1 },
           { key: "jummah2", data: jummahTimes.jummah2 },
           { key: "jummah3", data: jummahTimes.jummah3 },
@@ -269,25 +296,37 @@ export const schedulePrayerNotifications = async (
 
           // Schedule 15 minutes before iqama
           const before15 = subtractMinutes(hours, minutes, 15);
-          const date15Before = new Date(currentYear, currentMonth, dayOfMonth, before15.hours, before15.minutes);
-          
+          const date15Before = new Date(
+            currentYear,
+            currentMonth,
+            dayOfMonth,
+            before15.hours,
+            before15.minutes,
+          );
+
           await scheduleNotification(
             `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${key}-15min`,
             `${mosqueName}`,
             `15 minutes until ${formatPrayerName(key)} at ${mosqueName}`,
             date15Before,
-            { prayer: key, mosqueId, notificationType: "15min" }
+            { prayer: key, mosqueId, notificationType: "15min" },
           );
 
           // Schedule at iqama time
-          const dateIqama = new Date(currentYear, currentMonth, dayOfMonth, hours, minutes);
-          
+          const dateIqama = new Date(
+            currentYear,
+            currentMonth,
+            dayOfMonth,
+            hours,
+            minutes,
+          );
+
           await scheduleNotification(
             `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${key}-iqama`,
             `${mosqueName}`,
             `Time for ${formatPrayerName(key)} at ${mosqueName}`,
             dateIqama,
-            { prayer: key, mosqueId, notificationType: "iqama" }
+            { prayer: key, mosqueId, notificationType: "iqama" },
           );
 
           scheduledCount += 2;
@@ -295,7 +334,9 @@ export const schedulePrayerNotifications = async (
       }
     }
 
-    console.log(`Scheduled ${scheduledCount} prayer notifications for ${mosqueName}`);
+    console.log(
+      `Scheduled ${scheduledCount} prayer notifications for ${mosqueName}`,
+    );
   } catch (error) {
     console.error("Error scheduling prayer notifications:", error);
   }

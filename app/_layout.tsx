@@ -1,5 +1,8 @@
 import { DevModeProvider } from "@/lib/devMode";
-import { loadPrayerNotificationSettings, schedulePrayerNotifications } from "@/lib/prayerNotifications";
+import {
+  loadPrayerNotificationSettings,
+  schedulePrayerNotifications,
+} from "@/lib/prayerNotifications";
 import { getTodaysPrayerTimes } from "@/lib/prayerTimeUtils";
 import { ProcessedMosqueData } from "@/lib/types";
 import { Stack } from "expo-router";
@@ -47,7 +50,9 @@ export const useMosqueData = () => useContext(MosqueDataContext);
 export default function RootLayout() {
   const [appPreparing, setAppPreparing] = useState<boolean>(false);
   const [isMapVisible, setIsMapVisible] = useState<boolean>(false);
-  const [mosqueData, setMosqueData] = useState<ProcessedMosqueData | null>(null);
+  const [mosqueData, setMosqueData] = useState<ProcessedMosqueData | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const mosqueDataRef = useRef<ProcessedMosqueData | null>(null);
 
@@ -67,18 +72,28 @@ export default function RootLayout() {
 
         console.log("Fetching mosque info...");
         const fetchedMosqueData = await fetchMosqueInfo();
-        console.log("Mosque data fetched:", fetchedMosqueData ? "success" : "null");
+        console.log(
+          "Mosque data fetched:",
+          fetchedMosqueData ? "success" : "null",
+        );
 
         if (fetchedMosqueData) {
           setMosqueData(fetchedMosqueData);
 
           const prayerNotificationSettings = loadPrayerNotificationSettings();
-          if (prayerNotificationSettings.enabled && fetchedMosqueData.info.uid && fetchedMosqueData.info.name) {
+          if (
+            prayerNotificationSettings.enabled &&
+            fetchedMosqueData.info.uid &&
+            fetchedMosqueData.info.name
+          ) {
             schedulePrayerNotifications(
               fetchedMosqueData.info.uid,
-              fetchedMosqueData.info.name
+              fetchedMosqueData.info.name,
             ).catch((error) =>
-              console.error("Error scheduling prayer notifications on startup:", error)
+              console.error(
+                "Error scheduling prayer notifications on startup:",
+                error,
+              ),
             );
           }
         }
@@ -90,11 +105,10 @@ export default function RootLayout() {
         setError(
           error instanceof Error ? error.message : "Unknown error occurred",
         );
-        await SplashScreen.hideAsync();;
+        await SplashScreen.hideAsync();
       }
       setAppPreparing(false);
     }
-
 
     function refreshPrayerTimesLocally() {
       const currentData = mosqueDataRef.current;
@@ -108,7 +122,9 @@ export default function RootLayout() {
             ...currentData,
             prayerTimes: freshPrayerTimes,
           });
-          console.log("Prayer times refreshed locally from stored monthly schedule");
+          console.log(
+            "Prayer times refreshed locally from stored monthly schedule",
+          );
         }
       }
     }
@@ -133,9 +149,7 @@ export default function RootLayout() {
   }
 
   if (error) {
-    return (
-      <ErrorScreen error={error || "Unknown error occurred"} />
-    );
+    return <ErrorScreen error={error || "Unknown error occurred"} />;
   }
 
   return (
@@ -150,7 +164,10 @@ export default function RootLayout() {
             >
               <View style={{ flex: 1 }}>
                 <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
                   <Stack.Screen
                     name="map"
                     options={{

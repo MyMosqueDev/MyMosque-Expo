@@ -6,7 +6,16 @@ import { parseISO } from "date-fns";
 import { useLocalSearchParams } from "expo-router";
 import { MotiView } from "moti";
 import { useState } from "react";
-import { Dimensions, Image, ImageBackground, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ImageBackground,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { format } from "../../lib/dateUtils";
 
 export default function EventDetails() {
@@ -14,12 +23,12 @@ export default function EventDetails() {
   const eventData: Event = JSON.parse(params.eventData as string);
   const date = format(parseISO(eventData.date), "EEEE, MMMM do");
   const time = format(parseISO(eventData.date), "h:mm a");
-  
+
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false);
-  
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
   return (
     <ImageBackground
@@ -42,8 +51,8 @@ export default function EventDetails() {
           transition={{ type: "spring", ...ANIMATION_CONFIG.SPRING_STIFF }}
           delay={50}
         >
-          <TouchableOpacity 
-            className="w-full mb-4 rounded-lg overflow-hidden bg-gray-100" 
+          <TouchableOpacity
+            className="w-full mb-4 rounded-lg overflow-hidden bg-gray-100"
             style={{ aspectRatio: 1 }}
             onPress={() => setImageModalVisible(true)}
             activeOpacity={0.8}
@@ -56,19 +65,23 @@ export default function EventDetails() {
                 </View>
               </View>
             )}
-            
+
             {/* Error state */}
             {imageError && (
               <View className="absolute inset-0 bg-gradient-to-br from-red-100 via-red-200 to-red-300">
                 <View className="flex-1 items-center justify-center">
-                  <MaterialIcons name="broken-image" size={48} color="#DC2626" />
+                  <MaterialIcons
+                    name="broken-image"
+                    size={48}
+                    color="#DC2626"
+                  />
                   <Text className="text-red-600 mt-2 font-lato text-center px-4">
                     Failed to load image
                   </Text>
                 </View>
               </View>
             )}
-            
+
             {/* Actual image */}
             <Image
               source={{ uri: eventData.image }}
@@ -86,7 +99,7 @@ export default function EventDetails() {
                 setImageError(true);
               }}
             />
-            
+
             {/* Pressable icon indicator */}
             {!imageLoading && !imageError && (
               <View className="absolute bottom-3 left-3">
@@ -185,7 +198,7 @@ export default function EventDetails() {
           </MotiView>
         </View>
       </ScrollView>
-      
+
       {/* Full-screen image modal */}
       <Modal
         visible={imageModalVisible}
@@ -208,7 +221,7 @@ export default function EventDetails() {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          
+
           {/* Close button */}
           <TouchableOpacity
             className="absolute top-12 right-6 bg-black/50 rounded-full p-3"
