@@ -14,13 +14,12 @@ export default function Header({
   title,
 }: {
   name: string;
-  type: string;
+  type: "default" | "event" | "settings" | "error"
   title: string | null;
 }) {
   const { mosqueData } = useMosqueData();
   const [showContactModal, setShowContactModal] = useState(false);
   name = mosqueData?.info.name || name;
-  type = type || "default";
   const contactInfo = mosqueData?.info.contact_info || [];
   const handleContactPress = () => {
     setShowContactModal(true);
@@ -76,5 +75,19 @@ export default function Header({
         <View className="w-[24px]" />
       </View>
     );
+  }
+
+  if (type === "error") {
+    return (
+      <View className="w-full flex-row justify-end items-center px-4 pb-3 pt-24 pr-6">
+        <TouchableOpacity onPress={() => router.replace("/map")}>
+            <MaterialCommunityIcons
+              name="swap-horizontal"
+              size={30}
+              color="#4A4A4A"
+            />
+          </TouchableOpacity>
+      </View>
+    )
   }
 }

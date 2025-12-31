@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dimensions, FlatList, View } from "react-native";
 import { Announcement } from "../../lib/types";
 import AnnouncementToken from "./AnnouncementToken";
+import EmptyToken from "./EmptyToken";
 
 // sets all dimensions
 const { width: screenWidth } = Dimensions.get("window");
@@ -29,6 +30,7 @@ export default function AnnouncementsCarousel({
   );
 
   const handleScroll = (event: any) => {
+    if (announcements.length === 1) return;
     const contentOffset = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffset / (CARD_WIDTH + CARD_SPACING));
     setCurrentIndex(index);
@@ -37,11 +39,8 @@ export default function AnnouncementsCarousel({
   return (
     <View className="w-full">
       <FlatList
-        data={announcements.filter(
-          (announcement) =>
-            announcement.status !== "deleted" &&
-            announcement.status !== "draft",
-        )}
+        data={announcements}
+        ListEmptyComponent={<EmptyToken type="announcements" />}
         renderItem={renderAnnouncement}
         keyExtractor={(item) => item.id}
         horizontal
@@ -55,16 +54,12 @@ export default function AnnouncementsCarousel({
         className="w-full"
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        scrollEnabled={announcements.length > 1}
       />
 
       {/* page dots */}
       <View className="flex-row justify-center items-center">
         {announcements
-          .filter(
-            (announcement) =>
-              announcement.status !== "deleted" &&
-              announcement.status !== "draft",
-          )
           .map((_, index) => (
             <View
               key={index}

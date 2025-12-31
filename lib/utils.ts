@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Font from "expo-font";
 import { syncStorage } from "./syncStorage";
+import { ProcessedMosqueData } from "./types";
 
 // loads in all the fonts
 export const loadFonts = async () => {
@@ -74,14 +75,38 @@ export const fetchMosqueInfo = async () => {
   if (userDataString) {
     const lastVisitedMosqueId = JSON.parse(userDataString).lastVisitedMosque;
     const mosqueData = await syncStorage(lastVisitedMosqueId);
-    return {
-      ...mosqueData,
-      prayerTimes: mosqueData.prayerTimes,
-    };
+    const filteredMosqueData = filterMosqueData(mosqueData);
+
+    return filteredMosqueData
   }
 
   return null;
 };
+
+const filterMosqueData = (mosqueData: ProcessedMosqueData) => {
+  const announcements =
+    mosqueData.announcements
+      .filter(
+        (announcement) =>
+          announcement.status !== "deleted" && announcement.status !== "draft",
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      ) || [];
+
+  const events =
+    mosqueData.events
+      .filter((event) => event.status !== "deleted" && event.status !== "draft")
+      .sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      ) || [];
+  return {
+    ...mosqueData,
+    announcements: announcements,
+    events: events,
+  };
+}
 
 export const getSeverityStyles = (severity: string) => {
   switch (severity.toLowerCase()) {

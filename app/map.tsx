@@ -1,25 +1,27 @@
 import { useDevMode } from "@/lib/devMode";
 import { MotiView } from "moti";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import Container from "../components/Container";
 import { supabase } from "../lib/supabase";
 import { MosqueInfo, UserData } from "../lib/types";
 import MosqueCard from "./components/MosqueCard";
+import ErrorScreen from "./components/ErrorScreen";
 
-export default function Map({
-  setUserData,
-}: {
-  setUserData?: (userData: UserData) => void;
-}) {
+export default function Map({setUserData}: { setUserData?: (userData: UserData) => void}) {
   const { isDevMode } = useDevMode();
-  const [mosques, setMosques] = useState<MosqueInfo[]>([]);
-  const [initialRegion, setInitialRegion] = useState<Region | null>(null);
+  const [allMosques, setAllMosques] = useState<MosqueInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
   const mapRef = useRef<MapView | null>(null);
 
-  // fetches mosques from supabase
+  const initialRegion = {
+    latitude: 30.283252,
+    longitude: -97.744386,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
+  }
+
   useEffect(() => {
     const getMosques = async () => {
       try {
@@ -34,12 +36,7 @@ export default function Map({
 
         if (data) {
           console.log("Mosques loaded successfully:", data.length);
-          // Show Development Mosque (id === 2) only when dev mode is enabled
-          if (isDevMode) {
-            setMosques(data);
-          } else {
-            setMosques(data.filter((mosque) => mosque.id !== 2));
-          }
+          setAllMosques(data);
         }
       } catch (error) {
         console.error("Error in getMosques:", error);
@@ -48,27 +45,18 @@ export default function Map({
     };
 
     getMosques();
+  }, [isDevMode]);
 
-    setInitialRegion({
-      latitude: 30.283252,
-      longitude: -97.744386,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005,
-    });
-  }, [isDevMode]); // Re-fetch when dev mode changes
+  const mosques = useMemo(
+    () => isDevMode
+      ? allMosques
+      : allMosques.filter(m => m.id !== '2'),
+    [allMosques, isDevMode]
+  );
 
   if (error) {
     return (
-      <Container>
-        <View className="flex-1 flex-col items-center justify-center gap-3">
-          <Text className="text-red-500 text-lg font-lato-bold text-center mb-4">
-            {error}
-          </Text>
-          <Text className="text-text/70 text-sm font-lato text-center">
-            Please check your internet connection and try again
-          </Text>
-        </View>
-      </Container>
+      <ErrorScreen error={error} />
     );
   }
 
@@ -120,9 +108,9 @@ export default function Map({
             showsMyLocationButton={true}
             userInterfaceStyle="dark"
           >
-            {mosques.map((mosque: MosqueInfo, index: number) => (
+            {mosques.map((mosque: MosqueInfo) => (
               <Marker
-                key={`${mosque.name}-${index}`}
+                key={mosque.uid}
                 coordinate={{
                   latitude: mosque.coordinates.latitude,
                   longitude: mosque.coordinates.longitude,
@@ -164,10 +152,10 @@ export default function Map({
             </View> */
             }
             <Text className="text-text/70 text-sm font-lato text-center mb-3">
-              Listed mosques are within our current limited network
+              Listed mosques are within our current limited network{"\n"}
+              Tap to visit a mosque!
             </Text>
           </MotiView>
-
           <ScrollView
             className="w-full flex-1"
             showsVerticalScrollIndicator={false}
