@@ -14,7 +14,7 @@ export default function Header({
   title,
 }: {
   name: string;
-  type: "default" | "event" | "settings" | "error"
+  type: "default" | "event" | "settings" | "error";
   title: string | null;
 }) {
   const { mosqueData } = useMosqueData();
@@ -35,7 +35,11 @@ export default function Header({
           </Text>
           <View className="flex-row items-center gap-5">
             <TouchableOpacity onPress={handleContactPress}>
-                <MaterialCommunityIcons name="information" size={24} color="#4A4A4A" />
+              <MaterialCommunityIcons
+                name="information"
+                size={24}
+                color="#4A4A4A"
+              />
             </TouchableOpacity>
             <Link href={{ pathname: "/settings" }}>
               <MaterialCommunityIcons name="cog" size={24} color="#4A4A4A" />
@@ -81,13 +85,13 @@ export default function Header({
     return (
       <View className="w-full flex-row justify-end items-center px-4 pb-3 pt-24 pr-6">
         <TouchableOpacity onPress={() => router.replace("/map")}>
-            <MaterialCommunityIcons
-              name="swap-horizontal"
-              size={30}
-              color="#4A4A4A"
-            />
-          </TouchableOpacity>
+          <MaterialCommunityIcons
+            name="swap-horizontal"
+            size={30}
+            color="#4A4A4A"
+          />
+        </TouchableOpacity>
       </View>
-    )
+    );
   }
 }

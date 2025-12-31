@@ -1,4 +1,3 @@
-import { to12HourFormat } from "@/lib/utils";
 import { Text, View } from "react-native";
 import { PrayerTime } from "../../lib/types";
 

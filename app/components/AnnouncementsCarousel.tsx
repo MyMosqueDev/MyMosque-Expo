@@ -59,17 +59,16 @@ export default function AnnouncementsCarousel({
 
       {/* page dots */}
       <View className="flex-row justify-center items-center">
-        {announcements
-          .map((_, index) => (
-            <View
-              key={index}
-              className={`mx-1 rounded-full ${
-                index === currentIndex
-                  ? "bg-white/90 w-2 h-2"
-                  : "bg-white/45 w-2 h-2"
-              }`}
-            />
-          ))}
+        {announcements.map((_, index) => (
+          <View
+            key={index}
+            className={`mx-1 rounded-full ${
+              index === currentIndex
+                ? "bg-white/90 w-2 h-2"
+                : "bg-white/45 w-2 h-2"
+            }`}
+          />
+        ))}
       </View>
     </View>
   );

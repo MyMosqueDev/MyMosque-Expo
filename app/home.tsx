@@ -4,9 +4,9 @@ import useNotifications from "@/lib/hooks/useNotifications";
 import { getNextPrayer } from "@/lib/prayerTimeUtils";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Text, View } from "react-native";
-import { Announcement, Event, ProcessedMosqueData } from "../lib/types";
+import { ProcessedMosqueData } from "../lib/types";
 import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import EmptyToken from "./components/EmptyToken";
 import ErrorScreen from "./components/ErrorScreen";
@@ -15,34 +15,36 @@ import MosqueInfoToken from "./components/MosqueInfoToken";
 import PrayerToken from "./components/PrayerToken";
 
 export default function Home() {
-  const { mosqueData } : { mosqueData: ProcessedMosqueData | null } = useMosqueData();
+  const { mosqueData }: { mosqueData: ProcessedMosqueData | null } =
+    useMosqueData();
+
+  useNotifications();
+
+  const displayedEvents = useMemo(() => {
+    if (!mosqueData) return [];
+    return mosqueData.events.filter((e) => new Date(e.date) > new Date());
+  }, [mosqueData]);
+
+  const displayedAnnouncements = useMemo(() => {
+    if (!mosqueData) return [];
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    return mosqueData.announcements.filter(
+      (a) => new Date(a.created_at) > oneWeekAgo,
+    );
+  }, [mosqueData]);
+
+  const updatedPrayerTimes = useMemo(() => {
+    if (!mosqueData) return null;
+    return {
+      ...mosqueData.prayerTimes,
+      nextPrayer: getNextPrayer(mosqueData.prayerTimes),
+    };
+  }, [mosqueData]);
 
   if (!mosqueData) {
     return <ErrorScreen error="No mosque data found" />;
   }
-
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-  const displayedEvents = useMemo(() => {
-    return mosqueData.events.filter(
-      e => new Date(e.date) > new Date()
-    );
-  }, [mosqueData.events]);
-
-  const displayedAnnouncements = useMemo(() => {
-    return mosqueData.announcements.filter(
-      a => new Date(a.created_at) > oneWeekAgo
-    );
-  }, [mosqueData.announcements]);
-
-  const updatedPrayerTimes = useMemo(() => ({
-    ...mosqueData.prayerTimes,
-    nextPrayer: getNextPrayer(mosqueData.prayerTimes),
-  }), [mosqueData.prayerTimes]);
-  
-
-  useNotifications();
 
   const generalMosqueInfo = {
     address: mosqueData.info.address,
@@ -80,7 +82,7 @@ export default function Home() {
               href={{
                 pathname: "/prayer",
                 params: {
-                  prayerTimes: JSON.stringify(updatedPrayerTimes)
+                  prayerTimes: JSON.stringify(updatedPrayerTimes),
                 },
               }}
             >
@@ -89,9 +91,7 @@ export default function Home() {
               </Text>
             </Link>
           </View>
-          <PrayerToken
-            prayerTimes={updatedPrayerTimes}
-          />
+          <PrayerToken prayerTimes={updatedPrayerTimes!} />
         </MotiView>
 
         {/* Announcements Section */}
@@ -138,7 +138,7 @@ export default function Home() {
               href={{
                 pathname: "/events",
                 params: {
-                  events: JSON.stringify(mosqueData.events)
+                  events: JSON.stringify(mosqueData.events),
                 },
               }}
             >
@@ -147,23 +147,24 @@ export default function Home() {
               </Text>
             </Link>
           </View>
-          {displayedEvents
-            .map((event, index) => (
-              <MotiView
-                key={index}
-                from={{ opacity: 0, translateX: -50 }}
-                animate={{ opacity: 1, translateX: 0 }}
-                transition={{
-                  type: "spring",
-                  damping: 15,
-                  stiffness: 100,
-                  delay: 800 + index * 150,
-                }}
-                className="w-full items-center"
-              >
-                <EventToken event={{ ...event, mosqueName: mosqueData.info.name }} />
-              </MotiView>
-            ))}
+          {displayedEvents.map((event, index) => (
+            <MotiView
+              key={index}
+              from={{ opacity: 0, translateX: -50 }}
+              animate={{ opacity: 1, translateX: 0 }}
+              transition={{
+                type: "spring",
+                damping: 15,
+                stiffness: 100,
+                delay: 800 + index * 150,
+              }}
+              className="w-full items-center"
+            >
+              <EventToken
+                event={{ ...event, mosqueName: mosqueData.info.name }}
+              />
+            </MotiView>
+          ))}
           {displayedEvents.length === 0 && <EmptyToken type="events" />}
         </MotiView>
       </View>

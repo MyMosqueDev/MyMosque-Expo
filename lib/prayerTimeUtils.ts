@@ -1,13 +1,25 @@
-import { DBPrayerTimes, DailyPrayerTimes, JummahTime, PrayerTime } from "./types";
+import {
+  DBPrayerTimes,
+  DailyPrayerTimes,
+  JummahTime,
+  PrayerTime,
+} from "./types";
 import { to24HourFormat } from "./utils";
 
-export const getCurrentPrayerTime = (prayerTimesData: DBPrayerTimes, jummahTimes: JummahTime) => {
+export const getCurrentPrayerTime = (
+  prayerTimesData: DBPrayerTimes,
+  jummahTimes: JummahTime,
+) => {
   const now = new Date();
   const date = now.getDate() - 1;
-  const prayerTimes: DBPrayerTimes['prayer_times'] = prayerTimesData.prayer_times;
+  const prayerTimes: DBPrayerTimes["prayer_times"] =
+    prayerTimesData.prayer_times;
   const currentPrayerTime: DailyPrayerTimes = prayerTimes[date].times;
   const mmyy = `${now.getMonth() + 1}-${now.getFullYear().toString().slice(-2)}`;
-  const warning = mmyy !== prayerTimesData["mm-yy"] ? "Current prayer times may be outdated" : null;
+  const warning =
+    mmyy !== prayerTimesData["mm-yy"]
+      ? "Current prayer times may be outdated"
+      : null;
 
   const res: PrayerTime = {
     fajr: currentPrayerTime.fajr,
@@ -25,7 +37,7 @@ export const getCurrentPrayerTime = (prayerTimesData: DBPrayerTimes, jummahTimes
   res.nextPrayer = next;
 
   return res;
-}
+};
 
 // function to get the next prayer time based on current time
 export const getNextPrayer = (prayerTimes: PrayerTime) => {
@@ -134,6 +146,6 @@ export const getTodaysPrayerTimes = (
   if (!monthlySchedule || !jummahTimes) {
     return null;
   }
-  
+
   return getCurrentPrayerTime(monthlySchedule, jummahTimes);
 };

@@ -7,7 +7,7 @@ export default function ScrollContainer({
 }: {
   children: React.ReactNode;
   name: string;
-  type?: "default" | "event" | "settings" | "error"
+  type?: "default" | "event" | "settings" | "error";
 }) {
   return (
     <ImageBackground

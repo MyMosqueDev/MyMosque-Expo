@@ -5,12 +5,16 @@ import { useDevMode } from "@/lib/devMode";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Dimensions } from "react-native";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import Animated, {
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import DebugPanel from "./DebugPanel";
 
@@ -20,9 +24,9 @@ const SCREEN_PADDING = 16;
 export default function FloatingDebugButton() {
   const { isDevMode } = useDevMode();
   const [isPanelVisible, setIsPanelVisible] = useState(false);
-  
+
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-  
+
   // Position state - start at bottom right
   const translateX = useSharedValue(screenWidth - BUTTON_SIZE - SCREEN_PADDING);
   const translateY = useSharedValue(screenHeight - BUTTON_SIZE - 120); // Above nav bar
@@ -49,34 +53,35 @@ export default function FloatingDebugButton() {
         SCREEN_PADDING,
         Math.min(
           screenWidth - BUTTON_SIZE - SCREEN_PADDING,
-          startX.value + event.translationX
-        )
+          startX.value + event.translationX,
+        ),
       );
       translateY.value = Math.max(
         SCREEN_PADDING + 60, // Below status bar
         Math.min(
           screenHeight - BUTTON_SIZE - 120, // Above nav bar
-          startY.value + event.translationY
-        )
+          startY.value + event.translationY,
+        ),
       );
     })
     .onEnd(() => {
       isPressed.value = false;
       scale.value = withSpring(1);
-      
+
       // Snap to nearest edge (left or right)
       const centerX = translateX.value + BUTTON_SIZE / 2;
       if (centerX < screenWidth / 2) {
         translateX.value = withSpring(SCREEN_PADDING);
       } else {
-        translateX.value = withSpring(screenWidth - BUTTON_SIZE - SCREEN_PADDING);
+        translateX.value = withSpring(
+          screenWidth - BUTTON_SIZE - SCREEN_PADDING,
+        );
       }
     });
 
-  const tap = Gesture.Tap()
-    .onEnd(() => {
-      runOnJS(openPanel)();
-    });
+  const tap = Gesture.Tap().onEnd(() => {
+    runOnJS(openPanel)();
+  });
 
   const composed = Gesture.Simultaneous(pan, tap);
 
@@ -95,7 +100,16 @@ export default function FloatingDebugButton() {
 
   return (
     <>
-      <GestureHandlerRootView style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "box-none" }}>
+      <GestureHandlerRootView
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: "box-none",
+        }}
+      >
         <GestureDetector gesture={composed}>
           <Animated.View
             style={[
@@ -121,11 +135,10 @@ export default function FloatingDebugButton() {
         </GestureDetector>
       </GestureHandlerRootView>
 
-      <DebugPanel 
-        visible={isPanelVisible} 
-        onClose={() => setIsPanelVisible(false)} 
+      <DebugPanel
+        visible={isPanelVisible}
+        onClose={() => setIsPanelVisible(false)}
       />
     </>
   );
 }
-

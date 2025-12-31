@@ -19,7 +19,7 @@ export default function LoadingScreen() {
         duration: 1500,
         easing: Easing.linear,
         useNativeDriver: true,
-      })
+      }),
     );
     spinAnimation.start();
 
@@ -37,7 +37,7 @@ export default function LoadingScreen() {
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
     pulseAnimation.start();
 

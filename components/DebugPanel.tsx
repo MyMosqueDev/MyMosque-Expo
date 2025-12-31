@@ -7,37 +7,31 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
-import {
-  Modal,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 type DebugStats = {
   // Notifications
   nextNotification: string;
   totalScheduledNotifications: number;
   notificationsList: Array<{ id: string; title: string; time: string }>;
-  
+
   // Storage
   mmkvKeyCount: number;
   mmkvKeys: string[];
   asyncStorageKeyCount: number;
   asyncStorageKeys: string[];
-  
+
   // App Info
   appVersion: string;
   sdkVersion: string;
   platform: string;
-  
+
   // Sync
   lastSyncTime: string;
   currentMosqueId: string;
   currentMosqueName: string;
   monthlyScheduleMonth: string;
-  
+
   // Cache
   mosqueDataSize: string;
 };
@@ -80,12 +74,13 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
     setIsLoading(true);
     try {
       // Load all stats in parallel
-      const [notificationStats, storageStats, appInfo, syncStats] = await Promise.all([
-        loadNotificationStats(),
-        loadStorageStats(),
-        loadAppInfo(),
-        loadSyncStats(),
-      ]);
+      const [notificationStats, storageStats, appInfo, syncStats] =
+        await Promise.all([
+          loadNotificationStats(),
+          loadStorageStats(),
+          loadAppInfo(),
+          loadSyncStats(),
+        ]);
 
       setStats({
         ...DEFAULT_STATS,
@@ -104,34 +99,34 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
   // Helper to extract date from various trigger formats
   const getTriggerDate = (trigger: any): Date | null => {
     if (!trigger) return null;
-    
+
     // Handle DateTrigger (type: 'date' with value property)
     if (trigger.type === "date" && trigger.value) {
       return new Date(trigger.value);
     }
-    
+
     // Handle direct date property (older format or different trigger type)
     if ("date" in trigger) {
       return new Date(trigger.date);
     }
-    
+
     // Handle timestamp property
     if ("timestamp" in trigger) {
       return new Date(trigger.timestamp);
     }
-    
+
     // Handle seconds property (calendar triggers)
     if ("seconds" in trigger) {
       return new Date(Date.now() + trigger.seconds * 1000);
     }
-    
+
     return null;
   };
 
   const loadNotificationStats = async (): Promise<Partial<DebugStats>> => {
     try {
       const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-      
+
       // Map notifications with their trigger dates
       const withDates = scheduled
         .map((n) => ({
@@ -140,12 +135,14 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
         }))
         .filter((item) => item.triggerDate !== null)
         .sort((a, b) => {
-          return (a.triggerDate?.getTime() || 0) - (b.triggerDate?.getTime() || 0);
+          return (
+            (a.triggerDate?.getTime() || 0) - (b.triggerDate?.getTime() || 0)
+          );
         });
 
       const nextNotif = withDates[0];
       let nextNotificationStr = "None scheduled";
-      
+
       if (nextNotif && nextNotif.triggerDate) {
         const title = nextNotif.notification.content.title || "Notification";
         nextNotificationStr = `${title}\n${nextNotif.triggerDate.toLocaleString()}`;
@@ -160,7 +157,10 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
       // If we couldn't parse any dates but have notifications, show raw count
       if (scheduled.length > 0 && withDates.length === 0) {
         // Log first notification trigger for debugging
-        console.log("Trigger format:", JSON.stringify(scheduled[0]?.trigger, null, 2));
+        console.log(
+          "Trigger format:",
+          JSON.stringify(scheduled[0]?.trigger, null, 2),
+        );
         nextNotificationStr = `${scheduled.length} scheduled (trigger format unknown)`;
       }
 
@@ -183,7 +183,7 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
     try {
       // MMKV stats
       const mmkvKeys = getAllStorageKeys();
-      
+
       // AsyncStorage stats
       const asyncKeys = await AsyncStorage.getAllKeys();
 
@@ -221,7 +221,11 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
     return {
       appVersion: Constants.expoConfig?.version || "Unknown",
       sdkVersion: Constants.expoConfig?.sdkVersion || "Unknown",
-      platform: Constants.platform?.ios ? "iOS" : Constants.platform?.android ? "Android" : "Unknown",
+      platform: Constants.platform?.ios
+        ? "iOS"
+        : Constants.platform?.android
+          ? "Android"
+          : "Unknown",
     };
   };
 
@@ -242,10 +246,11 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
         if (mosqueDataStr) {
           const mosqueData = JSON.parse(mosqueDataStr);
           mosqueName = mosqueData.info?.name || "Unknown";
-          lastSyncTime = mosqueData.info?.last_prayer 
+          lastSyncTime = mosqueData.info?.last_prayer
             ? new Date(mosqueData.info.last_prayer).toLocaleString()
             : "Never";
-          monthlyScheduleMonth = mosqueData.monthlyPrayerSchedule?.["mm-yy"] || "None";
+          monthlyScheduleMonth =
+            mosqueData.monthlyPrayerSchedule?.["mm-yy"] || "None";
         }
       }
 
@@ -278,38 +283,49 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  const StatRow = ({ label, value }: { label: string; value: string | number }) => (
+  const StatRow = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number;
+  }) => (
     <View className="flex-row justify-between py-1.5 border-b border-gray-100">
       <Text className="text-xs font-lato text-gray-500">{label}</Text>
-      <Text className="text-xs font-lato-bold text-gray-700 flex-1 text-right ml-2" numberOfLines={2}>
+      <Text
+        className="text-xs font-lato-bold text-gray-700 flex-1 text-right ml-2"
+        numberOfLines={2}
+      >
         {value}
       </Text>
     </View>
   );
 
-  const SectionHeader = ({ 
-    title, 
-    icon, 
-    expanded, 
-    onPress 
-  }: { 
-    title: string; 
-    icon: keyof typeof Ionicons.glyphMap; 
-    expanded: boolean; 
+  const SectionHeader = ({
+    title,
+    icon,
+    expanded,
+    onPress,
+  }: {
+    title: string;
+    icon: keyof typeof Ionicons.glyphMap;
+    expanded: boolean;
     onPress: () => void;
   }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       className="flex-row items-center justify-between py-3 border-b border-gray-200"
     >
       <View className="flex-row items-center">
         <Ionicons name={icon} size={18} color="#5B4B94" />
-        <Text className="text-sm font-lato-bold text-gray-700 ml-2">{title}</Text>
+        <Text className="text-sm font-lato-bold text-gray-700 ml-2">
+          {title}
+        </Text>
       </View>
-      <Ionicons 
-        name={expanded ? "chevron-up" : "chevron-down"} 
-        size={18} 
-        color="#5B4B94" 
+      <Ionicons
+        name={expanded ? "chevron-up" : "chevron-down"}
+        size={18}
+        color="#5B4B94"
       />
     </TouchableOpacity>
   );
@@ -348,9 +364,9 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
           ) : (
             <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
               {/* App Info Section */}
-              <SectionHeader 
-                title="App Info" 
-                icon="information-circle" 
+              <SectionHeader
+                title="App Info"
+                icon="information-circle"
                 expanded={expandedSection === "app"}
                 onPress={() => toggleSection("app")}
               />
@@ -363,26 +379,42 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
               )}
 
               {/* Notifications Section */}
-              <SectionHeader 
+              <SectionHeader
                 title={`Notifications (${stats.totalScheduledNotifications})`}
-                icon="notifications" 
+                icon="notifications"
                 expanded={expandedSection === "notifications"}
                 onPress={() => toggleSection("notifications")}
               />
               {expandedSection === "notifications" && (
                 <View className="py-2">
-                  <StatRow label="Total Scheduled" value={stats.totalScheduledNotifications} />
+                  <StatRow
+                    label="Total Scheduled"
+                    value={stats.totalScheduledNotifications}
+                  />
                   <View className="py-1.5">
-                    <Text className="text-xs font-lato text-gray-500 mb-1">Next Notification</Text>
-                    <Text className="text-xs font-lato-bold text-gray-700">{stats.nextNotification}</Text>
+                    <Text className="text-xs font-lato text-gray-500 mb-1">
+                      Next Notification
+                    </Text>
+                    <Text className="text-xs font-lato-bold text-gray-700">
+                      {stats.nextNotification}
+                    </Text>
                   </View>
                   {stats.notificationsList.length > 0 && (
                     <View className="mt-2">
-                      <Text className="text-xs font-lato text-gray-500 mb-1">Upcoming (max 10):</Text>
+                      <Text className="text-xs font-lato text-gray-500 mb-1">
+                        Upcoming (max 10):
+                      </Text>
                       {stats.notificationsList.map((n, i) => (
-                        <View key={n.id} className="py-1 border-b border-gray-50">
-                          <Text className="text-xs font-lato-bold text-gray-700">{i + 1}. {n.title}</Text>
-                          <Text className="text-xs font-lato text-gray-400">{n.time}</Text>
+                        <View
+                          key={n.id}
+                          className="py-1 border-b border-gray-50"
+                        >
+                          <Text className="text-xs font-lato-bold text-gray-700">
+                            {i + 1}. {n.title}
+                          </Text>
+                          <Text className="text-xs font-lato text-gray-400">
+                            {n.time}
+                          </Text>
                         </View>
                       ))}
                     </View>
@@ -391,38 +423,55 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
               )}
 
               {/* Sync/API Section */}
-              <SectionHeader 
-                title="Sync Status" 
-                icon="sync" 
+              <SectionHeader
+                title="Sync Status"
+                icon="sync"
                 expanded={expandedSection === "sync"}
                 onPress={() => toggleSection("sync")}
               />
               {expandedSection === "sync" && (
                 <View className="py-2">
-                  <StatRow label="Current Mosque" value={stats.currentMosqueName} />
+                  <StatRow
+                    label="Current Mosque"
+                    value={stats.currentMosqueName}
+                  />
                   <StatRow label="Mosque ID" value={stats.currentMosqueId} />
                   <StatRow label="Last Sync" value={stats.lastSyncTime} />
-                  <StatRow label="Schedule Month" value={stats.monthlyScheduleMonth} />
+                  <StatRow
+                    label="Schedule Month"
+                    value={stats.monthlyScheduleMonth}
+                  />
                 </View>
               )}
 
               {/* Storage Section */}
-              <SectionHeader 
-                title="Storage" 
-                icon="server" 
+              <SectionHeader
+                title="Storage"
+                icon="server"
                 expanded={expandedSection === "storage"}
                 onPress={() => toggleSection("storage")}
               />
               {expandedSection === "storage" && (
                 <View className="py-2">
                   <StatRow label="MMKV Keys" value={stats.mmkvKeyCount} />
-                  <StatRow label="AsyncStorage Keys" value={stats.asyncStorageKeyCount} />
-                  <StatRow label="Mosque Data Size" value={stats.mosqueDataSize} />
+                  <StatRow
+                    label="AsyncStorage Keys"
+                    value={stats.asyncStorageKeyCount}
+                  />
+                  <StatRow
+                    label="Mosque Data Size"
+                    value={stats.mosqueDataSize}
+                  />
                   {stats.mmkvKeys.length > 0 && (
                     <View className="mt-2">
-                      <Text className="text-xs font-lato text-gray-500 mb-1">MMKV Keys:</Text>
+                      <Text className="text-xs font-lato text-gray-500 mb-1">
+                        MMKV Keys:
+                      </Text>
                       {stats.mmkvKeys.map((key) => (
-                        <Text key={key} className="text-xs font-lato text-gray-600 py-0.5">
+                        <Text
+                          key={key}
+                          className="text-xs font-lato text-gray-600 py-0.5"
+                        >
                           • {key}
                         </Text>
                       ))}
@@ -430,9 +479,14 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
                   )}
                   {stats.asyncStorageKeys.length > 0 && (
                     <View className="mt-2">
-                      <Text className="text-xs font-lato text-gray-500 mb-1">AsyncStorage Keys:</Text>
+                      <Text className="text-xs font-lato text-gray-500 mb-1">
+                        AsyncStorage Keys:
+                      </Text>
                       {stats.asyncStorageKeys.map((key) => (
-                        <Text key={key} className="text-xs font-lato text-gray-600 py-0.5">
+                        <Text
+                          key={key}
+                          className="text-xs font-lato text-gray-600 py-0.5"
+                        >
                           • {key}
                         </Text>
                       ))}
@@ -450,4 +504,3 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
     </Modal>
   );
 }
-

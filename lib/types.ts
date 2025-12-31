@@ -48,7 +48,7 @@ export type DBPrayerTimes = {
     day: string;
     times: DailyPrayerTimes;
   }[];
-}
+};
 
 export type DailyPrayerTimes = {
   fajr: { adhan: string; iqama: string };
