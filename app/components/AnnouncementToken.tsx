@@ -4,7 +4,14 @@ import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Announcement } from "../../lib/types";
 import AnnouncementModal from "./AnnouncementModal";
-import { getSeverityStyles } from "@/lib/utils";
+
+// Severity styles must use complete class names for Tailwind to detect them
+const severityConfig = {
+  high: { bg: "bg-red-200", text: "text-red-700" },
+  medium: { bg: "bg-yellow-200", text: "text-yellow-700" },
+  low: { bg: "bg-green-200", text: "text-green-700" },
+  default: { bg: "bg-gray-200", text: "text-gray-700" },
+} as const;
 
 /**
  * AnnouncementToken component
@@ -19,7 +26,8 @@ export default function AnnouncementToken({
   announcement: Announcement;
 }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const severityStyles = getSeverityStyles(announcement.severity);
+  const severity = announcement.severity.toLowerCase() as keyof typeof severityConfig;
+  const severityStyles = severityConfig[severity] || severityConfig.default;
   const date = format(parseISO(announcement.created_at), "EEEE, MMMM d");
 
   return (
