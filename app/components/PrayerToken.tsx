@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { PrayerTime } from "../../lib/types";
 
 // Helper function to safely get prayer time
@@ -26,7 +26,13 @@ export default function PrayerToken({
   ];
 
   return (
-    <View className="w-full h-20 flex flex-row backdrop-blur-lg border border-white/30 rounded-2xl m-1 bg-white/50 shadow-md">
+    <View
+      className={`w-full h-20 flex flex-row border border-white/30 rounded-2xl m-1 shadow-md ${
+        Platform.OS === "android"
+          ? "bg-[#f5f7fa]"
+          : "backdrop-blur-lg bg-white/50"
+      }`}
+    >
       {/* displays all prayer times */}
       {prayerNames.map((prayer, index) => {
         // checks if current prayer

@@ -8,7 +8,7 @@ import { supabase } from "../lib/supabase";
 import { MosqueInfo, UserData } from "../lib/types";
 import MosqueCard from "./components/MosqueCard";
 import ErrorScreen from "./components/ErrorScreen";
-
+import { Platform } from "react-native";
 export default function Map({
   setUserData,
 }: {
@@ -84,7 +84,7 @@ export default function Map({
           </Text>
         </MotiView>
 
-        <MotiView
+        {Platform.OS === "ios" ?  <MotiView
           from={{
             opacity: 0,
             scale: 0.8,
@@ -121,7 +121,7 @@ export default function Map({
               />
             ))}
           </MapView>
-        </MotiView>
+        </MotiView> : <View/>}
 
         <View className="w-full flex-1">
           <MotiView

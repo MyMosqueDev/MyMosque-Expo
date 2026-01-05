@@ -1,16 +1,19 @@
 // Debug Panel Modal
 // Displays dev stats: notifications, storage, app info, sync status, cache
 
+import { useDevMode } from "@/lib/devMode";
+import { getPushToken } from "@/lib/getPushToken";
 import { getAllStorageKeys, storage } from "@/lib/mmkv";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Modal, ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
 
 type DebugStats = {
   // Notifications
+  pushToken: string;
   nextNotification: string;
   totalScheduledNotifications: number;
   notificationsList: Array<{ id: string; title: string; time: string }>;
@@ -37,6 +40,7 @@ type DebugStats = {
 };
 
 const DEFAULT_STATS: DebugStats = {
+  pushToken: "Unknown",
   nextNotification: "Loading...",
   totalScheduledNotifications: 0,
   notificationsList: [],
@@ -60,6 +64,7 @@ type DebugPanelProps = {
 };
 
 export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
+  const { isDevMode, setDevMode } = useDevMode();
   const [stats, setStats] = useState<DebugStats>(DEFAULT_STATS);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -74,8 +79,9 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
     setIsLoading(true);
     try {
       // Load all stats in parallel
-      const [notificationStats, storageStats, appInfo, syncStats] =
+      const [pushToken, notificationStats, storageStats, appInfo, syncStats] =
         await Promise.all([
+          getPushToken(),
           loadNotificationStats(),
           loadStorageStats(),
           loadAppInfo(),
@@ -84,6 +90,7 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
 
       setStats({
         ...DEFAULT_STATS,
+        pushToken: pushToken || "Unknown",
         ...notificationStats,
         ...storageStats,
         ...appInfo,
@@ -148,7 +155,7 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
         nextNotificationStr = `${title}\n${nextNotif.triggerDate.toLocaleString()}`;
       }
 
-      const notificationsList = withDates.slice(0, 10).map((item) => ({
+      const notificationsList = withDates.map((item) => ({
         id: item.notification.identifier,
         title: item.notification.content.title || "Notification",
         time: item.triggerDate?.toLocaleString() || "Unknown",
@@ -375,6 +382,17 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
                   <StatRow label="Version" value={stats.appVersion} />
                   <StatRow label="SDK Version" value={stats.sdkVersion} />
                   <StatRow label="Platform" value={stats.platform} />
+                  <View className="flex-row justify-between items-center py-1.5 border-b border-gray-100">
+                    <Text className="text-xs font-lato text-gray-500">
+                      Dev Mode
+                    </Text>
+                    <Switch
+                      value={isDevMode}
+                      onValueChange={setDevMode}
+                      trackColor={{ false: "#D1D5DB", true: "#5B4B94" }}
+                      thumbColor="#FFFFFF"
+                    />
+                  </View>
                 </View>
               )}
 
@@ -387,6 +405,10 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
               />
               {expandedSection === "notifications" && (
                 <View className="py-2">
+                  <StatRow
+                    label="Push Token"
+                    value={stats.pushToken}
+                  />
                   <StatRow
                     label="Total Scheduled"
                     value={stats.totalScheduledNotifications}

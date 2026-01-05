@@ -9,6 +9,7 @@ import {
   useState,
   ReactNode,
 } from "react";
+import { Platform } from "react-native";
 
 const DEV_MODE_STORAGE_KEY = "devModeEnabled";
 const DEV_PASSWORD = "dev2025";
@@ -38,7 +39,7 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
     const loadDevMode = async () => {
       try {
         const stored = await AsyncStorage.getItem(DEV_MODE_STORAGE_KEY);
-        if (stored === "true") {
+        if (stored === "true" && Platform.OS !== "android") {
           setIsDevMode(true);
         }
       } catch (error) {

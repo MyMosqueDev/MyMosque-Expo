@@ -2,6 +2,7 @@
 // Handles local scheduling of prayer time notifications using Expo Notifications
 
 import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
 import { storage } from "./mmkv";
 import { DBPrayerTimes, JummahTime } from "./types";
 import { to24HourFormat } from "./utils";
@@ -11,6 +12,11 @@ export const PRAYER_NOTIFICATION_STORAGE_KEY = "prayerNotificationSettings";
 
 // Prefix for notification identifiers (for easy cancellation)
 export const PRAYER_NOTIFICATION_PREFIX = "prayer-notification";
+
+// iOS has a limit of 64 scheduled notifications
+// We reserve the last slot for a reminder to re-open the app
+const IOS_NOTIFICATION_LIMIT = 64;
+const IOS_PRAYER_NOTIFICATION_LIMIT = IOS_NOTIFICATION_LIMIT - 1; // 63 prayer notifications + 1 reminder
 
 // Types
 export type PrayerName = "fajr" | "dhuhr" | "asr" | "maghrib" | "isha";
@@ -132,14 +138,21 @@ const subtractMinutes = (
   };
 };
 
+// Type for pending notification to be scheduled
+type PendingNotification = {
+  identifier: string;
+  title: string;
+  body: string;
+  date: Date;
+  data: Record<string, any>;
+};
+
 // Schedule a single notification
 const scheduleNotification = async (
-  identifier: string,
-  title: string,
-  body: string,
-  date: Date,
-  data: Record<string, any>,
+  notification: PendingNotification,
 ): Promise<void> => {
+  const { identifier, title, body, date, data } = notification;
+  
   // Don't schedule notifications in the past
   if (date <= new Date()) {
     return;
@@ -212,7 +225,8 @@ export const schedulePrayerNotifications = async (
       Object.keys(settings.prayers) as PrayerName[]
     ).filter((prayer) => settings.prayers[prayer]);
 
-    let scheduledCount = 0;
+    // Collect all pending notifications first
+    const pendingNotifications: PendingNotification[] = [];
 
     for (
       let dayIndex = currentDay - 1;
@@ -250,13 +264,16 @@ export const schedulePrayerNotifications = async (
           before15.minutes,
         );
 
-        await scheduleNotification(
-          `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${prayer}-15min`,
-          `15 minutes until ${formatPrayerName(prayer)}`,
-          `${formatPrayerName(prayer)} iqama at ${mosqueName}`,
-          date15Before,
-          { prayer, mosqueId, notificationType: "15min" },
-        );
+        // Only add future notifications
+        if (date15Before > now) {
+          pendingNotifications.push({
+            identifier: `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${prayer}-15min`,
+            title: `15 minutes until ${formatPrayerName(prayer)}`,
+            body: `${formatPrayerName(prayer)} iqama at ${mosqueName}`,
+            date: date15Before,
+            data: { prayer, mosqueId, notificationType: "15min" },
+          });
+        }
 
         // Schedule at iqama time
         const dateIqama = new Date(
@@ -267,15 +284,16 @@ export const schedulePrayerNotifications = async (
           minutes,
         );
 
-        await scheduleNotification(
-          `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${prayer}-iqama`,
-          `${formatPrayerName(prayer)} at ${mosqueName}`,
-          `Iqama time for ${formatPrayerName(prayer)}`,
-          dateIqama,
-          { prayer, mosqueId, notificationType: "iqama" },
-        );
-
-        scheduledCount += 2;
+        // Only add future notifications
+        if (dateIqama > now) {
+          pendingNotifications.push({
+            identifier: `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${prayer}-iqama`,
+            title: `${formatPrayerName(prayer)} at ${mosqueName}`,
+            body: `Iqama time for ${formatPrayerName(prayer)}`,
+            date: dateIqama,
+            data: { prayer, mosqueId, notificationType: "iqama" },
+          });
+        }
       }
 
       // Schedule Jummah on Fridays
@@ -304,13 +322,16 @@ export const schedulePrayerNotifications = async (
             before15.minutes,
           );
 
-          await scheduleNotification(
-            `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${key}-15min`,
-            `${mosqueName}`,
-            `15 minutes until ${formatPrayerName(key)} at ${mosqueName}`,
-            date15Before,
-            { prayer: key, mosqueId, notificationType: "15min" },
-          );
+          // Only add future notifications
+          if (date15Before > now) {
+            pendingNotifications.push({
+              identifier: `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${key}-15min`,
+              title: `${mosqueName}`,
+              body: `15 minutes until ${formatPrayerName(key)} at ${mosqueName}`,
+              date: date15Before,
+              data: { prayer: key, mosqueId, notificationType: "15min" },
+            });
+          }
 
           // Schedule at iqama time
           const dateIqama = new Date(
@@ -321,22 +342,60 @@ export const schedulePrayerNotifications = async (
             minutes,
           );
 
-          await scheduleNotification(
-            `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${key}-iqama`,
-            `${mosqueName}`,
-            `Time for ${formatPrayerName(key)} at ${mosqueName}`,
-            dateIqama,
-            { prayer: key, mosqueId, notificationType: "iqama" },
-          );
-
-          scheduledCount += 2;
+          // Only add future notifications
+          if (dateIqama > now) {
+            pendingNotifications.push({
+              identifier: `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-${dayOfMonth}-${key}-iqama`,
+              title: `${mosqueName}`,
+              body: `Time for ${formatPrayerName(key)} at ${mosqueName}`,
+              date: dateIqama,
+              data: { prayer: key, mosqueId, notificationType: "iqama" },
+            });
+          }
         }
       }
     }
 
-    console.log(
-      `Scheduled ${scheduledCount} prayer notifications for ${mosqueName}`,
-    );
+    // Sort notifications by date (earliest first)
+    pendingNotifications.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    // On iOS, limit to 63 prayer notifications + 1 reminder notification
+    // to stay within the 64 notification limit
+    let notificationsToSchedule = pendingNotifications;
+    let needsReminderNotification = false;
+
+    if (Platform.OS === "ios" && pendingNotifications.length > IOS_PRAYER_NOTIFICATION_LIMIT) {
+      notificationsToSchedule = pendingNotifications.slice(0, IOS_PRAYER_NOTIFICATION_LIMIT);
+      needsReminderNotification = true;
+    }
+
+    // Schedule all the prayer notifications
+    for (const notification of notificationsToSchedule) {
+      await scheduleNotification(notification);
+    }
+
+    // Schedule reminder notification as the 64th notification on iOS
+    if (needsReminderNotification && notificationsToSchedule.length > 0) {
+      const lastScheduledNotification = notificationsToSchedule[notificationsToSchedule.length - 1];
+      // Schedule the reminder 1 minute after the last prayer notification
+      const reminderDate = new Date(lastScheduledNotification.date.getTime() + 60 * 1000);
+      
+      await scheduleNotification({
+        identifier: `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-reminder`,
+        title: "Prayer Notifications",
+        body: `Open ${mosqueName} to continue receiving prayer time notifications`,
+        date: reminderDate,
+        data: { mosqueId, notificationType: "reminder" },
+      });
+
+      console.log(
+        `Scheduled ${notificationsToSchedule.length} prayer notifications + 1 reminder for ${mosqueName} (iOS limit applied)`,
+      );
+    } else {
+      console.log(
+        `Scheduled ${notificationsToSchedule.length} prayer notifications for ${mosqueName}`,
+      );
+    }
   } catch (error) {
     console.error("Error scheduling prayer notifications:", error);
   }

@@ -83,11 +83,38 @@ export default function Settings() {
     checkNotificationPermissions();
   }, []);
 
+  useEffect(() => {
+    console.log("mosqueId", mosqueId);
+  }, [mosqueId]);
+
+  // Keep refs updated with latest values so cleanup can access them
+  const mosqueIdRef = useRef(mosqueId);
+  const settingsRef = useRef(settings);
+  const prayerNotificationSettingsRef = useRef(prayerNotificationSettings);
+
+  useEffect(() => {
+    mosqueIdRef.current = mosqueId;
+  }, [mosqueId]);
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+
+  useEffect(() => {
+    prayerNotificationSettingsRef.current = prayerNotificationSettings;
+  }, [prayerNotificationSettings]);
+
+  // Only runs cleanup when actually leaving the page (not on dependency changes)
   useFocusEffect(
     useCallback(() => {
       return async () => {
+        console.log("Updating push token (leaving page)");
+        const combinedSettings = {
+          ...settingsRef.current,
+          prayer_times: {enabled: prayerNotificationSettingsRef.current.enabled},
+        };
         const token = await getPushToken();
-        const url = "https://www.mymosque.app/api/pushToken";
+        const url = "http://mymosque.app/api/pushToken";
 
         async function updatePushToken() {
           try {
@@ -98,8 +125,8 @@ export default function Settings() {
               },
               body: JSON.stringify({
                 pushToken: token,
-                mosqueId: mosqueId,
-                settings: settings,
+                mosqueId: mosqueIdRef.current,
+                settings: combinedSettings,
               }),
             });
 
