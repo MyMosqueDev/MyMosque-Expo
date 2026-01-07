@@ -18,7 +18,6 @@ export const getCurrentPrayerTime = (
   const month = (now.getMonth() + 1).toString().padStart(2, "0");
   const year = now.getFullYear().toString().slice(-2);
   const mmyy = `${month}-${year}`;
-  console.log(mmyy, prayerTimesData["mm-yy"])
   const warning =
     mmyy !== prayerTimesData["mm-yy"]
       ? "Current prayer times may be outdated"
