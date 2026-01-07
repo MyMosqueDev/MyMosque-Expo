@@ -455,7 +455,6 @@ const getPrayerTimes = async (
         monthlySchedule,
         jummahTimes as JummahTime,
       );
-      console.log("todaysPrayerTimes (current month)", todaysPrayerTimes);
       return { monthlySchedule, todaysPrayerTimes };
     }
 
@@ -478,7 +477,6 @@ const getPrayerTimes = async (
 
     if (!allSchedules || allSchedules.length === 0) {
       // No schedules exist at all
-      console.log("No prayer schedules found for this mosque");
       return {
         monthlySchedule: createDefaultMonthlySchedule(),
         todaysPrayerTimes: createDefaultPrayerTimes(jummahTimes),
@@ -515,7 +513,6 @@ const getPrayerTimes = async (
     const { getNextPrayer } = await import("./prayerTimeUtils");
     todaysPrayerTimes.nextPrayer = getNextPrayer(todaysPrayerTimes);
 
-    console.log("todaysPrayerTimes (fallback)", todaysPrayerTimes);
     return { monthlySchedule: mostRecentSchedule, todaysPrayerTimes };
   } catch (error) {
     console.error("Error in getPrayerTimes:", error);

@@ -39,7 +39,7 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
     const loadDevMode = async () => {
       try {
         const stored = await AsyncStorage.getItem(DEV_MODE_STORAGE_KEY);
-        if (stored === "true" && Platform.OS !== "android") {
+        if (stored === "true") {
           setIsDevMode(true);
         }
       } catch (error) {

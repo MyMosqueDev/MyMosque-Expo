@@ -83,10 +83,6 @@ export default function Settings() {
     checkNotificationPermissions();
   }, []);
 
-  useEffect(() => {
-    console.log("mosqueId", mosqueId);
-  }, [mosqueId]);
-
   // Keep refs updated with latest values so cleanup can access them
   const mosqueIdRef = useRef(mosqueId);
   const settingsRef = useRef(settings);
@@ -108,7 +104,6 @@ export default function Settings() {
   useFocusEffect(
     useCallback(() => {
       return async () => {
-        console.log("Updating push token (leaving page)");
         const combinedSettings = {
           ...settingsRef.current,
           prayer_times: {enabled: prayerNotificationSettingsRef.current.enabled},
