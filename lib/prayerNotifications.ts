@@ -152,7 +152,7 @@ const scheduleNotification = async (
   notification: PendingNotification,
 ): Promise<void> => {
   const { identifier, title, body, date, data } = notification;
-  
+
   // Don't schedule notifications in the past
   if (date <= new Date()) {
     return;
@@ -364,8 +364,14 @@ export const schedulePrayerNotifications = async (
     let notificationsToSchedule = pendingNotifications;
     let needsReminderNotification = false;
 
-    if (Platform.OS === "ios" && pendingNotifications.length > IOS_PRAYER_NOTIFICATION_LIMIT) {
-      notificationsToSchedule = pendingNotifications.slice(0, IOS_PRAYER_NOTIFICATION_LIMIT);
+    if (
+      Platform.OS === "ios" &&
+      pendingNotifications.length > IOS_PRAYER_NOTIFICATION_LIMIT
+    ) {
+      notificationsToSchedule = pendingNotifications.slice(
+        0,
+        IOS_PRAYER_NOTIFICATION_LIMIT,
+      );
       needsReminderNotification = true;
     }
 
@@ -376,10 +382,13 @@ export const schedulePrayerNotifications = async (
 
     // Schedule reminder notification as the 64th notification on iOS
     if (needsReminderNotification && notificationsToSchedule.length > 0) {
-      const lastScheduledNotification = notificationsToSchedule[notificationsToSchedule.length - 1];
+      const lastScheduledNotification =
+        notificationsToSchedule[notificationsToSchedule.length - 1];
       // Schedule the reminder 1 minute after the last prayer notification
-      const reminderDate = new Date(lastScheduledNotification.date.getTime() + 60 * 1000);
-      
+      const reminderDate = new Date(
+        lastScheduledNotification.date.getTime() + 60 * 1000,
+      );
+
       await scheduleNotification({
         identifier: `${PRAYER_NOTIFICATION_PREFIX}-${mosqueId}-reminder`,
         title: "Prayer Notifications",

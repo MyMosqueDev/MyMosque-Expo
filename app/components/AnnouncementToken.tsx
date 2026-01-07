@@ -26,7 +26,8 @@ export default function AnnouncementToken({
   announcement: Announcement;
 }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const severity = announcement.severity.toLowerCase() as keyof typeof severityConfig;
+  const severity =
+    announcement.severity.toLowerCase() as keyof typeof severityConfig;
   const severityStyles = severityConfig[severity] || severityConfig.default;
   const date = format(parseISO(announcement.created_at), "EEEE, MMMM d");
 

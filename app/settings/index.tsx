@@ -106,7 +106,9 @@ export default function Settings() {
       return async () => {
         const combinedSettings = {
           ...settingsRef.current,
-          prayer_times: {enabled: prayerNotificationSettingsRef.current.enabled},
+          prayer_times: {
+            enabled: prayerNotificationSettingsRef.current.enabled,
+          },
         };
         const token = await getPushToken();
         const url = "http://mymosque.app/api/pushToken";

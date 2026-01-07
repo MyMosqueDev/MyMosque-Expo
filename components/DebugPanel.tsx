@@ -9,7 +9,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
-import { Modal, ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type DebugStats = {
   // Notifications
@@ -405,10 +412,7 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
               />
               {expandedSection === "notifications" && (
                 <View className="py-2">
-                  <StatRow
-                    label="Push Token"
-                    value={stats.pushToken}
-                  />
+                  <StatRow label="Push Token" value={stats.pushToken} />
                   <StatRow
                     label="Total Scheduled"
                     value={stats.totalScheduledNotifications}
