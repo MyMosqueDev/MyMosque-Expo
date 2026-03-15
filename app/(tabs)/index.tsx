@@ -63,6 +63,7 @@ export default function Index() {
       </ImageBackground>
     );
   }
+  
   // if there is a last visited mosque, show the home page
   return !userData?.lastVisitedMosque ? (
     <Map setUserData={setUserData} />

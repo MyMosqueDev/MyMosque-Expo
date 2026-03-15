@@ -43,7 +43,7 @@ export default function Home() {
   }, [mosqueData]);
 
   if (!mosqueData) {
-    return <ErrorScreen error="No mosque data found" />;
+    return <ErrorScreen error="No mosque data found. Please exit the app and try again." />;
   }
 
   const generalMosqueInfo = {
@@ -165,7 +165,7 @@ export default function Home() {
               />
             </MotiView>
           ))}
-          {displayedEvents.length === 0 && <EmptyToken type="events" />}
+          {displayedEvents.length === 0 && <EmptyToken type="event" />}
         </MotiView>
       </View>
     </ScrollContainer>

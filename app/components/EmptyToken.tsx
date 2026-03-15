@@ -1,12 +1,9 @@
 import { Platform, Text, View } from "react-native";
 
-// token that shows when there is no data for specific field
-export default function EmptyToken({
-  type,
-}: {
-  type: "announcements" | "events" | string;
-}) {
-  if (type === "announcements") {
+type EmptyTokenType = "announcement" | "event";
+
+export default function EmptyToken({ type }: { type: EmptyTokenType }) {
+  if (type) {
     return (
       <View
         className={`w-[90vw] min-h-[170px] border border-white/30 rounded-2xl p-5 m-1 shadow-md items-center justify-center mt-3 ${
@@ -16,9 +13,12 @@ export default function EmptyToken({
         }`}
       >
         <Text className="text-xl font-lato-bold text-text">
-          No recent announcements
+          No recent {type}
         </Text>
         <Text className="text-lato text-[#444] text-md text-center">
+<<<<<<< HEAD
+          Enable notifications to never miss a {type}!
+=======
           Enable notifications to never miss an announcement!
         </Text>
       </View>
@@ -38,6 +38,7 @@ export default function EmptyToken({
         </Text>
         <Text className="text-lato text-[#444] text-md">
           Enable notifications to never miss an event!
+>>>>>>> ad78250b8af43d3107ef679730c5f110ab657514
         </Text>
       </View>
     );

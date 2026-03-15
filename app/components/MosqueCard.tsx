@@ -20,11 +20,8 @@ interface MosqueCardProps {
 }
 
 const MosqueCard = ({ data, mapRef, setUserData }: MosqueCardProps) => {
-  // truncates name and address to 35 and 45 characters respectively
-  const name =
-    data.name.length > 35 ? data.name.slice(0, 35) + "..." : data.name;
-  const address =
-    data.address.length > 45 ? data.address.slice(0, 45) + "..." : data.address;
+  const name = data.name.length > 35 ? data.name.slice(0, 35) + "..." : data.name;
+  const address = data.address.length > 45 ? data.address.slice(0, 45) + "..." : data.address;
 
   const images = data.images || [];
   const { setMosqueData } = useMosqueData();
@@ -48,18 +45,15 @@ const MosqueCard = ({ data, mapRef, setUserData }: MosqueCardProps) => {
     // saves user data
     await AsyncStorage.setItem("userData", JSON.stringify(newUserData));
 
-    // fetches mosque data
     const mosqueData = await fetchMosqueInfo();
     if (mosqueData) {
       setMosqueData(mosqueData);
     }
 
-    // updates user data
     if (setUserData) {
       setUserData(newUserData);
     }
 
-    // sends back to home
     router.replace("/(tabs)");
   };
 
@@ -101,10 +95,6 @@ const MosqueCard = ({ data, mapRef, setUserData }: MosqueCardProps) => {
           )}
         </ScrollView>
       </View>
-      {/* <View className=" px-6 pb-1 flex-row justify-end items-center gap-2">
-        <Text className="text-gray-500 font-lato-bold text-sm">Click To View!</Text>
-        <Feather name="arrow-right" size={16} color="#6b7280" />
-      </View> */}
     </TouchableOpacity>
   );
 };

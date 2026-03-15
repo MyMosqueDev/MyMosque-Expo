@@ -4,16 +4,13 @@ import { Event } from "@/lib/types";
 import { MotiView } from "moti";
 import { ScrollView, Text } from "react-native";
 
-interface EventsListProps {
-  events: Event[];
-}
 
 /**
  * EventsList component displays a scrollable list of events
  *
  * @param events - Array of events to display
  */
-export default function EventsList({ events }: EventsListProps) {
+export default function EventsList({ events }: { events: Event[] }) {
   return (
     <ScrollView
       className="w-full"
@@ -53,7 +50,7 @@ export default function EventsList({ events }: EventsListProps) {
             }}
             style={{ overflow: "visible" }}
           >
-            <EventToken event={{ ...event, mosqueName: "Filler" }} />
+            <EventToken event={{ ...event}} />
           </MotiView>
         ))}
     </ScrollView>

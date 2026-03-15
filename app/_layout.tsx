@@ -60,7 +60,6 @@ export default function RootLayout() {
     mosqueDataRef.current = mosqueData;
   }, [mosqueData]);
 
-  // TODO: there's a lot going on here, needs to be refactored
   useEffect(() => {
     async function prepare() {
       try {

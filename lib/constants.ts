@@ -1,4 +1,3 @@
-// Animation constants
 export const ANIMATION_CONFIG = {
   SPRING: {
     damping: 15,
@@ -14,12 +13,11 @@ export const ANIMATION_CONFIG = {
   },
 } as const;
 
-// Color constants
 export const COLORS = {
-  PRIMARY: "#3B5A7A",
-  SECONDARY: "#4A4A4A",
-  SECONDARY_OPACITY: "#4A4A4A/50",
-  TEXT: "#4A4A4A",
+  PRIMARY: "#3B5A7A", // blue
+  SECONDARY: "#4A4A4A", // gray
+  SECONDARY_OPACITY: "#4A4A4A/50", // gray/50
+  TEXT: "#4A4A4A", // gray
 } as const;
 
 // Layout constants
