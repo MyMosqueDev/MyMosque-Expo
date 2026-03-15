@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import getLocationPrayerTimes from "./getLocationPrayerTimes";
 import { PrayerTime } from "./types";
 
@@ -8,6 +7,7 @@ import { PrayerTime } from "./types";
  * @param city - the city to get prayer times for
  * @param lastVisitedMosqueId - the id of the mosque to get prayer times for
  * @returns the prayer times for the given mosque in the right format
+ * todo: this funciton is dtm, split up
  */
 export const getPrayerTimes = async (
   city: string,
@@ -20,6 +20,7 @@ export const getPrayerTimes = async (
   const todayDbString = `${year}-${month}-${day} 00:00:00+00`; // this is the format of the date in the database
 
   // gets the prayer times for the given mosque
+  // todo: (maybe make an api for this?)
   const { data: mosquePrayerTimes, error: prayerTimesError } = await supabase
     .from("prayer_times")
     .select()

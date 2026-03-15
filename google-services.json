@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "362676393958",
+    "project_id": "mymosque-88036",
+    "storage_bucket": "mymosque-88036.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362676393958:android:1d9a71f5c02791efb86827",
+        "android_client_info": {
+          "package_name": "com.vayania.mymosque"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkelD0vrH2jTCpjCo01M3brc7DL7wYu1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,7 +33,6 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
   const [isDevMode, setIsDevMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load dev mode state on mount
   useEffect(() => {
     const loadDevMode = async () => {
       try {
@@ -50,7 +49,6 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
     loadDevMode();
   }, []);
 
-  // Save dev mode state when it changes
   const setDevMode = async (enabled: boolean) => {
     try {
       await AsyncStorage.setItem(
@@ -63,14 +61,11 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Toggle dev mode with password validation
   const toggleDevMode = (password?: string): boolean => {
     if (isDevMode) {
-      // Disable without password
       setDevMode(false);
       return true;
     } else if (password === DEV_PASSWORD) {
-      // Enable with correct password
       setDevMode(true);
       return true;
     }

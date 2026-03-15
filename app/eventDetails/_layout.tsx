@@ -26,7 +26,7 @@ export default function RootLayout() {
     prepare();
   }, []);
 
-  if (!fontsLoaded || !eventData?.mosqueName) {
+  if (!fontsLoaded || !eventData) {
     return null;
   }
 
@@ -40,7 +40,7 @@ export default function RootLayout() {
         {eventData ? (
           <>
             <Header
-              name={eventData.mosqueName}
+              name={eventData.mosqueName || "Unknown Mosque"}
               type="event"
               title={eventData.title}
             />

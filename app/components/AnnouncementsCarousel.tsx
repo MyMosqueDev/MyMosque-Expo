@@ -40,7 +40,7 @@ export default function AnnouncementsCarousel({
     <View className="w-full">
       <FlatList
         data={announcements}
-        ListEmptyComponent={<EmptyToken type="announcements" />}
+        ListEmptyComponent={<EmptyToken type="announcement" />}
         renderItem={renderAnnouncement}
         keyExtractor={(item) => item.id}
         horizontal

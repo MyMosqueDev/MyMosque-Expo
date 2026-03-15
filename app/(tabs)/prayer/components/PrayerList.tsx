@@ -114,7 +114,6 @@ export default function PrayerList({
 }: {
   prayerTimes: PrayerTime;
 }) {
-  console.log("prayerTimes --", prayerTimes);
   return (
     <MotiView
       from={{ opacity: 0, translateY: 20 }}

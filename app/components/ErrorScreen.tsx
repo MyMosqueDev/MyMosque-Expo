@@ -44,6 +44,9 @@ export default function ErrorScreen({ error }: { error: string }) {
         >
           Please try restarting the app or check your internet connection
         </Text>
+        <Text>
+          {error}
+        </Text>
       </View>
     </ScrollContainer>
   );

@@ -12,7 +12,6 @@ import AnnouncementToken from "../components/AnnouncementToken";
  * Announcements are passed via URL parameters and displayed in a list.
  */
 export default function Announcements() {
-  // gets announcements from the url param
   const { announcements } = useLocalSearchParams();
   const parsedAnnouncements = JSON.parse(
     announcements as string,
