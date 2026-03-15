@@ -1,8 +1,6 @@
 import { useMosqueData } from "@/app/_layout";
-import { getPushToken } from "@/lib/getPushToken";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -58,6 +56,8 @@ export default function Header({
           isVisible={showContactModal}
           setShowContactModal={setShowContactModal}
           contactInfo={contactInfo}
+          address={mosqueData?.info.address}
+          hours={mosqueData?.info.hours}
         />
       </>
     );

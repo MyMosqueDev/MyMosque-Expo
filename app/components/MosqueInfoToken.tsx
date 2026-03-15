@@ -4,18 +4,21 @@ import { MotiView } from "moti";
 import { useCallback, useEffect, useState } from "react";
 import { AppState, Platform, Text, View } from "react-native";
 import { format } from "../../lib/dateUtils";
-import { Event, MosqueInfo } from "../../lib/types";
+import { Event, MosqueInfo, PrayerTime } from "../../lib/types";
 
-interface GeneralMosqueInfo {
-  address: MosqueInfo["address"];
+interface MosqueInfoTokenProps {
   hours: MosqueInfo["hours"];
   events: Event[] | null;
+  nextPrayer: PrayerTime["nextPrayer"] | null;
 }
 
-export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo }) {
+export default function MosqueInfoToken({
+  info,
+}: {
+  info: MosqueInfoTokenProps;
+}) {
   const [upcomingEvent, setUpcomingEvent] = useState<Event | null>(null);
 
-  // formats upcoming event date
   const formatUpcomingEventDate = (isoDateTime: string): string => {
     const date = parseISO(isoDateTime);
     const time = new Date(date).toLocaleTimeString("en-US", {
@@ -23,26 +26,17 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo }) {
       minute: "2-digit",
       hour12: true,
     });
-    if (isToday(date)) {
-      return `Today @ ${time}`;
-    }
-    if (isTomorrow(date)) {
-      return `Tomorrow @ ${time}`;
-    }
-    if (isThisWeek(date, { weekStartsOn: 1 })) {
+    if (isToday(date)) return `Today @ ${time}`;
+    if (isTomorrow(date)) return `Tomorrow @ ${time}`;
+    if (isThisWeek(date, { weekStartsOn: 1 }))
       return `${format(date, "EEEE")} @ ${time}`;
-    }
     return `${format(date, "MMM d")} @ ${time}`;
   };
 
-  // gets upcoming event
   const getUpcomingEvent = useCallback((events: Event[]): Event | null => {
     const now = new Date();
     const upcoming = events
-      .filter((event) => {
-        const eventDate = new Date(event.date);
-        return eventDate > now;
-      })
+      .filter((event) => new Date(event.date) > now)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     if (upcoming.length > 0) {
       upcoming[0].displayDate = formatUpcomingEventDate(upcoming[0].date);
@@ -51,25 +45,37 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo }) {
     return null;
   }, []);
 
-  // sets upcoming event
   useEffect(() => {
-    const upcomingEvent = getUpcomingEvent(info.events || []);
-    setUpcomingEvent(upcomingEvent);
+    setUpcomingEvent(getUpcomingEvent(info.events || []));
   }, [info.events, getUpcomingEvent]);
 
-  // updates upcoming event when app is brought back to life
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") {
-        const upcomingEvent = getUpcomingEvent(info.events || []);
-        setUpcomingEvent(upcomingEvent);
+        setUpcomingEvent(getUpcomingEvent(info.events || []));
       }
     });
-
-    return () => {
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, [getUpcomingEvent, info.events]);
+
+  const todayKey = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ][new Date().getDay()] as keyof MosqueInfo["hours"];
+  const todayHours = info.hours[todayKey];
+
+  const formatMinutes = (mins: number): string => {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h > 0 && m > 0) return `${h}h ${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m}m`;
+  };
 
   return (
     <MotiView
@@ -82,31 +88,7 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo }) {
           : "backdrop-blur-lg bg-white/50"
       }`}
     >
-      <MotiView
-        from={{ opacity: 0, translateX: -20 }}
-        animate={{ opacity: 1, translateX: 0 }}
-        transition={{ type: "timing", duration: 400 }}
-        delay={200}
-      >
-        <View className="flex-col justify-center mb-2">
-          <View className="flex-row items-center gap-3">
-            <MotiView
-              from={{ rotate: "0deg" }}
-              animate={{ rotate: "360deg" }}
-              transition={{ type: "timing", duration: 1000, delay: 500 }}
-            >
-              <Feather name="map-pin" size={24} color="#3B5A7A" />
-            </MotiView>
-            <Text className="text-xl font-bold text-[#3B5A7A]">
-              {info.address.split(",")[0]}
-            </Text>
-          </View>
-          <Text className="text-base text-[#5A6B7A] mt-0.5 ml-10">
-            {info.address.split(",").slice(1).join(",").trim()}
-          </Text>
-        </View>
-      </MotiView>
-
+      {/* Today's Hours */}
       <MotiView
         from={{ opacity: 0, translateX: -20 }}
         animate={{ opacity: 1, translateX: 0 }}
@@ -130,11 +112,40 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo }) {
             <Text className="text-xl font-bold text-[#4B944B]">Hours</Text>
           </View>
           <Text className="text-base text-[#4B944B] mt-0.5 ml-10">
-            {info.hours.monday}
+            {todayHours}
           </Text>
         </View>
       </MotiView>
 
+      {/* Next Prayer */}
+      {info.nextPrayer && (
+        <MotiView
+          from={{ opacity: 0, translateX: -20 }}
+          animate={{ opacity: 1, translateX: 0 }}
+          transition={{ type: "timing", duration: 400 }}
+          delay={200}
+        >
+          <View className="flex-col justify-center mb-2">
+            <View className="flex-row items-center gap-3">
+              <MotiView
+                from={{ rotate: "0deg" }}
+                animate={{ rotate: "360deg" }}
+                transition={{ type: "timing", duration: 1000, delay: 500 }}
+              >
+                <Feather name="sun" size={24} color="#3B5A7A" />
+              </MotiView>
+              <Text className="text-xl font-bold text-[#3B5A7A]">
+                {info.nextPrayer.name.charAt(0).toUpperCase() + info.nextPrayer.name.slice(1)}
+              </Text>
+            </View>
+            <Text className="text-base text-[#3B5A7A] mt-0.5 ml-10">
+              Adhan in {formatMinutes(info.nextPrayer.minutesToNextPrayer)}
+            </Text>
+          </View>
+        </MotiView>
+      )}
+
+      {/* Upcoming Event */}
       <MotiView
         from={{ opacity: 0, translateX: -20 }}
         animate={{ opacity: 1, translateX: 0 }}

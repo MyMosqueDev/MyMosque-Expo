@@ -46,10 +46,10 @@ export default function Home() {
     return <ErrorScreen error="No mosque data found. Please exit the app and try again." />;
   }
 
-  const generalMosqueInfo = {
-    address: mosqueData.info.address,
+  const mosqueInfoTokenData = {
     hours: mosqueData.info.hours,
     events: displayedEvents,
+    nextPrayer: updatedPrayerTimes?.nextPrayer || null,
   };
 
   return (
@@ -63,7 +63,7 @@ export default function Home() {
           delay={100}
           className="w-full items-center"
         >
-          <MosqueInfoToken info={generalMosqueInfo} />
+          <MosqueInfoToken info={mosqueInfoTokenData} />
         </MotiView>
 
         {/* Prayer Times Section */}
