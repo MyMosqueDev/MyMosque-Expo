@@ -2,7 +2,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { isThisWeek, isToday, isTomorrow, parseISO } from "date-fns";
 import { MotiView } from "moti";
 import { useCallback, useEffect, useState } from "react";
-import { AppState, Text, View } from "react-native";
+import { AppState, Platform, Text, View } from "react-native";
 import { format } from "../../lib/dateUtils";
 import { Event, MosqueInfo } from "../../lib/types";
 
@@ -76,7 +76,11 @@ export default function MosqueInfoToken({ info }: { info: GeneralMosqueInfo }) {
       from={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: "spring", damping: 15, stiffness: 100 }}
-      className="w-full backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-2 bg-white/50 shadow-md"
+      className={`w-full border border-white/30 rounded-2xl p-5 m-2 shadow-md ${
+        Platform.OS === "android"
+          ? "bg-[#f5f7fa]"
+          : "backdrop-blur-lg bg-white/50"
+      }`}
     >
       <MotiView
         from={{ opacity: 0, translateX: -20 }}

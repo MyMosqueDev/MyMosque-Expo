@@ -8,7 +8,7 @@ import { supabase } from "../lib/supabase";
 import { MosqueInfo, UserData } from "../lib/types";
 import MosqueCard from "./components/MosqueCard";
 import ErrorScreen from "./components/ErrorScreen";
-
+import { Platform } from "react-native";
 export default function Map({
   setUserData,
 }: {
@@ -84,44 +84,48 @@ export default function Map({
           </Text>
         </MotiView>
 
-        <MotiView
-          from={{
-            opacity: 0,
-            scale: 0.8,
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-          }}
-          transition={{
-            type: "timing",
-            duration: 600,
-            delay: 200,
-          }}
-          className="w-full h-80 rounded-lg overflow-hidden border-2 border-text"
-        >
-          <MapView
-            ref={mapRef}
-            style={{ width: "100%", height: "100%" }}
-            initialRegion={initialRegion || undefined}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            userInterfaceStyle="dark"
+        {Platform.OS === "ios" ? (
+          <MotiView
+            from={{
+              opacity: 0,
+              scale: 0.8,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+            }}
+            transition={{
+              type: "timing",
+              duration: 600,
+              delay: 200,
+            }}
+            className="w-full h-80 rounded-lg overflow-hidden border-2 border-text"
           >
-            {mosques.map((mosque: MosqueInfo) => (
-              <Marker
-                key={mosque.uid}
-                coordinate={{
-                  latitude: mosque.coordinates.latitude,
-                  longitude: mosque.coordinates.longitude,
-                }}
-                title={mosque.name}
-                description={mosque.address}
-                pinColor="#FBBF24"
-              />
-            ))}
-          </MapView>
-        </MotiView>
+            <MapView
+              ref={mapRef}
+              style={{ width: "100%", height: "100%" }}
+              initialRegion={initialRegion || undefined}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              userInterfaceStyle="dark"
+            >
+              {mosques.map((mosque: MosqueInfo) => (
+                <Marker
+                  key={mosque.uid}
+                  coordinate={{
+                    latitude: mosque.coordinates.latitude,
+                    longitude: mosque.coordinates.longitude,
+                  }}
+                  title={mosque.name}
+                  description={mosque.address}
+                  pinColor="#FBBF24"
+                />
+              ))}
+            </MapView>
+          </MotiView>
+        ) : (
+          <View />
+        )}
 
         <View className="w-full flex-1">
           <MotiView

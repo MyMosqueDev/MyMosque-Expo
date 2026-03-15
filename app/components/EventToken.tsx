@@ -1,7 +1,7 @@
 import Feather from "@expo/vector-icons/Feather";
 import { parseISO } from "date-fns";
 import { router } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { format } from "../../lib/dateUtils";
 import { Event } from "../../lib/types";
 
@@ -30,7 +30,11 @@ export default function EventToken({ event }: { event: Event }) {
           },
         })
       }
-      className="w-full backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md"
+      className={`w-full border border-white/30 rounded-2xl p-5 m-1 shadow-md ${
+        Platform.OS === "android"
+          ? "bg-[#f5f7fa]"
+          : "backdrop-blur-lg bg-white/50"
+      }`}
     >
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-2xl font-lato-bold text-text">{event.title}</Text>

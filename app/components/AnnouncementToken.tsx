@@ -1,10 +1,17 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { Announcement } from "../../lib/types";
 import AnnouncementModal from "./AnnouncementModal";
-import { getSeverityStyles } from "@/lib/utils";
+
+// Severity styles must use complete class names for Tailwind to detect them
+const severityConfig = {
+  high: { bg: "bg-red-200", text: "text-red-700" },
+  medium: { bg: "bg-yellow-200", text: "text-yellow-700" },
+  low: { bg: "bg-green-200", text: "text-green-700" },
+  default: { bg: "bg-gray-200", text: "text-gray-700" },
+} as const;
 
 /**
  * AnnouncementToken component
@@ -19,7 +26,9 @@ export default function AnnouncementToken({
   announcement: Announcement;
 }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const severityStyles = getSeverityStyles(announcement.severity);
+  const severity =
+    announcement.severity.toLowerCase() as keyof typeof severityConfig;
+  const severityStyles = severityConfig[severity] || severityConfig.default;
   const date = format(parseISO(announcement.created_at), "EEEE, MMMM d");
 
   return (
@@ -28,7 +37,13 @@ export default function AnnouncementToken({
         onPress={() => setModalVisible(true)}
         activeOpacity={0.7}
       >
-        <View className="w-[90vw] min-h-[170px] backdrop-blur-lg border border-white/30 rounded-2xl p-5 m-1 bg-white/50 shadow-md">
+        <View
+          className={`w-[90vw] min-h-[170px] border border-white/30 rounded-2xl p-5 m-1 shadow-md ${
+            Platform.OS === "android"
+              ? "bg-[#f5f7fa]"
+              : "backdrop-blur-lg bg-white/50"
+          }`}
+        >
           <View className="flex-row justify-between items-start mb-2">
             <Text className="text-2xl font-lato-bold text-text">
               {announcement.title}

@@ -9,6 +9,7 @@ import {
   useState,
   ReactNode,
 } from "react";
+import { Platform } from "react-native";
 
 const DEV_MODE_STORAGE_KEY = "devModeEnabled";
 const DEV_PASSWORD = "dev2025";

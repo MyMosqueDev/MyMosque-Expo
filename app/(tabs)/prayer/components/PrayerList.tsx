@@ -139,7 +139,6 @@ export default function PrayerList({
       {getPrayerOrder(prayerTimes).map((prayer, idx) => {
         const isCurrent = prayer.key === prayerTimes.nextPrayer.name;
         const { adhan, iqama } = getPrayerTimes(prayer, prayerTimes);
-        console.log(prayer);
         return (
           <MotiView
             key={prayer.key}
