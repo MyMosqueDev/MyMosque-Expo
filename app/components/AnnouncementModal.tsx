@@ -1,8 +1,15 @@
 import { format, parseISO } from "date-fns";
 import { useState } from "react";
-import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Announcement } from "../../lib/types";
-import { getSeverityStyles } from "@/lib/utils";
+import { COLORS } from "../../lib/constants";
 
 interface AnnouncementModalProps {
   announcement: Announcement;
@@ -10,23 +17,29 @@ interface AnnouncementModalProps {
   onClose: () => void;
 }
 
-/**
- * AnnouncementModal component
- *
- * Displays a modal with full announcement details and image viewing capability.
- *
- * @param announcement - The announcement data to display
- * @param visible - Whether the modal is visible
- * @param onClose - Callback to close the modal
- */
+const severityColors = {
+  high: COLORS.RED,
+  medium: COLORS.YELLOW,
+  low: COLORS.GREEN,
+} as const;
+
+const severityLabels = {
+  high: "Urgent",
+  medium: "Notice",
+  low: "Info",
+} as const;
+
 export default function AnnouncementModal({
   announcement,
   visible,
   onClose,
 }: AnnouncementModalProps) {
   const [imageModalVisible, setImageModalVisible] = useState(false);
-  const severityStyles = getSeverityStyles(announcement.severity);
-  const date = format(parseISO(announcement.created_at), "EEEE, MMMM d");
+  const severity =
+    (announcement.severity?.toLowerCase() as keyof typeof severityColors);
+  const dotColor = severityColors[severity];
+  const label = severityLabels[severity];
+  const date = format(parseISO(announcement.created_at), "MMM d, yyyy");
 
   const handleImagePress = () => {
     setImageModalVisible(true);
@@ -40,65 +53,85 @@ export default function AnnouncementModal({
   return (
     <>
       <Modal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={visible}
         onRequestClose={onClose}
       >
         <TouchableOpacity
-          className="flex-1 justify-center items-center bg-black/30"
+          className="flex-1"
           activeOpacity={1}
           onPress={onClose}
-        >
-          <TouchableOpacity
-            className="w-[90vw] backdrop-blur-lg border border-white/30 rounded-2xl p-6 bg-white shadow-lg"
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-2xl font-lato-bold text-text flex-1 mr-3">
-                {announcement.title}
+        />
+        <View className="absolute bottom-0 left-0 right-0 min-h-[50vh] max-h-[85vh] rounded-t-3xl bg-white shadow-xl overflow-hidden">
+          {/* Drag handle */}
+          <View className="items-center pt-3 pb-1">
+            <View className="w-10 h-1 rounded-full bg-gray-300" />
+          </View>
+
+          {/* Header bar */}
+          <View className="flex-row items-center justify-between px-6 pt-2 pb-3">
+            <View className="flex-row items-center gap-2">
+              <View
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: 4,
+                  backgroundColor: dotColor,
+                }}
+              />
+              <Text className="text-xs font-lato text-[#8896A6] tracking-wide uppercase">
+                {label} · {date}
               </Text>
-              <TouchableOpacity
-                onPress={onClose}
-                className="w-8 h-8 rounded-full justify-center items-center bg-gray-200/70 backdrop-blur-sm border border-white/30"
-                activeOpacity={0.7}
-              >
-                <Text className="text-gray-600 font-bold text-lg">×</Text>
-              </TouchableOpacity>
             </View>
+            <TouchableOpacity
+              onPress={onClose}
+              className="w-7 h-7 rounded-full justify-center items-center bg-gray-100"
+              activeOpacity={0.7}
+            >
+              <Text className="text-gray-400 font-bold text-base leading-none">
+                ×
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-base text-[#5A6B7A]">{date}</Text>
-              <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
-                <Text
-                  className={`${severityStyles.text} font-lato-semibold text-sm`}
-                >
-                  {announcement.severity}
-                </Text>
-              </View>
-            </View>
+          {/* Title */}
+          <Text className="text-2xl font-lato-bold text-text px-6 mb-4">
+            {announcement.title}
+          </Text>
 
+          <ScrollView
+            className="px-6"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 60 }}
+          >
+            {/* Image */}
             {announcement.image && (
-              <View className="mb-4">
-                <TouchableOpacity
-                  onPress={handleImagePress}
-                  activeOpacity={0.8}
-                >
-                  <Image
-                    source={{ uri: announcement.image }}
-                    className="w-full h-48 rounded-lg"
-                    resizeMode="cover"
-                  />
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                onPress={handleImagePress}
+                activeOpacity={0.9}
+                className="mb-4"
+              >
+                <Image
+                  source={{ uri: announcement.image }}
+                  className="w-full rounded-xl"
+                  style={{ aspectRatio: 1 }}
+                  resizeMode="contain"
+                />
+                <View className="absolute bottom-2 right-2 bg-black/40 px-2 py-1 rounded-md">
+                  <Text className="text-white text-[10px] font-lato-semibold">
+                    Tap to expand
+                  </Text>
+                </View>
+              </TouchableOpacity>
             )}
 
-            <Text className="text-base text-[#444] leading-6">
+            {/* Description */}
+            <Text className="text-base text-[#444] leading-6 font-lato">
               {announcement.description}
             </Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          </ScrollView>
+        </View>
       </Modal>
 
       {/* Full-screen image modal */}

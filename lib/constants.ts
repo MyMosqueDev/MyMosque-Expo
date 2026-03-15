@@ -18,7 +18,11 @@ export const COLORS = {
   SECONDARY: "#4A4A4A", // gray
   SECONDARY_OPACITY: "#4A4A4A/50", // gray/50
   TEXT: "#4A4A4A", // gray
+  YELLOW: "#eab308", // yellow
+  GREEN: "#22c55e", // green
+  RED: "#ef4444", // red
 } as const;
+
 
 // Layout constants
 export const LAYOUT = {
