@@ -53,7 +53,6 @@ export default function Navbar() {
   // hide nav bar on the following pages
   if (
     pathname.startsWith("/announcements") ||
-    pathname.startsWith("/eventDetails") ||
     pathname.startsWith("/map") ||
     pathname.startsWith("/settings")
   ) {
