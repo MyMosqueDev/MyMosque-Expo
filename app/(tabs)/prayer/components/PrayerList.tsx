@@ -1,105 +1,27 @@
-import { JummahTime, PrayerTime } from "@/lib/types";
+import { getJummahSlots, isFriday } from "@/lib/prayerTimeUtils";
+import { PrayerTime } from "@/lib/types";
 import { MotiView, View } from "moti";
 import { Text } from "react-native";
 
-type RegularPrayerKey = "fajr" | "dhuhr" | "asr" | "maghrib" | "isha";
+type Row = { key: string; label: string; adhan: string; iqama: string };
 
-type RegularPrayer = {
-  key: RegularPrayerKey;
-  label: string;
-  isJummah?: false;
-};
+const withoutPeriod = (time: string | undefined) =>
+  time?.replace(/ [AP]M$/i, "") || "N/A";
 
-type JummahPrayer = {
-  key: string;
-  label: string;
-  isJummah: true;
-  jummahKey: keyof JummahTime;
-};
+// Jummah is listed after Fajr every day, and takes the place of Dhuhr on Fridays
+const getRows = (prayerTimes: PrayerTime): Row[] => {
+  const { fajr, dhuhr, asr, maghrib, isha } = prayerTimes;
+  const jummah = getJummahSlots(prayerTimes.jummah);
+  const showDhuhr = !isFriday(new Date()) || jummah.length === 0;
 
-type Prayer = RegularPrayer | JummahPrayer;
-
-// Helper function to get prayer times
-const getPrayerTimes = (prayer: Prayer, prayerTimes: PrayerTime) => {
-  if (prayer.isJummah) {
-    const jummahData = prayerTimes.jummah[prayer.jummahKey];
-    return jummahData
-      ? { adhan: jummahData.athan, iqama: jummahData.iqama }
-      : { adhan: "N/A", iqama: "N/A" };
-  } else {
-    const pt = prayerTimes[prayer.key];
-    return {
-      adhan: pt.adhan.replace(/ [AP]M$/i, "") || "N/A",
-      iqama: pt.iqama.replace(/ [AP]M$/i, "") || "N/A",
-    };
-  }
-};
-
-// Helper function to get the prayer order based off of the data provided & day of the week
-const getPrayerOrder = (prayerTimes: PrayerTime): Prayer[] => {
-  const hasJummah = Object.keys(prayerTimes.jummah).length > 0;
-  if (hasJummah) {
-    let baseOrder: RegularPrayer[] = [
-      { key: "fajr", label: "Fajr" },
-      { key: "dhuhr", label: "Dhuhr" },
-      { key: "asr", label: "Asr" },
-      { key: "maghrib", label: "Maghrib" },
-      { key: "isha", label: "Isha" },
-    ];
-    if (new Date().getDay() === 5) {
-      baseOrder = [
-        { key: "fajr", label: "Fajr" },
-        { key: "asr", label: "Asr" },
-        { key: "maghrib", label: "Maghrib" },
-        { key: "isha", label: "Isha" },
-      ];
-    }
-
-    // Insert Jummah prayers after Fajr
-    const jummahPrayers: JummahPrayer[] = [
-      {
-        key: "jummah1",
-        label: "Jummah 1",
-        isJummah: true,
-        jummahKey: "jummah1",
-      },
-    ];
-
-    // Add second Jummah if it exists
-    if (prayerTimes.jummah.jummah2) {
-      jummahPrayers.push({
-        key: "jummah2",
-        label: "Jummah 2",
-        isJummah: true,
-        jummahKey: "jummah2",
-      });
-    }
-
-    // Add third Jummah if it exists
-    if (prayerTimes.jummah.jummah3) {
-      jummahPrayers.push({
-        key: "jummah3",
-        label: "Jummah 3",
-        isJummah: true,
-        jummahKey: "jummah3",
-      });
-    }
-
-    return [
-      baseOrder[0], // Fajr
-      ...jummahPrayers,
-      ...baseOrder.slice(1), // Asr, Maghrib, Isha
-    ];
-  } else {
-    // Regular prayer order
-    return [
-      { key: "fajr", label: "Fajr" },
-      { key: "dhuhr", label: "Dhuhr" },
-      { key: "asr", label: "Asr" },
-      { key: "maghrib", label: "Maghrib" },
-      { key: "isha", label: "Isha" },
-    ];
-  }
+  return [
+    { key: "fajr", label: "Fajr", ...fajr },
+    ...jummah,
+    ...(showDhuhr ? [{ key: "dhuhr", label: "Dhuhr", ...dhuhr }] : []),
+    { key: "asr", label: "Asr", ...asr },
+    { key: "maghrib", label: "Maghrib", ...maghrib },
+    { key: "isha", label: "Isha", ...isha },
+  ];
 };
 
 /**
@@ -136,9 +58,10 @@ export default function PrayerList({
       </View>
 
       {/* Prayer List */}
-      {getPrayerOrder(prayerTimes).map((prayer, idx) => {
+      {getRows(prayerTimes).map((prayer, idx) => {
         const isCurrent = prayer.key === prayerTimes.nextPrayer.name;
-        const { adhan, iqama } = getPrayerTimes(prayer, prayerTimes);
+        const adhan = withoutPeriod(prayer.adhan);
+        const iqama = withoutPeriod(prayer.iqama);
         return (
           <MotiView
             key={prayer.key}

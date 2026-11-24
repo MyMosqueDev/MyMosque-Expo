@@ -67,16 +67,26 @@ export type PrayerTime = {
   maghrib: { adhan: string; iqama: string };
   isha: { adhan: string; iqama: string };
   jummah: JummahTime;
-  nextPrayer: {
-    name: string;
-    minutesToNextPrayer: number;
-    percentElapsed: number;
-  };
+  nextPrayer: NextPrayer;
   warning: string | null;
 };
 
+/** The next iqama. `name` is a prayer key, such as "dhuhr" or "jummah1". */
+export type NextPrayer = {
+  name: string;
+  label: string;
+  adhan: string;
+  iqama: string;
+  /** null once the adhan has passed, or when its time is unknown */
+  minutesToAdhan: number | null;
+  /** counts down to the iqama */
+  minutesToNextPrayer: number;
+  percentElapsed: number;
+};
+
+/** Empty when the mosque has no Jummah. */
 export type JummahTime = {
-  jummah1: { athan: string; iqama: string };
+  jummah1?: { athan: string; iqama: string };
   jummah2?: { athan: string; iqama: string };
   jummah3?: { athan: string; iqama: string };
 };

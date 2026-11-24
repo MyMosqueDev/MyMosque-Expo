@@ -35,8 +35,7 @@ export default function PrayerProgress({
     >
       <View className="w-full flex-row justify-between px-2">
         <Text className="text-[#4A4A4A] text-2xl font-lato-bold">
-          {prayerTimes.nextPrayer.name.charAt(0).toUpperCase() +
-            prayerTimes.nextPrayer.name.slice(1)}
+          {prayerTimes.nextPrayer.label}
         </Text>
         <MotiView
           from={{ opacity: 0.5, scale: 0.95 }}

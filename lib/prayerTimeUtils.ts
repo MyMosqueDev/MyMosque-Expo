@@ -2,152 +2,166 @@ import {
   DBPrayerTimes,
   DailyPrayerTimes,
   JummahTime,
+  NextPrayer,
   PrayerTime,
 } from "./types";
 import { to24HourFormat } from "./utils";
 
-export const getCurrentPrayerTime = (
-  prayerTimesData: DBPrayerTimes,
-  jummahTimes: JummahTime,
-) => {
-  const now = new Date();
-  const date = now.getDate() - 1;
-  const prayerTimes: DBPrayerTimes["prayer_times"] =
-    prayerTimesData.prayer_times;
-  const currentPrayerTime: DailyPrayerTimes = prayerTimes[date].times;
-  const month = (now.getMonth() + 1).toString().padStart(2, "0");
-  const year = now.getFullYear().toString().slice(-2);
-  const mmyy = `${month}-${year}`;
-  const warning =
-    mmyy !== prayerTimesData["mm-yy"]
-      ? "Current prayer times may be outdated"
-      : null;
+const MINUTES_PER_DAY = 24 * 60;
+const FRIDAY = 5;
 
-  const res: PrayerTime = {
-    fajr: currentPrayerTime.fajr,
-    dhuhr: currentPrayerTime.dhuhr,
-    asr: currentPrayerTime.asr,
-    maghrib: currentPrayerTime.maghrib,
-    isha: currentPrayerTime.isha,
-    jummah: jummahTimes,
-    nextPrayer: { name: "", minutesToNextPrayer: 0, percentElapsed: 0 },
-    warning,
-  };
+const DAILY_PRAYERS = [
+  { key: "fajr", label: "Fajr" },
+  { key: "dhuhr", label: "Dhuhr" },
+  { key: "asr", label: "Asr" },
+  { key: "maghrib", label: "Maghrib" },
+  { key: "isha", label: "Isha" },
+] as const;
 
-  const next = getNextPrayer(res);
+const JUMMAH_KEYS = ["jummah1", "jummah2", "jummah3"] as const;
 
-  res.nextPrayer = next;
-
-  return res;
+export type JummahSlot = {
+  key: (typeof JUMMAH_KEYS)[number];
+  label: string;
+  adhan: string;
+  iqama: string;
 };
 
-// function to get the next prayer time based on current time
-export const getNextPrayer = (prayerTimes: PrayerTime) => {
-  const now = new Date();
-  const currentTime = now.getHours() * 60 + now.getMinutes();
-  const isFriday = now.getDay() === 5;
+/** False for missing times and for the "00:00" / "N/A" placeholders. */
+export const isKnownTime = (time: string | null | undefined): time is string =>
+  !!time && time !== "00:00" && time !== "N/A";
 
-  // gets the prayer times in minutes (converts to 24hr format first)
-  let prayers = Object.entries(prayerTimes)
-    .filter(([key, value]) => {
-      // Only include prayer keys (fajr, dhuhr, asr, maghrib, isha) and ensure they have iqama
-      const prayerKeys = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
-      return (
-        prayerKeys.includes(key) &&
-        typeof value === "object" &&
-        value !== null &&
-        "iqama" in value
-      );
-    })
-    .map(([name, value]) => {
-      const iqama = (value as any).iqama;
-      const iqama24 = to24HourFormat(iqama); // Convert to 24hr format
-      const [hours, minutes] = iqama24.split(":").map(Number);
-      return { name, minutes: hours * 60 + minutes, displayName: name };
-    });
+export const isFriday = (date: Date) => date.getDay() === FRIDAY;
 
-  // On Friday, replace dhuhr with jummah times
-  if (isFriday && prayerTimes.jummah && Array.isArray(prayerTimes.jummah)) {
-    // Remove dhuhr from prayers
-    prayers = prayers.filter((p) => p.name !== "dhuhr");
+/** The "MM-YY" key used by new_prayer_times. */
+export const monthKey = (date: Date) =>
+  `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getFullYear()).slice(-2)}`;
 
-    // Add jummah times
-    prayerTimes.jummah.forEach((jummah: any, index: number) => {
-      const iqama24 = to24HourFormat(jummah.iqama); // Convert to 24hr format
-      const [hours, minutes] = iqama24.split(":").map(Number);
-      prayers.push({
-        name: `jummah_${index + 1}`,
-        minutes: hours * 60 + minutes,
-        displayName: jummah.name || `Jummah ${index + 1}`,
-      });
-    });
-  }
-
-  prayers.sort((a, b) => a.minutes - b.minutes);
-  // finds the next prayer time
-  let nextPrayer = prayers.find((p) => p.minutes > currentTime);
-  let currentPrayer = null;
-  let minutesToNextPrayer = 0;
-  let percentElapsed = 0;
-
-  // if the next prayer time is not found, set the next prayer time to the first prayer time and the current prayer time to the last prayer time
-  if (!nextPrayer) {
-    nextPrayer = prayers[0];
-    currentPrayer = prayers[prayers.length - 1];
-    minutesToNextPrayer = 24 * 60 - currentTime + nextPrayer.minutes;
-  } else {
-    // if the next prayer time is found, set the current prayer time to the previous prayer time
-    const nextIndex = prayers.findIndex((p) => p.name === nextPrayer!.name);
-    currentPrayer = prayers[(nextIndex - 1 + prayers.length) % prayers.length];
-    minutesToNextPrayer = nextPrayer.minutes - currentTime;
-  }
-
-  // gets the interval between the current prayer and the next prayer
-  let interval = nextPrayer.minutes - currentPrayer.minutes;
-  if (interval <= 0) interval += 24 * 60;
-  let elapsed = currentTime - currentPrayer.minutes;
-  if (elapsed < 0) elapsed += 24 * 60;
-  percentElapsed = Math.max(0, Math.min(1, elapsed / interval));
-
-  // Return the display name for jummah prayers, otherwise the regular name
-  const prayerName = (nextPrayer as any).displayName || nextPrayer.name;
-
-  return {
-    name: prayerName,
-    minutesToNextPrayer,
-    percentElapsed,
-  };
+/** "MM-YY" as a number that sorts chronologically, which the string does not. */
+export const monthOrder = (key: string) => {
+  const [month, year] = key.split("-").map(Number);
+  return year * 12 + month;
 };
 
-export const addMinutesToTime = (time24: string, minutesToAdd: number) => {
-  const [hourStr, minuteStr] = time24.split(":");
-  let hour = parseInt(hourStr, 10);
-  let minute = parseInt(minuteStr, 10);
+/** The Jummah prayers a mosque actually holds, in order. */
+export const getJummahSlots = (
+  jummah: JummahTime | null | undefined,
+): JummahSlot[] => {
+  const held = JUMMAH_KEYS.filter((key) => isKnownTime(jummah?.[key]?.iqama));
+  return held.map((key) => ({
+    key,
+    label: held.length === 1 ? "Jummah" : `Jummah ${key.slice(-1)}`,
+    adhan: jummah![key]!.athan || "N/A",
+    iqama: jummah![key]!.iqama,
+  }));
+};
 
-  minute += minutesToAdd;
-  hour += Math.floor(minute / 60);
-  minute = minute % 60;
-  hour = hour % 24;
-
-  const hourFormatted = hour.toString().padStart(2, "0");
-  const minuteFormatted = minute.toString().padStart(2, "0");
-  return `${hourFormatted}:${minuteFormatted}`;
+/** Chooses the latest month up to now, or failing that the earliest future one. */
+export const pickSchedule = <T extends DBPrayerTimes>(
+  schedules: T[],
+  now: Date,
+): T | null => {
+  const current = monthOrder(monthKey(now));
+  const usable = schedules
+    .filter((s) => s.prayer_times?.length > 0)
+    .sort((a, b) => monthOrder(a["mm-yy"]) - monthOrder(b["mm-yy"]));
+  const past = usable.filter((s) => monthOrder(s["mm-yy"]) <= current);
+  return past[past.length - 1] ?? usable[0] ?? null;
 };
 
 /**
- * Computes today's prayer times from a stored monthly schedule.
- * Use this when recomputing prayer times on app activation or day change.
- * @param monthlySchedule - the stored monthly prayer schedule from MMKV
- * @param jummahTimes - the jummah times for the mosque
- * @returns today's prayer times with next prayer info, or null if schedule is invalid
+ * The times for a date. Outside the scheduled month this is the nearest day we
+ * have, which is the closest match and stays on the right side of a DST change.
+ */
+export const getTimesForDate = (
+  schedule: DBPrayerTimes,
+  date: Date,
+): DailyPrayerTimes => {
+  const days = schedule.prayer_times;
+  const offset = monthOrder(monthKey(date)) - monthOrder(schedule["mm-yy"]);
+  if (offset < 0) return days[0].times;
+  const last = days.length - 1;
+  return days[offset > 0 ? last : Math.min(date.getDate() - 1, last)].times;
+};
+
+export const getCurrentPrayerTime = (
+  schedule: DBPrayerTimes,
+  jummahTimes: JummahTime | null,
+): PrayerTime => {
+  const now = new Date();
+  const { fajr, dhuhr, asr, maghrib, isha } = getTimesForDate(schedule, now);
+  const times = { fajr, dhuhr, asr, maghrib, isha, jummah: jummahTimes ?? {} };
+
+  return {
+    ...times,
+    nextPrayer: getNextPrayer(times),
+    warning:
+      monthKey(now) === schedule["mm-yy"]
+        ? null
+        : `Prayer times may be outdated (from ${schedule["mm-yy"]})`,
+  };
+};
+
+const toMinutes = (time: string) => {
+  const [hours, minutes] = to24HourFormat(time).split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
+/** Finds the next iqama. On Fridays, Jummah takes the place of Dhuhr. */
+export const getNextPrayer = (
+  prayerTimes: Omit<PrayerTime, "nextPrayer" | "warning">,
+): NextPrayer => {
+  const now = new Date();
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  const jummah = isFriday(now) ? getJummahSlots(prayerTimes.jummah) : [];
+
+  const prayers = [
+    ...DAILY_PRAYERS.filter(
+      ({ key }) => key !== "dhuhr" || jummah.length === 0,
+    ).map(({ key, label }) => ({ key, label, ...prayerTimes[key] })),
+    ...jummah,
+  ]
+    .map((prayer) => ({ ...prayer, minutes: toMinutes(prayer.iqama) }))
+    .sort((a, b) => a.minutes - b.minutes);
+
+  // After the last iqama, the next one is tomorrow's first.
+  const upcoming = prayers.findIndex((p) => p.minutes > currentTime);
+  const wraps = upcoming === -1;
+  const index = wraps ? 0 : upcoming;
+  const next = prayers[index];
+  const previous = prayers[(index - 1 + prayers.length) % prayers.length];
+  const dayOffset = wraps ? MINUTES_PER_DAY : 0;
+
+  const interval =
+    (next.minutes - previous.minutes + MINUTES_PER_DAY) % MINUTES_PER_DAY ||
+    MINUTES_PER_DAY;
+  const elapsed =
+    (currentTime - previous.minutes + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+
+  const minutesToAdhan = isKnownTime(next.adhan)
+    ? toMinutes(next.adhan) + dayOffset - currentTime
+    : null;
+
+  return {
+    name: next.key,
+    label: next.label,
+    adhan: next.adhan,
+    iqama: next.iqama,
+    minutesToAdhan:
+      minutesToAdhan !== null && minutesToAdhan > 0 ? minutesToAdhan : null,
+    minutesToNextPrayer: next.minutes + dayOffset - currentTime,
+    percentElapsed: Math.min(1, elapsed / interval),
+  };
+};
+
+/**
+ * Computes today's times from a stored schedule, for use between syncs.
+ * Returns null when there is no usable schedule.
  */
 export const getTodaysPrayerTimes = (
-  monthlySchedule: DBPrayerTimes | null,
+  schedule: DBPrayerTimes | null,
   jummahTimes: JummahTime | null,
-): PrayerTime | null => {
-  if (!monthlySchedule || !jummahTimes) {
-    return null;
-  }
-
-  return getCurrentPrayerTime(monthlySchedule, jummahTimes);
-};
+): PrayerTime | null =>
+  schedule && schedule.prayer_times?.length > 0
+    ? getCurrentPrayerTime(schedule, jummahTimes)
+    : null;

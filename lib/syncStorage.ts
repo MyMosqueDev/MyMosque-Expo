@@ -12,7 +12,7 @@ import {
   loadPrayerNotificationSettings,
   schedulePrayerNotifications,
 } from "./prayerNotifications";
-import { getCurrentPrayerTime } from "./prayerTimeUtils";
+import { getCurrentPrayerTime, pickSchedule } from "./prayerTimeUtils";
 import { supabase } from "./supabase";
 import {
   DBPrayerTimes,
@@ -390,7 +390,15 @@ const createDefaultPrayerTimes = (jummahTimes?: JummahTime): PrayerTime => ({
   maghrib: { adhan: "00:00", iqama: "00:00" },
   isha: { adhan: "00:00", iqama: "00:00" },
   jummah: jummahTimes || { jummah1: { athan: "00:00", iqama: "00:00" } },
-  nextPrayer: { name: "Fajr", minutesToNextPrayer: 0, percentElapsed: 0 },
+  nextPrayer: {
+    name: "fajr",
+    label: "Fajr",
+    adhan: "00:00",
+    iqama: "00:00",
+    minutesToAdhan: null,
+    minutesToNextPrayer: 0,
+    percentElapsed: 0,
+  },
   warning: "No prayer schedule available for this mosque",
 });
 
@@ -463,8 +471,7 @@ const getPrayerTimes = async (
     const { data: allSchedules, error: allSchedulesError } = await supabase
       .from("new_prayer_times")
       .select()
-      .eq("mosque_id", lastVisitedMosqueId)
-      .order("mm-yy", { ascending: false });
+      .eq("mosque_id", lastVisitedMosqueId);
 
     if (allSchedulesError) {
       console.error("Error fetching all prayer schedules:", allSchedulesError);
@@ -475,7 +482,11 @@ const getPrayerTimes = async (
       };
     }
 
-    if (!allSchedules || allSchedules.length === 0) {
+    const mostRecentSchedule = pickSchedule(
+      (allSchedules ?? []) as DBPrayerTimes[],
+      new Date(),
+    );
+    if (!mostRecentSchedule) {
       // No schedules exist at all
       return {
         monthlySchedule: createDefaultMonthlySchedule(),
@@ -484,34 +495,14 @@ const getPrayerTimes = async (
     }
 
     // Use the most recent schedule with a warning
-    const mostRecentSchedule = allSchedules[0] as DBPrayerTimes;
     console.log(
       `Using most recent schedule from ${mostRecentSchedule["mm-yy"]}`,
     );
 
-    // Get today's day of month (1-indexed, then -1 for array index)
-    const today = new Date().getDate() - 1;
-    // Make sure we don't go out of bounds if the old schedule has fewer days
-    const dayIndex = Math.min(
-      today,
-      mostRecentSchedule.prayer_times.length - 1,
+    const todaysPrayerTimes = getCurrentPrayerTime(
+      mostRecentSchedule,
+      jummahTimes ?? null,
     );
-    const dailyTimes = mostRecentSchedule.prayer_times[dayIndex].times;
-
-    const todaysPrayerTimes: PrayerTime = {
-      fajr: dailyTimes.fajr,
-      dhuhr: dailyTimes.dhuhr,
-      asr: dailyTimes.asr,
-      maghrib: dailyTimes.maghrib,
-      isha: dailyTimes.isha,
-      jummah: jummahTimes || { jummah1: { athan: "00:00", iqama: "00:00" } },
-      nextPrayer: { name: "", minutesToNextPrayer: 0, percentElapsed: 0 },
-      warning: `Prayer times may be outdated (from ${mostRecentSchedule["mm-yy"]})`,
-    };
-
-    // Calculate next prayer
-    const { getNextPrayer } = await import("./prayerTimeUtils");
-    todaysPrayerTimes.nextPrayer = getNextPrayer(todaysPrayerTimes);
 
     return { monthlySchedule: mostRecentSchedule, todaysPrayerTimes };
   } catch (error) {
