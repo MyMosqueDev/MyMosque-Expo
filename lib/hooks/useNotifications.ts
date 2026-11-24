@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
+import { syncPushRegistration } from "../pushRegistration";
 
 export default function useNotifications() {
   useEffect(() => {
@@ -17,6 +18,8 @@ export default function useNotifications() {
         console.log("Failed to get push token for push notification!");
         return;
       }
+
+      await syncPushRegistration();
     };
 
     requestPermissions();
