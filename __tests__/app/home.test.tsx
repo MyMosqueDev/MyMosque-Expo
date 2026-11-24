@@ -5,6 +5,7 @@ import MosqueInfoToken from "@/app/components/MosqueInfoToken";
 import Home from "@/app/home";
 import DebugPanel from "@/components/DebugPanel";
 import NavBar from "@/components/NavBar";
+import { COLORS } from "@/lib/constants";
 import { getCurrentPrayerTime } from "@/lib/prayerTimeUtils";
 import { syncStorage } from "@/lib/syncStorage";
 import { ProcessedMosqueData } from "@/lib/types";
@@ -17,7 +18,13 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 import { ReactElement } from "react";
-import { AppState, Platform, TouchableOpacity } from "react-native";
+import {
+  AppState,
+  Platform,
+  processColor,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { State } from "react-native-gesture-handler";
 import {
   fireGestureHandler,
@@ -202,6 +209,17 @@ describe("events", () => {
       ]),
     );
     expect(screen.getByText(week)).toBeTruthy();
+  });
+
+  it("fades the days without events", async () => {
+    await show(
+      <Events />,
+      mosque({ events: [eventRow({ date: "2026-03-12T19:00:00-05:00" })] }),
+    );
+    const color = (day: string) =>
+      StyleSheet.flatten(screen.getByText(day).props.style).color;
+    expect(processColor(color("12"))).toBe(processColor(COLORS.PRIMARY));
+    expect(processColor(color("11"))).toBe(processColor("#4A4A4A80"));
   });
 
   it("orders events within the week", async () => {
