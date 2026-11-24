@@ -1,7 +1,6 @@
 import { useMosqueData } from "@/app/_layout";
 import ScrollContainer from "@/components/ScrollContainer";
 import useNotifications from "@/lib/hooks/useNotifications";
-import { getNextPrayer } from "@/lib/prayerTimeUtils";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useMemo } from "react";
@@ -34,22 +33,18 @@ export default function Home() {
     );
   }, [mosqueData]);
 
-  const updatedPrayerTimes = useMemo(() => {
-    if (!mosqueData) return null;
-    return {
-      ...mosqueData.prayerTimes,
-      nextPrayer: getNextPrayer(mosqueData.prayerTimes),
-    };
-  }, [mosqueData]);
-
   if (!mosqueData) {
-    return <ErrorScreen error="No mosque data found. Please exit the app and try again." />;
+    return (
+      <ErrorScreen error="No mosque data found. Please exit the app and try again." />
+    );
   }
 
   const mosqueInfoTokenData = {
     hours: mosqueData.info.hours,
     events: displayedEvents,
-    nextPrayer: updatedPrayerTimes?.nextPrayer || null,
+    nextPrayer: mosqueData.monthlyPrayerSchedule
+      ? mosqueData.prayerTimes.nextPrayer
+      : null,
   };
 
   return (
@@ -78,20 +73,13 @@ export default function Home() {
             <Text className="text-text text-[24px] font-lato-bold">
               Prayer Times
             </Text>
-            <Link
-              href={{
-                pathname: "/prayer",
-                params: {
-                  prayerTimes: JSON.stringify(updatedPrayerTimes),
-                },
-              }}
-            >
+            <Link href="/prayer">
               <Text className="text-md text-[#5B4B94] font-lato-bold">
                 View More
               </Text>
             </Link>
           </View>
-          <PrayerToken prayerTimes={updatedPrayerTimes!} />
+          <PrayerToken prayerTimes={mosqueData.prayerTimes} />
         </MotiView>
 
         {/* Announcements Section */}
@@ -106,14 +94,7 @@ export default function Home() {
             <Text className="text-text text-[24px] font-lato-bold">
               Announcements
             </Text>
-            <Link
-              href={{
-                pathname: "/announcements",
-                params: {
-                  announcements: JSON.stringify(mosqueData.announcements),
-                },
-              }}
-            >
+            <Link href="/announcements">
               <Text className="text-md text-[#4B944B] font-lato-bold">
                 View More
               </Text>
@@ -134,14 +115,7 @@ export default function Home() {
             <Text className="text-text text-[24px] font-lato-bold">
               Upcoming Events
             </Text>
-            <Link
-              href={{
-                pathname: "/events",
-                params: {
-                  events: JSON.stringify(mosqueData.events),
-                },
-              }}
-            >
+            <Link href="/events">
               <Text className="text-md text-[#3B5A7A] font-lato-bold">
                 View More
               </Text>

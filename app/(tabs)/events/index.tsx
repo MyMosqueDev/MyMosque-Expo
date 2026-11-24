@@ -1,19 +1,26 @@
+import { useMosqueData } from "@/app/_layout";
 import Loading from "@/app/components/Loading";
 import EventsList from "./components/EventsList";
 import WeekCalendar from "./components/WeekCalendar";
 import WeekNavigator from "./components/WeekNavigator";
 import ScrollContainer from "@/components/ScrollContainer";
 import { useEvents } from "@/lib/hooks/useEvents";
-import { useLocalSearchParams } from "expo-router";
+import { Event } from "@/lib/types";
 import { View } from "react-native";
 import { addDays } from "date-fns";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import { useCallback } from "react";
 
+const NO_EVENTS: Event[] = [];
+
 export default function Events() {
-  const { events: eventsParam } = useLocalSearchParams();
-  const { events, weekEvents, isLoading, weekStart, setWeekStart } =
-    useEvents(eventsParam);
+  const { mosqueData } = useMosqueData();
+  const events = mosqueData?.events ?? NO_EVENTS;
+  const { weekEvents, weekStart, setWeekStart } = useEvents(events);
 
   const goBack = useCallback(
     () => setWeekStart(addDays(weekStart, -7)),
@@ -25,6 +32,7 @@ export default function Events() {
   );
 
   const swipeGesture = Gesture.Pan()
+    .withTestId("week-swipe")
     .activeOffsetX([-30, 30])
     .onEnd((e) => {
       if (e.translationX > 50) {
@@ -35,7 +43,7 @@ export default function Events() {
     })
     .runOnJS(true);
 
-  if (isLoading) {
+  if (!mosqueData) {
     return <Loading name="Upcoming Events" />;
   }
 

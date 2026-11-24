@@ -1,60 +1,24 @@
-import ScrollContainer from "@/components/ScrollContainer";
-import { getNextPrayer } from "@/lib/prayerTimeUtils";
-import { PrayerTime } from "@/lib/types";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { AppState, View } from "react-native";
+import { useMosqueData } from "@/app/_layout";
 import Loading from "@/app/components/Loading";
-import PrayerWarning from "./components/PrayerWarning";
-import PrayerProgress from "./components/PrayerProgress";
+import ScrollContainer from "@/components/ScrollContainer";
+import { View } from "react-native";
 import PrayerList from "./components/PrayerList";
+import PrayerProgress from "./components/PrayerProgress";
+import PrayerWarning from "./components/PrayerWarning";
 
 /**
  * Prayer page component
  *
- * Displays prayer times with a warning, progress bar, and list.
- * Prayer times are passed via URL parameters and updated when the app is brought back to life.
+ * Displays today's prayer times with a warning, progress bar, and list.
  */
 export default function Prayers() {
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTime | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { prayerTimes: prayerTimesParam } = useLocalSearchParams();
+  const { mosqueData } = useMosqueData();
 
-  useEffect(() => {
-    if (prayerTimesParam) {
-      try {
-        const parsedPrayerTimes = JSON.parse(prayerTimesParam as string);
-        setPrayerTimes(parsedPrayerTimes);
-      } catch (error) {
-        console.error("Error parsing prayer times:", error);
-        setPrayerTimes(null);
-      }
-    }
-    setIsLoading(false);
-  }, [prayerTimesParam]);
-
-  // updates next prayer when app is brought back to life
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (state) => {
-      if (state === "active") {
-        if (prayerTimes) {
-          const updatedNextPrayer = getNextPrayer(prayerTimes);
-          setPrayerTimes({
-            ...prayerTimes,
-            nextPrayer: updatedNextPrayer,
-          });
-        }
-      }
-    });
-    return () => {
-      subscription.remove();
-    };
-  }, [prayerTimes]);
-
-  if (isLoading || !prayerTimes) {
+  if (!mosqueData) {
     return <Loading name="Prayer Times" />;
   }
 
+  const { prayerTimes } = mosqueData;
   return (
     <ScrollContainer name="Prayer Times">
       <View className="flex-1 w-full px-2 pt-6">
