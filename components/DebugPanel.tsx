@@ -260,8 +260,8 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
         if (mosqueDataStr) {
           const mosqueData = JSON.parse(mosqueDataStr);
           mosqueName = mosqueData.info?.name || "Unknown";
-          lastSyncTime = mosqueData.info?.last_prayer
-            ? new Date(mosqueData.info.last_prayer).toLocaleString()
+          lastSyncTime = mosqueData.syncedAt
+            ? new Date(mosqueData.syncedAt).toLocaleString()
             : "Never";
           monthlyScheduleMonth =
             mosqueData.monthlyPrayerSchedule?.["mm-yy"] || "None";

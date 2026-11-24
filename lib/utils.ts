@@ -72,15 +72,10 @@ export const to24HourFormat = (time: string): string => {
  */
 export const fetchMosqueInfo = async () => {
   const userDataString = await AsyncStorage.getItem("userData");
-  if (userDataString) {
-    const lastVisitedMosqueId = JSON.parse(userDataString).lastVisitedMosque;
-    const mosqueData = await syncStorage(lastVisitedMosqueId);
-    const filteredMosqueData = filterMosqueData(mosqueData);
-
-    return filteredMosqueData;
-  }
-
-  return null;
+  const mosqueId = userDataString
+    ? JSON.parse(userDataString).lastVisitedMosque
+    : null;
+  return mosqueId ? filterMosqueData(await syncStorage(mosqueId)) : null;
 };
 
 const filterMosqueData = (mosqueData: ProcessedMosqueData) => {

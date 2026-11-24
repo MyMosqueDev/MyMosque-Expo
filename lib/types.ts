@@ -102,15 +102,6 @@ export type Announcement = {
   status?: "active" | "deleted" | "draft";
 };
 
-export type MosqueData = {
-  info: MosqueInfo;
-  announcements: Announcement[];
-  events: Event[];
-  prayerTimes: PrayerTime;
-  monthlyPrayerSchedule: DBPrayerTimes | null;
-  jummahTimes: JummahTime | null;
-};
-
 export type ProcessedMosqueData = {
   info: MosqueInfo;
   announcements: Announcement[];
@@ -118,6 +109,11 @@ export type ProcessedMosqueData = {
   prayerTimes: PrayerTime;
   monthlyPrayerSchedule: DBPrayerTimes | null;
   jummahTimes: JummahTime | null;
+  /**
+   * fresh: everything is up to date. partial: some requests failed.
+   * offline: nothing could be checked, so this is saved data.
+   */
+  syncStatus: "fresh" | "partial" | "offline";
 };
 
 export type UserData = {
