@@ -211,6 +211,36 @@ describe("events", () => {
     expect(screen.getByText(week)).toBeTruthy();
   });
 
+  it("#41: marks only past events", async () => {
+    await show(<Events />, mosque());
+    expect(screen.getByText("Past event")).toBeTruthy();
+    expect(screen.getAllByText("Past")).toHaveLength(1);
+  });
+
+  it("#41: marks an event while the screen stays open", async () => {
+    const today = mosque({
+      events: [eventRow({ date: "2026-03-11T13:30:00-05:00" })],
+    });
+    const ui = (data: ProcessedMosqueData) => (
+      <MosqueDataContext.Provider
+        value={{ mosqueData: data, setMosqueData: () => undefined }}
+      >
+        <Events />
+      </MosqueDataContext.Provider>
+    );
+    const view = render(ui(today));
+    expect(screen.queryByText("Past")).toBeNull();
+    setNow("2026-03-11T16:31:00");
+    view.rerender(ui({ ...today })); // what the minute refresh does
+    expect(screen.getByText("Past")).toBeTruthy();
+  });
+
+  it("#41: a past event can still be opened", async () => {
+    await show(<Events />, mosque());
+    fireEvent.press(screen.getByText("Past event"));
+    expect(screen.getAllByText("Weekly class").length).toBeGreaterThan(2);
+  });
+
   it("fades the days without events", async () => {
     await show(
       <Events />,
