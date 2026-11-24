@@ -67,18 +67,28 @@ export type PrayerTime = {
   maghrib: { adhan: string; iqama: string };
   isha: { adhan: string; iqama: string };
   jummah: JummahTime;
-  nextPrayer: {
-    name: string;
-    minutesToNextPrayer: number;
-    percentElapsed: number;
-  };
+  nextPrayer: NextPrayer;
   warning: string | null;
 };
 
+/** The next iqama. `name` is a prayer key, such as "dhuhr" or "jummah1". */
+export type NextPrayer = {
+  name: string;
+  label: string;
+  adhan: string;
+  iqama: string;
+  /** null once the adhan has passed, or when its time is unknown */
+  minutesToAdhan: number | null;
+  /** counts down to the iqama */
+  minutesToNextPrayer: number;
+  percentElapsed: number;
+};
+
+/** Empty when the mosque has no Jummah. */
 export type JummahTime = {
-  jummah1: { athan: string; iqama: string };
-  jummah2?: { athan: string; iqama: string };
-  jummah3?: { athan: string; iqama: string };
+  jummah1?: { adhan: string; iqama: string };
+  jummah2?: { adhan: string; iqama: string };
+  jummah3?: { adhan: string; iqama: string };
 };
 
 export type Announcement = {
@@ -92,15 +102,6 @@ export type Announcement = {
   status?: "active" | "deleted" | "draft";
 };
 
-export type MosqueData = {
-  info: MosqueInfo;
-  announcements: Announcement[];
-  events: Event[];
-  prayerTimes: PrayerTime;
-  monthlyPrayerSchedule: DBPrayerTimes | null;
-  jummahTimes: JummahTime | null;
-};
-
 export type ProcessedMosqueData = {
   info: MosqueInfo;
   announcements: Announcement[];
@@ -108,6 +109,11 @@ export type ProcessedMosqueData = {
   prayerTimes: PrayerTime;
   monthlyPrayerSchedule: DBPrayerTimes | null;
   jummahTimes: JummahTime | null;
+  /**
+   * fresh: everything is up to date. partial: some requests failed.
+   * offline: nothing could be checked, so this is saved data.
+   */
+  syncStatus: "fresh" | "partial" | "offline";
 };
 
 export type UserData = {

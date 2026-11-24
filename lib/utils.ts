@@ -1,7 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Font from "expo-font";
 import { syncStorage } from "./syncStorage";
 import { ProcessedMosqueData } from "./types";
+import { loadUserData } from "./userData";
 
 // loads in all the fonts
 export const loadFonts = async () => {
@@ -71,16 +71,8 @@ export const to24HourFormat = (time: string): string => {
  * @returns the mosque info
  */
 export const fetchMosqueInfo = async () => {
-  const userDataString = await AsyncStorage.getItem("userData");
-  if (userDataString) {
-    const lastVisitedMosqueId = JSON.parse(userDataString).lastVisitedMosque;
-    const mosqueData = await syncStorage(lastVisitedMosqueId);
-    const filteredMosqueData = filterMosqueData(mosqueData);
-
-    return filteredMosqueData;
-  }
-
-  return null;
+  const mosqueId = loadUserData().lastVisitedMosque;
+  return mosqueId ? filterMosqueData(await syncStorage(mosqueId)) : null;
 };
 
 const filterMosqueData = (mosqueData: ProcessedMosqueData) => {

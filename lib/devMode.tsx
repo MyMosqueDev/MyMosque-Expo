@@ -1,15 +1,8 @@
 // Dev Mode Context
 // Global state management for developer mode across the app
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
-import { Platform } from "react-native";
+import { createContext, ReactNode, useContext, useState } from "react";
+import { storage } from "./mmkv";
 
 const DEV_MODE_STORAGE_KEY = "devModeEnabled";
 const DEV_PASSWORD = "dev2025";
@@ -18,48 +11,24 @@ type DevModeContextType = {
   isDevMode: boolean;
   setDevMode: (enabled: boolean) => void;
   toggleDevMode: (password?: string) => boolean;
-  isLoading: boolean;
 };
 
 const DevModeContext = createContext<DevModeContextType>({
   isDevMode: false,
   setDevMode: () => {},
   toggleDevMode: () => false,
-  isLoading: true,
 });
 
 export const useDevMode = () => useContext(DevModeContext);
 
 export const DevModeProvider = ({ children }: { children: ReactNode }) => {
-  const [isDevMode, setIsDevMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isDevMode, setIsDevMode] = useState(
+    () => storage.getString(DEV_MODE_STORAGE_KEY) === "true",
+  );
 
-  useEffect(() => {
-    const loadDevMode = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(DEV_MODE_STORAGE_KEY);
-        if (stored === "true") {
-          setIsDevMode(true);
-        }
-      } catch (error) {
-        console.error("Error loading dev mode state:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadDevMode();
-  }, []);
-
-  const setDevMode = async (enabled: boolean) => {
-    try {
-      await AsyncStorage.setItem(
-        DEV_MODE_STORAGE_KEY,
-        enabled ? "true" : "false",
-      );
-      setIsDevMode(enabled);
-    } catch (error) {
-      console.error("Error saving dev mode state:", error);
-    }
+  const setDevMode = (enabled: boolean) => {
+    storage.set(DEV_MODE_STORAGE_KEY, enabled ? "true" : "false");
+    setIsDevMode(enabled);
   };
 
   const toggleDevMode = (password?: string): boolean => {
@@ -74,9 +43,7 @@ export const DevModeProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <DevModeContext.Provider
-      value={{ isDevMode, setDevMode, toggleDevMode, isLoading }}
-    >
+    <DevModeContext.Provider value={{ isDevMode, setDevMode, toggleDevMode }}>
       {children}
     </DevModeContext.Provider>
   );

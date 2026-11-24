@@ -1,15 +1,40 @@
 import { Platform, Text, View } from "react-native";
+import { getJummahSlots, isFriday } from "../../lib/prayerTimeUtils";
 import { PrayerTime } from "../../lib/types";
 
-type PrayerKey = "fajr" | "dhuhr" | "asr" | "maghrib" | "isha";
+type Cell = { key: string; label: string; iqama: string; isNext: boolean };
 
-const getPrayerTime = (prayerTimes: PrayerTime, prayerKey: PrayerKey) => {
-  const prayerData =
-    prayerTimes[prayerKey];
-  if (typeof prayerData === "object" && prayerData && "iqama" in prayerData) {
-    return prayerData.iqama.replace(/ [AP]M$/i, "");
-  }
-  return "N/A";
+// On Fridays the Dhuhr cell shows the upcoming Jummah, or the first once all are over
+const getCells = (prayerTimes: PrayerTime): Cell[] => {
+  const next = prayerTimes.nextPrayer.name;
+  const jummah = isFriday(new Date()) ? getJummahSlots(prayerTimes.jummah) : [];
+  const nextJummah = jummah.find(({ key }) => key === next);
+  const shownJummah = nextJummah ?? jummah[0];
+
+  const regular = (
+    key: "fajr" | "dhuhr" | "asr" | "maghrib" | "isha",
+    label: string,
+  ) => ({
+    key,
+    label,
+    iqama: prayerTimes[key].iqama,
+    isNext: key === next,
+  });
+
+  return [
+    regular("fajr", "Fajr"),
+    shownJummah
+      ? {
+          key: "jummah",
+          label: "Jummah",
+          iqama: shownJummah.iqama,
+          isNext: !!nextJummah,
+        }
+      : regular("dhuhr", "Dhuhr"),
+    regular("asr", "Asr"),
+    regular("maghrib", "Maghrib"),
+    regular("isha", "Isha"),
+  ];
 };
 
 export default function PrayerToken({
@@ -17,14 +42,7 @@ export default function PrayerToken({
 }: {
   prayerTimes: PrayerTime;
 }) {
-  // sets prayer names
-  const prayerNames = [
-    { key: "fajr", label: "Fajr" },
-    { key: "dhuhr", label: "Dhuhr" },
-    { key: "asr", label: "Asr" },
-    { key: "maghrib", label: "Maghrib" },
-    { key: "isha", label: "Isha" },
-  ];
+  const cells = getCells(prayerTimes);
 
   return (
     <View
@@ -35,32 +53,31 @@ export default function PrayerToken({
       }`}
     >
       {/* displays all prayer times */}
-      {prayerNames.map(({ key, label }, index) => {
-        const isCurrentPrayer = key === prayerTimes.nextPrayer.name;
+      {cells.map(({ key, label, iqama, isNext }, index) => {
         return (
           <View
             key={key}
             className={`w-1/5 items-center justify-center ${
               index === 0
                 ? "rounded-l-2xl"
-                : index === prayerNames.length - 1
+                : index === cells.length - 1
                   ? "rounded-r-2xl"
                   : ""
-            } ${isCurrentPrayer ? "bg-[#5B4B94]/70 rounded-2xl" : ""}`}
+            } ${isNext ? "bg-[#5B4B94]/70 rounded-2xl" : ""}`}
           >
             <Text
               className={`text-md font-lato-bold ${
-                isCurrentPrayer ? "text-white" : "text-text"
+                isNext ? "text-white" : "text-text"
               }`}
             >
               {label}
             </Text>
             <Text
               className={`text-md font-lato-bold ${
-                isCurrentPrayer ? "text-white" : "text-text"
+                isNext ? "text-white" : "text-text"
               }`}
             >
-              {getPrayerTime(prayerTimes, key as PrayerKey)}
+              {iqama?.replace(/ [AP]M$/i, "") || "N/A"}
             </Text>
           </View>
         );

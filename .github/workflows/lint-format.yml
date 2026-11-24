@@ -24,5 +24,11 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Run type check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test -- --ci
+
       - name: Run Prettier
         run: npm run format

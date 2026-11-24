@@ -1,7 +1,12 @@
 import Header from "@/components/Header";
 import ScrollContainer from "@/components/ScrollContainer";
+import {
+  AppSettings,
+  DEFAULT_APP_SETTINGS,
+  loadAppSettings,
+  saveAppSettings,
+} from "@/lib/appSettings";
 import { useDevMode } from "@/lib/devMode";
-import { getPushToken } from "@/lib/getPushToken";
 import {
   DEFAULT_PRAYER_NOTIFICATION_SETTINGS,
   getJummahCount,
@@ -10,10 +15,10 @@ import {
   savePrayerNotificationSettings,
   schedulePrayerNotifications,
 } from "@/lib/prayerNotifications";
+import { syncPushRegistration } from "@/lib/pushRegistration";
 import { JummahTime, MosqueInfo } from "@/lib/types";
 import { fetchMosqueInfo } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import { MotiView } from "moti";
@@ -32,30 +37,14 @@ import {
   View,
 } from "react-native";
 
-type SettingsType = {
-  events: {
-    enabled: boolean;
-  };
-  announcements: {
-    enabled: boolean;
-  };
-  development: {
-    enabled: boolean;
-  };
-};
-
-const DEFAULT_SETTINGS: SettingsType = {
-  events: { enabled: true },
-  announcements: { enabled: true },
-  development: { enabled: false },
-};
+// Toggles are saved at once; the resulting work waits for a pause in tapping.
+const APPLY_DELAY_MS = 500;
 
 // sorry for how awfully this is written
 export default function Settings() {
   const { isDevMode, toggleDevMode } = useDevMode();
-  const [settings, setSettings] = useState<SettingsType>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
   const [mosqueInfo, setMosqueInfo] = useState<MosqueInfo | null>(null);
-  const [mosqueId, setMosqueId] = useState<string | null>(null);
   const [jummahTimes, setJummahTimes] = useState<JummahTime | null>(null);
   const [prayerNotificationSettings, setPrayerNotificationSettings] =
     useState<PrayerNotificationSettings>(DEFAULT_PRAYER_NOTIFICATION_SETTINGS);
@@ -64,10 +53,7 @@ export default function Settings() {
     useState<string>("unknown");
   const [devPassword, setDevPassword] = useState("");
   const [showDevInput, setShowDevInput] = useState(false);
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const prayerNotificationTimeoutRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null);
+  const applyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const checkNotificationPermissions = async () => {
@@ -83,65 +69,36 @@ export default function Settings() {
     checkNotificationPermissions();
   }, []);
 
-  // Keep refs updated with latest values so cleanup can access them
-  const mosqueIdRef = useRef(mosqueId);
-  const settingsRef = useRef(settings);
-  const prayerNotificationSettingsRef = useRef(prayerNotificationSettings);
-
+  const mosqueRef = useRef<MosqueInfo | null>(null);
   useEffect(() => {
-    mosqueIdRef.current = mosqueId;
-  }, [mosqueId]);
+    mosqueRef.current = mosqueInfo;
+  }, [mosqueInfo]);
 
-  useEffect(() => {
-    settingsRef.current = settings;
-  }, [settings]);
+  // Applies saved settings: registers them for pushes and updates reminders
+  const applyChanges = useCallback(() => {
+    applyTimeoutRef.current = null;
+    syncPushRegistration();
+    const mosque = mosqueRef.current;
+    if (mosque?.uid && mosque.name) {
+      schedulePrayerNotifications(mosque.uid, mosque.name);
+    }
+  }, []);
 
-  useEffect(() => {
-    prayerNotificationSettingsRef.current = prayerNotificationSettings;
-  }, [prayerNotificationSettings]);
+  const applyChangesSoon = useCallback(() => {
+    if (applyTimeoutRef.current) clearTimeout(applyTimeoutRef.current);
+    applyTimeoutRef.current = setTimeout(applyChanges, APPLY_DELAY_MS);
+  }, [applyChanges]);
 
-  // Only runs cleanup when actually leaving the page (not on dependency changes)
+  // Leaving the page applies pending changes instead of dropping them
   useFocusEffect(
-    useCallback(() => {
-      return async () => {
-        const combinedSettings = {
-          ...settingsRef.current,
-          prayer_times: {
-            enabled: prayerNotificationSettingsRef.current.enabled,
-          },
-        };
-        const token = await getPushToken();
-        const url = "http://mymosque.app/api/pushToken";
-
-        async function updatePushToken() {
-          try {
-            const response = await fetch(url, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                pushToken: token,
-                mosqueId: mosqueIdRef.current,
-                settings: combinedSettings,
-              }),
-            });
-
-            const text = await response.text();
-            if (text) {
-              const data = JSON.parse(text);
-              console.log("Response with options:", data);
-              return data;
-            }
-            console.log("Push token updated (empty response)");
-            return null;
-          } catch (error) {
-            console.error("Error updating push token:", error);
-          }
-        }
-        await updatePushToken();
-      };
-    }, []),
+    useCallback(
+      () => () => {
+        if (!applyTimeoutRef.current) return;
+        clearTimeout(applyTimeoutRef.current);
+        applyChanges();
+      },
+      [applyChanges],
+    ),
   );
 
   // Load settings and mosque info
@@ -149,10 +106,7 @@ export default function Settings() {
     const loadData = async () => {
       try {
         // Load settings
-        const settingsString = await AsyncStorage.getItem("appSettings");
-        if (settingsString) {
-          setSettings(JSON.parse(settingsString));
-        }
+        setSettings(loadAppSettings());
 
         // Load prayer notification settings from MMKV
         const prayerSettings = loadPrayerNotificationSettings();
@@ -162,7 +116,6 @@ export default function Settings() {
         const mosqueData = await fetchMosqueInfo();
         if (mosqueData) {
           setMosqueInfo(mosqueData.info);
-          setMosqueId(mosqueData.info.uid);
           setJummahTimes(mosqueData.jummahTimes || null);
         }
       } catch (error) {
@@ -175,50 +128,15 @@ export default function Settings() {
     loadData();
   }, []);
 
-  // Debounced save settings to AsyncStorage
-  const debouncedSaveSettings = useCallback(
-    async (newSettings: SettingsType) => {
-      // Clear existing timeout
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-
-      // Set new timeout
-      saveTimeoutRef.current = setTimeout(async () => {
-        try {
-          await AsyncStorage.setItem(
-            "appSettings",
-            JSON.stringify(newSettings),
-          );
-        } catch (error) {
-          console.error("Error saving settings:", error);
-        }
-      }, 300);
-    },
-    [],
-  );
-
   // Update individual setting
   const updateSetting = useCallback(
-    (key: keyof SettingsType, value: any) => {
-      setSettings((prevSettings) => {
-        const newSettings = { ...prevSettings };
-        if (
-          key === "events" ||
-          key === "announcements" ||
-          key === "development"
-        ) {
-          (newSettings[key] as any).enabled = value;
-        } else {
-          (newSettings as any)[key] = value;
-        }
-
-        // Debounced save
-        debouncedSaveSettings(newSettings);
-        return newSettings;
-      });
+    (key: "events" | "announcements", enabled: boolean) => {
+      const newSettings = { ...settings, [key]: { enabled } };
+      setSettings(newSettings);
+      saveAppSettings(newSettings);
+      applyChangesSoon();
     },
-    [debouncedSaveSettings],
+    [settings, applyChangesSoon],
   );
 
   // Handle opening device settings
@@ -281,24 +199,13 @@ export default function Settings() {
     }
   };
 
-  // Update prayer notification settings with debounced scheduling
   const updatePrayerNotificationSettings = useCallback(
     (newSettings: PrayerNotificationSettings) => {
       setPrayerNotificationSettings(newSettings);
       savePrayerNotificationSettings(newSettings);
-
-      // Debounce the scheduling to avoid too many API calls
-      if (prayerNotificationTimeoutRef.current) {
-        clearTimeout(prayerNotificationTimeoutRef.current);
-      }
-
-      prayerNotificationTimeoutRef.current = setTimeout(async () => {
-        if (mosqueId && mosqueInfo?.name) {
-          await schedulePrayerNotifications(mosqueId, mosqueInfo.name);
-        }
-      }, 500);
+      applyChangesSoon();
     },
-    [mosqueId, mosqueInfo?.name],
+    [applyChangesSoon],
   );
 
   // Toggle main prayer notifications switch
@@ -333,18 +240,6 @@ export default function Settings() {
     },
     [prayerNotificationSettings, updatePrayerNotificationSettings],
   );
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-      if (prayerNotificationTimeoutRef.current) {
-        clearTimeout(prayerNotificationTimeoutRef.current);
-      }
-    };
-  }, []);
 
   if (isLoading) {
     return (

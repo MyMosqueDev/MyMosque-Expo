@@ -1,25 +1,16 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Image, Platform, Text, TouchableOpacity, View } from "react-native";
 import { Announcement } from "../../lib/types";
 import AnnouncementModal from "./AnnouncementModal";
+import { COLORS } from "../../lib/constants";
 
-// Severity styles must use complete class names for Tailwind to detect them
-const severityConfig = {
-  high: { bg: "bg-red-200", text: "text-red-700" },
-  medium: { bg: "bg-yellow-200", text: "text-yellow-700" },
-  low: { bg: "bg-green-200", text: "text-green-700" },
-  default: { bg: "bg-gray-200", text: "text-gray-700" },
+const severityColors = {
+  high: COLORS.RED,
+  medium: COLORS.YELLOW,
+  low: COLORS.GREEN,
 } as const;
 
-/**
- * AnnouncementToken component
- *
- * Displays an announcement token with a modal for more details.
- *
- * @param announcement - The announcement to display
- */
 export default function AnnouncementToken({
   announcement,
 }: {
@@ -27,52 +18,69 @@ export default function AnnouncementToken({
 }) {
   const [modalVisible, setModalVisible] = useState(false);
   const severity =
-    announcement.severity.toLowerCase() as keyof typeof severityConfig;
-  const severityStyles = severityConfig[severity] || severityConfig.default;
-  const date = format(parseISO(announcement.created_at), "EEEE, MMMM d");
+    (announcement.severity.toLowerCase() as keyof typeof severityColors);
+  const dotColor = severityColors[severity];
+  const date = format(parseISO(announcement.created_at), "MMM d, yyyy");
 
   return (
     <>
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
-        activeOpacity={0.7}
+        activeOpacity={0.85}
       >
         <View
-          className={`w-[90vw] min-h-[170px] border border-white/30 rounded-2xl p-5 m-1 shadow-md ${
+          className={`w-[90vw] rounded-2xl p-5 m-1 border border-white/30 shadow-md ${
             Platform.OS === "android"
               ? "bg-[#f5f7fa]"
               : "backdrop-blur-lg bg-white/50"
           }`}
         >
-          <View className="flex-row justify-between items-start mb-2">
-            <Text className="text-2xl font-lato-bold text-text">
-              {announcement.title}
+          {/* Date + severity dot */}
+          <View className="flex-row items-center gap-2 mb-1">
+            <View
+              style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dotColor }}
+            />
+            <Text className="text-xs font-lato text-[#8896A6] tracking-wide uppercase">
+              {date}
             </Text>
-            <View className={`${severityStyles.bg} px-3 py-1 rounded-full`}>
-              <Text
-                className={`${severityStyles.text} font-lato-semibold text-sm`}
-              >
-                {announcement.severity}
-              </Text>
-            </View>
           </View>
-          <Text className="text-base text-[#5A6B7A] mb-2">{date}</Text>
-          <Text className="text-base text-[#444]">
-            {announcement.description.length > 80
-              ? `${announcement.description.substring(0, 80) + "..."} `
-              : announcement.description}
-            {announcement.description.length > 85 && (
-              <Text className="font-bold">See More</Text>
-            )}
+
+          {/* Title — single line */}
+          <Text
+            className="text-xl font-lato-bold text-text mb-3"
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {announcement.title}
           </Text>
-          {announcement.image && (
-            <View className="absolute bottom-5 left-5 flex-row items-center">
-              <MaterialCommunityIcons name="image" size={16} color="#5A6B7A" />
-              <Text className="text-sm text-[#5A6B7A] ml-2 font-lato-semibold">
-                Tap to view image
+
+          {/* Body: description + optional image */}
+          <View className="flex-row">
+            <View className={announcement.image ? "flex-1 pr-4" : "flex-1"}>
+              <Text
+                className="text-sm text-[#555] leading-5 font-lato"
+                numberOfLines={4}
+                ellipsizeMode="tail"
+              >
+                {announcement.description}
               </Text>
             </View>
-          )}
+
+            {announcement.image && (
+              <Image
+                source={{ uri: announcement.image }}
+                className="w-20 h-20 rounded-xl"
+                resizeMode="cover"
+              />
+            )}
+          </View>
+
+          {/* See More */}
+          <View className="mt-3 flex-row justify-end">
+            <Text className="text-xs font-lato-semibold text-[#3B5A7A]">
+              See More →
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
 

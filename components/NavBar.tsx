@@ -1,59 +1,16 @@
-import { useMosqueData } from "@/app/_layout";
-import { getNextPrayer } from "@/lib/prayerTimeUtils";
-import { Event, PrayerTime } from "@/lib/types";
-import { fetchMosqueInfo } from "@/lib/utils";
 import Feather from "@expo/vector-icons/Feather";
 import { BlurView } from "expo-blur";
 import { Link, usePathname } from "expo-router";
 import { MotiView } from "moti";
-import { useEffect, useState } from "react";
 import { Platform, View } from "react-native";
 
 type page = "home" | "events" | "prayers" | "notifs" | "settings";
 export default function Navbar() {
-  const { mosqueData } = useMosqueData();
-  const [mosqueEvents, setMosqueEvents] = useState<Event[] | null>(
-    mosqueData?.events || null,
-  );
-  const [mosquePrayerTimes, setMosquePrayerTimes] = useState<PrayerTime | null>(
-    mosqueData?.prayerTimes || null,
-  );
   const pathname = usePathname();
-
-  // fetches mosque data if it doesn't exist
-  useEffect(() => {
-    if (!mosqueData) {
-      const fetchData = async () => {
-        const mosqueData = await fetchMosqueInfo();
-        if (mosqueData) {
-          setMosqueEvents(mosqueData.events);
-          setMosquePrayerTimes(mosqueData.prayerTimes);
-        }
-      };
-      fetchData();
-    } else {
-      setMosqueEvents(mosqueData.events);
-      setMosquePrayerTimes(mosqueData.prayerTimes);
-    }
-  }, [mosqueData]);
-
-  // updates the next prayer time
-  const getUpdatedPrayerTimes = () => {
-    if (mosquePrayerTimes) {
-      // gets the next prayer time (makes sure it hasn't changed)
-      const updatedPrayerTimes = getNextPrayer(mosquePrayerTimes);
-      return {
-        ...mosquePrayerTimes,
-        nextPrayer: updatedPrayerTimes,
-      };
-    }
-    return mosquePrayerTimes;
-  };
 
   // hide nav bar on the following pages
   if (
     pathname.startsWith("/announcements") ||
-    pathname.startsWith("/eventDetails") ||
     pathname.startsWith("/map") ||
     pathname.startsWith("/settings")
   ) {
@@ -109,19 +66,7 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href={{
-          pathname: "/events",
-          params: {
-            events: mosqueEvents
-              ? JSON.stringify(
-                  mosqueEvents.filter(
-                    (event) =>
-                      event.status !== "deleted" && event.status !== "draft",
-                  ),
-                )
-              : "[]",
-          },
-        }}
+        href="/events"
         className={`px-6 py-2 rounded-full ${currentPage === "events" ? "bg-white/30" : ""}`}
       >
         <MotiView
@@ -140,14 +85,7 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href={{
-          pathname: "/prayer",
-          params: {
-            prayerTimes: mosquePrayerTimes
-              ? JSON.stringify(getUpdatedPrayerTimes())
-              : "{}",
-          },
-        }}
+        href="/prayer"
         className={`px-6 py-2 rounded-full ${currentPage === "prayers" ? "bg-white/30" : ""}`}
       >
         <MotiView
