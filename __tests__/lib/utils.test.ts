@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveUserData } from "@/lib/userData";
 import fc from "fast-check";
 import { format } from "@/lib/dateUtils";
 import { getPushToken } from "@/lib/getPushToken";
@@ -65,10 +65,7 @@ describe("fetchMosqueInfo", () => {
 
   it("hides deleted and draft rows and sorts the rest", async () => {
     setNow("2026-03-11T12:00:00");
-    await AsyncStorage.setItem(
-      "userData",
-      JSON.stringify({ lastVisitedMosque: MOSQUE_UID }),
-    );
+    saveUserData({ favoriteMosques: [], lastVisitedMosque: MOSQUE_UID });
     db.tables = {
       mosques: [mosqueRow()],
       new_prayer_times: [monthRow("03-26")],

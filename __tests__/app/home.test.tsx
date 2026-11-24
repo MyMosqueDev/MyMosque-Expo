@@ -8,7 +8,7 @@ import NavBar from "@/components/NavBar";
 import { getCurrentPrayerTime } from "@/lib/prayerTimeUtils";
 import { syncStorage } from "@/lib/syncStorage";
 import { ProcessedMosqueData } from "@/lib/types";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveUserData } from "@/lib/userData";
 import {
   act,
   fireEvent,
@@ -278,10 +278,7 @@ it("debug panel reports when the last sync really happened", async () => {
     events: [],
     new_prayer_times: [monthRow("03-26")],
   };
-  await AsyncStorage.setItem(
-    "userData",
-    JSON.stringify({ lastVisitedMosque: MOSQUE_UID }),
-  );
+  saveUserData({ favoriteMosques: [], lastVisitedMosque: MOSQUE_UID });
   await syncStorage(MOSQUE_UID);
   render(<DebugPanel visible onClose={() => undefined} />);
   await waitFor(() => screen.getByText("Sync Status"));

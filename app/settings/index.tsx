@@ -106,7 +106,7 @@ export default function Settings() {
     const loadData = async () => {
       try {
         // Load settings
-        setSettings(await loadAppSettings());
+        setSettings(loadAppSettings());
 
         // Load prayer notification settings from MMKV
         const prayerSettings = loadPrayerNotificationSettings();

@@ -1,11 +1,11 @@
 // Tells the backend which device wants which mosque's push notifications.
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { loadAppSettings } from "./appSettings";
 import { getPushToken } from "./getPushToken";
 import { storage } from "./mmkv";
 import { loadPrayerNotificationSettings } from "./prayerNotifications";
+import { loadUserData } from "./userData";
 
 // Use this exact host. The bare domain and http:// both redirect, and Android
 // release builds refuse plain http.
@@ -35,8 +35,7 @@ const sync = async (): Promise<PushSyncResult> => {
   const { status } = await Notifications.getPermissionsAsync();
   if (status !== "granted") return "skipped";
 
-  const userData = await AsyncStorage.getItem("userData");
-  const mosqueId = userData ? JSON.parse(userData).lastVisitedMosque : null;
+  const mosqueId = loadUserData().lastVisitedMosque;
   const pushToken = mosqueId ? await getPushToken() : null;
   if (!mosqueId || !pushToken) return "skipped";
 
@@ -44,7 +43,7 @@ const sync = async (): Promise<PushSyncResult> => {
     pushToken,
     mosqueId,
     settings: {
-      ...(await loadAppSettings()),
+      ...loadAppSettings(),
       prayer_times: { enabled: loadPrayerNotificationSettings().enabled },
     },
   });

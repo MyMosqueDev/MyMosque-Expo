@@ -4,6 +4,7 @@ import {
 } from "@/lib/prayerNotifications";
 import { getTodaysPrayerTimes } from "@/lib/prayerTimeUtils";
 import { syncPushRegistration } from "@/lib/pushRegistration";
+import { migrateAsyncStorage } from "@/lib/storageMigration";
 import { ProcessedMosqueData } from "@/lib/types";
 import { fetchMosqueInfo, loadFonts } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -42,6 +43,7 @@ export function useMosqueSync() {
       let loaded: ProcessedMosqueData | null = null;
       lastAttempt.current = Date.now();
       try {
+        await migrateAsyncStorage();
         if (!fontsLoaded.current) await loadFonts();
         fontsLoaded.current = true;
         const startedWith = dataRef.current?.info.uid;

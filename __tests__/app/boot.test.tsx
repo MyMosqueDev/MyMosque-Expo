@@ -1,5 +1,6 @@
 import RootLayout, { useMosqueData } from "@/app/_layout";
 import { syncStorage } from "@/lib/syncStorage";
+import { saveUserData } from "@/lib/userData";
 import {
   DEFAULT_PRAYER_NOTIFICATION_SETTINGS,
   savePrayerNotificationSettings,
@@ -47,11 +48,8 @@ const foreground = () =>
     listeners.forEach((l) => l("active"));
     await new Promise((r) => setTimeout(r, 20));
   });
-const chooseMosque = () =>
-  AsyncStorage.setItem(
-    "userData",
-    JSON.stringify({ favoriteMosques: [], lastVisitedMosque: MOSQUE_UID }),
-  );
+const chooseMosque = async () =>
+  saveUserData({ favoriteMosques: [], lastVisitedMosque: MOSQUE_UID });
 
 beforeEach(() => {
   setNow("2026-03-11T12:00:00");
@@ -79,6 +77,15 @@ it("starts without a chosen mosque", async () => {
 
 it("loads the chosen mosque", async () => {
   await chooseMosque();
+  render(<RootLayout />);
+  await waitFor(() => expect(screen.getByText("Test Mosque: 1")).toBeTruthy());
+});
+
+it("#29: keeps the chosen mosque when updating from an older version", async () => {
+  await AsyncStorage.setItem(
+    "userData",
+    JSON.stringify({ favoriteMosques: [], lastVisitedMosque: MOSQUE_UID }),
+  );
   render(<RootLayout />);
   await waitFor(() => expect(screen.getByText("Test Mosque: 1")).toBeTruthy());
 });

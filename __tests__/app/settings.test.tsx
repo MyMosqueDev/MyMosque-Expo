@@ -9,7 +9,7 @@ import {
   schedulePrayerNotifications,
 } from "@/lib/prayerNotifications";
 import { syncStorage } from "@/lib/syncStorage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveUserData } from "@/lib/userData";
 import {
   act,
   fireEvent,
@@ -46,10 +46,7 @@ beforeEach(async () => {
     events: [],
     new_prayer_times: [monthRow("03-26")],
   };
-  await AsyncStorage.setItem(
-    "userData",
-    JSON.stringify({ favoriteMosques: [], lastVisitedMosque: MOSQUE_UID }),
-  );
+  saveUserData({ favoriteMosques: [], lastVisitedMosque: MOSQUE_UID });
   await syncStorage(MOSQUE_UID);
 });
 
@@ -63,7 +60,7 @@ it("saves a change even when leaving immediately", async () => {
   toggle(EVENTS, false);
   screen.unmount();
   await settle();
-  expect((await loadAppSettings()).events.enabled).toBe(false);
+  expect(loadAppSettings().events.enabled).toBe(false);
 });
 
 it("KI-8: registers the change even when leaving immediately", async () => {
@@ -96,8 +93,7 @@ it("KI-14: a change does not leak into the defaults", async () => {
   screen.unmount();
   await settle();
   storage.clearAll();
-  await AsyncStorage.removeItem("appSettings");
-  expect((await loadAppSettings()).events.enabled).toBe(true);
+  expect(loadAppSettings().events.enabled).toBe(true);
 });
 
 it.each(["granted", "denied", "undetermined", "other"])(
@@ -197,7 +193,7 @@ describe("development mode", () => {
   });
 
   it("can be turned off again", async () => {
-    await AsyncStorage.setItem("devModeEnabled", "true");
+    storage.set("devModeEnabled", "true");
     jest.spyOn(Alert, "alert").mockImplementation(() => undefined);
     render(
       <DevModeProvider>

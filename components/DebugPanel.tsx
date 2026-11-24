@@ -4,6 +4,7 @@
 import { useDevMode } from "@/lib/devMode";
 import { getPushToken } from "@/lib/getPushToken";
 import { getAllStorageKeys, storage } from "@/lib/mmkv";
+import { loadUserData } from "@/lib/userData";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
@@ -246,9 +247,7 @@ export default function DebugPanel({ visible, onClose }: DebugPanelProps) {
   const loadSyncStats = async (): Promise<Partial<DebugStats>> => {
     try {
       // Get user data for mosque ID
-      const userDataStr = await AsyncStorage.getItem("userData");
-      const userData = userDataStr ? JSON.parse(userDataStr) : null;
-      const mosqueId = userData?.lastVisitedMosque || "None";
+      const mosqueId = loadUserData().lastVisitedMosque ?? "None";
 
       // Get mosque data from MMKV
       let lastSyncTime = "Never";

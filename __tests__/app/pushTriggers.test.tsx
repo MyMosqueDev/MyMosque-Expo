@@ -1,6 +1,6 @@
 import MosqueCard from "@/app/components/MosqueCard";
 import useNotifications from "@/lib/hooks/useNotifications";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveUserData } from "@/lib/userData";
 import {
   act,
   fireEvent,
@@ -21,7 +21,7 @@ jest.mock("expo-haptics", () => ({
 let post: jest.Mock;
 const settle = () => act(() => new Promise((r) => setTimeout(r, 30)));
 const choose = (uid: string) =>
-  AsyncStorage.setItem("userData", JSON.stringify({ lastVisitedMosque: uid }));
+  saveUserData({ favoriteMosques: [], lastVisitedMosque: uid });
 
 beforeEach(() => {
   post = jest.fn(async () => ({ ok: true, status: 200 }));
@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 it("registers once permission is granted", async () => {
-  await choose(MOSQUE_UID);
+  choose(MOSQUE_UID);
   os.permission = "undetermined";
   const Home = () => {
     useNotifications();
@@ -47,7 +47,7 @@ it("registers once permission is granted", async () => {
 });
 
 it("does not register when permission is refused", async () => {
-  await choose(MOSQUE_UID);
+  choose(MOSQUE_UID);
   os.permission = "undetermined";
   os.requestResult = "denied";
   const Home = () => {

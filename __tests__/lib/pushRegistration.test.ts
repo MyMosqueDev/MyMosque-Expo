@@ -5,22 +5,19 @@ import {
   savePrayerNotificationSettings,
 } from "@/lib/prayerNotifications";
 import { syncPushRegistration } from "@/lib/pushRegistration";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveUserData } from "@/lib/userData";
 import { fakeNotifications as os } from "../../test/fakeNotifications";
 import { MOSQUE_UID } from "../../test/fixtures";
 
-const choose = (uid: string) =>
-  AsyncStorage.setItem(
-    "userData",
-    JSON.stringify({ favoriteMosques: [], lastVisitedMosque: uid }),
-  );
+const choose = (uid: string | null) =>
+  saveUserData({ favoriteMosques: [], lastVisitedMosque: uid });
 let post: jest.Mock;
 const body = (call = 0) => JSON.parse(post.mock.calls[call][1].body);
 
-beforeEach(async () => {
+beforeEach(() => {
   post = jest.fn(async () => ({ ok: true, status: 200 }));
   global.fetch = post as never;
-  await choose(MOSQUE_UID);
+  choose(MOSQUE_UID);
 });
 
 it("posts the token, mosque and preferences over https", async () => {
@@ -52,7 +49,7 @@ it.each([
     "event preference",
     async () =>
       saveAppSettings({
-        ...(await loadAppSettings()),
+        ...loadAppSettings(),
         events: { enabled: false },
       }),
   ],
@@ -99,7 +96,7 @@ it("does not hang on an unresponsive server", async () => {
 it.each([
   ["permission is missing", () => void (os.permission = "denied")],
   ["there is no token", () => void (os.pushToken = new Error("simulator"))],
-  ["no mosque is chosen", () => AsyncStorage.removeItem("userData")],
+  ["no mosque is chosen", () => choose(null)],
 ])("skips when %s", async (_label, arrange) => {
   await arrange();
   expect(await syncPushRegistration()).toBe("skipped");
@@ -118,25 +115,11 @@ it("recovers from a corrupt record", async () => {
 
 describe("app settings", () => {
   it("default to on", async () => {
-    expect((await loadAppSettings()).events.enabled).toBe(true);
-  });
-
-  it("migrate from AsyncStorage once", async () => {
-    await AsyncStorage.setItem(
-      "appSettings",
-      JSON.stringify({
-        events: { enabled: false },
-        announcements: { enabled: true },
-        development: { enabled: false },
-      }),
-    );
-    expect((await loadAppSettings()).events.enabled).toBe(false);
-    await AsyncStorage.removeItem("appSettings");
-    expect((await loadAppSettings()).events.enabled).toBe(false);
+    expect(loadAppSettings().events.enabled).toBe(true);
   });
 
   it("fall back to defaults when corrupt", async () => {
     storage.set("appSettings", "{");
-    expect((await loadAppSettings()).announcements.enabled).toBe(true);
+    expect(loadAppSettings().announcements.enabled).toBe(true);
   });
 });

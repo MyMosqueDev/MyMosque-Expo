@@ -1,8 +1,8 @@
 import { useMosqueData } from "@/app/_layout";
 import { MosqueInfo, UserData } from "@/lib/types";
 import { syncPushRegistration } from "@/lib/pushRegistration";
+import { saveUserData } from "@/lib/userData";
 import { fetchMosqueInfo } from "@/lib/utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import {
@@ -46,7 +46,7 @@ const MosqueCard = ({ data, mapRef, setUserData }: MosqueCardProps) => {
     };
 
     // saves user data
-    await AsyncStorage.setItem("userData", JSON.stringify(newUserData));
+    saveUserData(newUserData);
     syncPushRegistration();
 
     const mosqueData = await fetchMosqueInfo();
