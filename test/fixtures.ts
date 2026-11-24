@@ -13,8 +13,14 @@ export const dailyTimes = (): DailyPrayerTimes => ({
 });
 
 export const jummah = (): JummahTime => ({
-  jummah1: { athan: "1:15 PM", iqama: "1:45 PM" },
-  jummah2: { athan: "2:30 PM", iqama: "2:45 PM" },
+  jummah1: { adhan: "1:15 PM", iqama: "1:45 PM" },
+  jummah2: { adhan: "2:30 PM", iqama: "2:45 PM" },
+});
+
+/** The same times as the portal stores them. */
+export const storedJummah = () => ({
+  jummah1: { id: "1", name: "Jummah 1", athan: "13:15", iqama: "13:45" },
+  jummah2: { id: "2", name: "Jummah 2", athan: "14:30", iqama: "14:45" },
 });
 
 export const month = (mmyy: string, days = 31): DBPrayerTimes => ({
@@ -47,7 +53,7 @@ export const mosqueRow = (overrides: Record<string, unknown> = {}) => ({
     sunday: "Sun hours",
   },
   contact_info: [],
-  jummah_times: jummah(),
+  jummah_times: storedJummah(),
   prayer_settings: null,
   last_event: "2026-03-01T00:00:00+00:00",
   last_announcement: "2026-03-01T00:00:00+00:00",

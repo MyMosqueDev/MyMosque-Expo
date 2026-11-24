@@ -223,6 +223,6 @@ it("counts Jummah slots", () => {
   expect(getJummahCount(null)).toBe(0);
   expect(getJummahCount(jummah())).toBe(2);
   expect(
-    getJummahCount({ ...jummah(), jummah3: { athan: "", iqama: "" } }),
+    getJummahCount({ ...jummah(), jummah3: { adhan: "", iqama: "" } }),
   ).toBe(3);
 });

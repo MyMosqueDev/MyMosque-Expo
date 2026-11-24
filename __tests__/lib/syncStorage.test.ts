@@ -9,10 +9,12 @@ import { fakeSupabase as db } from "../../test/fakeSupabase";
 import {
   announcementRow,
   eventRow,
+  jummah,
   MOSQUE_UID,
   monthRow,
   mosqueRow,
   setNow,
+  storedJummah,
 } from "../../test/fixtures";
 
 const ids = (rows: { id: string }[]) => rows.map((r) => r.id).sort();
@@ -211,6 +213,27 @@ describe("prayer schedule", () => {
     db.failing.add("new_prayer_times");
     const data = await syncStorage(MOSQUE_UID);
     expect(data.prayerTimes.fajr.iqama).toBe("6:00 AM");
+  });
+
+  it("#34: reads Jummah as the portal stores it", async () => {
+    const data = await syncStorage(MOSQUE_UID);
+    expect(data.jummahTimes).toEqual(jummah());
+    expect(data.prayerTimes.jummah).toEqual(jummah());
+  });
+
+  it("#34: reads Jummah once the portal switches to adhan", async () => {
+    db.tables.mosques = [mosqueRow({ jummah_times: jummah() })];
+    expect((await syncStorage(MOSQUE_UID)).jummahTimes).toEqual(jummah());
+  });
+
+  it("#34: reads Jummah cached by older versions", async () => {
+    await syncStorage(MOSQUE_UID);
+    storage.set(
+      `mosqueData-${MOSQUE_UID}`,
+      JSON.stringify({ ...cached(), jummahTimes: storedJummah() }),
+    );
+    db.goOffline();
+    expect((await syncStorage(MOSQUE_UID)).jummahTimes).toEqual(jummah());
   });
 
   it("KI-7: tolerates a mosque without Jummah", async () => {

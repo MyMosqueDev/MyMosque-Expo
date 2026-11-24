@@ -6,6 +6,7 @@
 // A failed request leaves its cursor alone, so it is retried on the next sync.
 // Cursors only ever hold server values; the device clock is not trusted.
 
+import { normalizeJummah } from "./jummah";
 import { storage } from "./mmkv";
 import {
   loadPrayerNotificationSettings,
@@ -70,7 +71,7 @@ export const syncStorage = async (
 
   const info = mosque.data;
   const cursors = cache?.cacheVersion === CACHE_VERSION ? cache.cursors : {};
-  const jummahTimes: JummahTime | null = info.jummah_times ?? null;
+  const jummahTimes = normalizeJummah(info.jummah_times);
 
   const [announcements, events, prayer] = await Promise.all([
     syncRows<Announcement>("announcements", mosqueId, {
@@ -136,6 +137,7 @@ const readCache = (mosqueId: string): CachedMosqueData | null => {
       ...cache,
       announcements: cache.announcements ?? [],
       events: cache.events ?? [],
+      jummahTimes: normalizeJummah(cache.jummahTimes),
       monthlyPrayerSchedule: isRealSchedule(cache.monthlyPrayerSchedule)
         ? cache.monthlyPrayerSchedule
         : null,
@@ -161,7 +163,7 @@ const toResult = (
   events: cache.events,
   prayerTimes: todaysTimes(cache.monthlyPrayerSchedule, cache.jummahTimes),
   monthlyPrayerSchedule: cache.monthlyPrayerSchedule,
-  jummahTimes: cache.jummahTimes ?? null,
+  jummahTimes: cache.jummahTimes,
   syncStatus,
 });
 

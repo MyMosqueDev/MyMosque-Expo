@@ -3,6 +3,7 @@
 
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import { normalizeJummah } from "./jummah";
 import { storage } from "./mmkv";
 import {
   getJummahSlots,
@@ -229,7 +230,7 @@ const reschedule = async (
       mosqueName,
       settings,
       schedule,
-      mosqueData.jummahTimes,
+      normalizeJummah(mosqueData.jummahTimes),
     );
 
     const limited =

@@ -86,9 +86,9 @@ export type NextPrayer = {
 
 /** Empty when the mosque has no Jummah. */
 export type JummahTime = {
-  jummah1?: { athan: string; iqama: string };
-  jummah2?: { athan: string; iqama: string };
-  jummah3?: { athan: string; iqama: string };
+  jummah1?: { adhan: string; iqama: string };
+  jummah2?: { adhan: string; iqama: string };
+  jummah3?: { adhan: string; iqama: string };
 };
 
 export type Announcement = {

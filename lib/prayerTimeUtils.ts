@@ -51,7 +51,7 @@ export const getJummahSlots = (
   return held.map((key) => ({
     key,
     label: held.length === 1 ? "Jummah" : `Jummah ${key.slice(-1)}`,
-    adhan: jummah![key]!.athan || "N/A",
+    adhan: jummah![key]!.adhan || "N/A",
     iqama: jummah![key]!.iqama,
   }));
 };
