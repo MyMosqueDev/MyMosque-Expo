@@ -45,3 +45,6 @@ ios/*
 /android
 
 mm.json
+
+# Claude Code local docs
+.claude/
