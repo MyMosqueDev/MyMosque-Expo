@@ -4,6 +4,7 @@ import { MotiView } from "moti";
 import { useCallback, useEffect, useState } from "react";
 import { AppState, Platform, Text, View } from "react-native";
 import { format } from "../../lib/dateUtils";
+import { isKnownTime } from "../../lib/prayerTimeUtils";
 import { Event, MosqueInfo, PrayerTime } from "../../lib/types";
 
 interface MosqueInfoTokenProps {
@@ -39,8 +40,10 @@ export default function MosqueInfoToken({
       .filter((event) => new Date(event.date) > now)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     if (upcoming.length > 0) {
-      upcoming[0].displayDate = formatUpcomingEventDate(upcoming[0].date);
-      return upcoming[0];
+      return {
+        ...upcoming[0],
+        displayDate: formatUpcomingEventDate(upcoming[0].date),
+      };
     }
     return null;
   }, []);
@@ -76,6 +79,15 @@ export default function MosqueInfoToken({
     if (h > 0) return `${h}h`;
     return `${m}m`;
   };
+
+  const formatPrayerTime = (
+    label: string,
+    time: string,
+    minutes: number | null,
+  ): string =>
+    minutes === null
+      ? `${label} ${time}`
+      : `${label} ${time} (in ${formatMinutes(minutes)})`;
 
   return (
     <MotiView
@@ -135,11 +147,24 @@ export default function MosqueInfoToken({
                 <Feather name="sun" size={24} color="#3B5A7A" />
               </MotiView>
               <Text className="text-xl font-bold text-[#3B5A7A]">
-                {info.nextPrayer.name.charAt(0).toUpperCase() + info.nextPrayer.name.slice(1)}
+                {info.nextPrayer.label}
               </Text>
             </View>
+            {isKnownTime(info.nextPrayer.adhan) && (
+              <Text className="text-base text-[#3B5A7A] mt-0.5 ml-10">
+                {formatPrayerTime(
+                  "Adhan",
+                  info.nextPrayer.adhan,
+                  info.nextPrayer.minutesToAdhan,
+                )}
+              </Text>
+            )}
             <Text className="text-base text-[#3B5A7A] mt-0.5 ml-10">
-              Adhan in {formatMinutes(info.nextPrayer.minutesToNextPrayer)}
+              {formatPrayerTime(
+                "Iqama",
+                info.nextPrayer.iqama,
+                info.nextPrayer.minutesToNextPrayer,
+              )}
             </Text>
           </View>
         </MotiView>
